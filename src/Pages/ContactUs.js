@@ -1,12 +1,12 @@
 import React, { useContext, useState } from "react";
 import { ThemeContext } from "../Helpers/ThemeContext";
-import { BuildingOffice2Icon, EnvelopeIcon, PhoneIcon, CheckCircleIcon } from "@heroicons/react/24/outline";
+import { BuildingOffice2Icon, EnvelopeIcon, CheckCircleIcon } from "@heroicons/react/24/outline";
 import { motion, AnimatePresence } from "framer-motion";
 import clsx from "clsx";
 
 const ContactUs = () => {
   const { isDarkMode } = useContext(ThemeContext);
-  const [formData, setFormData] = useState({ firstName: "", lastName: "", email: "", phone: "", message: "" });
+  const [formData, setFormData] = useState({ firstName: "", lastName: "", email: "",  message: "" });
   const [isSubmitted, setIsSubmitted] = useState(false);
 
   // Handle input change
@@ -20,7 +20,7 @@ const ContactUs = () => {
     setIsSubmitted(true);
 
     // Clear form fields
-    setFormData({ firstName: "", lastName: "", email: "", phone: "", message: "" });
+    setFormData({ firstName: "", lastName: "", email: "", message: "" });
 
     // Hide success message after 5 seconds
     setTimeout(() => {
@@ -40,9 +40,7 @@ const ContactUs = () => {
 
             <dl className="mt-10 space-y-6 text-start">
               {[ 
-                { icon: <BuildingOffice2Icon className="h-10 w-10 text-indigo-500" />, title: "Our Office", details: "545 Mavis Island, Chicago, IL 99191" },
-                { icon: <PhoneIcon className="h-10 w-10 text-indigo-500" />, title: "Phone", details: <a href="tel:+1(555)234-5678" className="text-indigo-500 hover:text-indigo-400">+1 (555) 234-5678</a> },
-                { icon: <EnvelopeIcon className="h-10 w-10 text-indigo-500" />, title: "Email", details: <a href="mailto:hello@example.com" className="text-indigo-500 hover:text-indigo-400">hello@example.com</a> }
+                { icon: <BuildingOffice2Icon className="h-10 w-10 text-indigo-500" />, title: "Our Office", details: "545 Mavis Island, Chicago, IL 99191" },                { icon: <EnvelopeIcon className="h-10 w-10 text-indigo-500" />, title: "Email", details: <a href="mailto:hello@example.com" className="text-indigo-500 hover:text-indigo-400">hello@example.com</a> }
               ].map(({ icon, title, details }, idx) => (
                 <div key={idx} className="flex items-center gap-4">
                   {icon}
@@ -61,7 +59,6 @@ const ContactUs = () => {
               <InputField label="First Name" id="firstName" type="text" value={formData.firstName} onChange={handleChange} required />
               <InputField label="Last Name" id="lastName" type="text" value={formData.lastName} onChange={handleChange} required />
               <InputField label="Email" id="email" type="email" value={formData.email} onChange={handleChange} required className="sm:col-span-2" />
-              <InputField label="Phone Number" id="phone" type="tel"  value={formData.phone} onChange={handleChange} required className="sm:col-span-2" />
               
               <div className="sm:col-span-2">
                 <label htmlFor="message" className="block text-sm font-semibold">Message</label>

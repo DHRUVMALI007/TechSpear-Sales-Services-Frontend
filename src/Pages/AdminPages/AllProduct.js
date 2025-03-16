@@ -43,7 +43,7 @@ const AllProducts = () => {
   const [refundStatus, setRefundStatus] = useState({});
   const [selectedImageIndex, setSelectedImageIndex] = useState(null);
   const [selectedImages, setSelectedImages] = useState([]);
-  const [refunds, setRefunds] = useState([
+  const [refunds, ] = useState([
     {
       userId: '101',
       userName: 'John Doe',

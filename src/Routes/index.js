@@ -24,7 +24,7 @@ import UserSetting from "../Pages/UserPage/UserSetting"
 import ProductDisplay from "../Pages/ProductDetails.js"
 import UserCart from "../Pages/UserCart.js";
 import Payment from "../Pages/Payment.js"
-import PaymentSuccess from "../Pages/UserPage/PaymentSuccess.js"
+import PaymentSuccess from "../Components/PaymentSuccess.js"
 
 
 const router = createBrowserRouter([
