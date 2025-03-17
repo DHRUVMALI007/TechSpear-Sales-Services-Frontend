@@ -10,7 +10,7 @@ const AdminPanel = () => {
   // });
 
   return (
-    <div className="h-full hidden md:flex">
+    <div className="h-full hidden lg:flex">
       {/* Sidebar */}
       <div className="sticky top-0 h-screen w-60 flex-shrink-0">
         <AdminSideBar />
