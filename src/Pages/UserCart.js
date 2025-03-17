@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { CheckIcon, ClockIcon } from '@heroicons/react/20/solid';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 const products = [
   {
@@ -8,8 +8,6 @@ const products = [
     name: 'Artwork Tee',
     href: '#',
     price: 32.0,
-    color: 'Mint',
-    size: 'Medium',
     inStock: true,
     description: 'A soft cotton t-shirt with a stylish wavey line pattern.',
     imageSrc: 'https://tailwindui.com/plus-assets/img/ecommerce-images/checkout-page-03-product-04.jpg',
@@ -20,8 +18,6 @@ const products = [
     name: 'Basic Tee',
     href: '#',
     price: 32.0,
-    color: 'Charcoal',
-    size: 'Large',
     inStock: false,
     leadTime: '7-8 years',
     description: 'Classic charcoal tee made from 100% organic cotton.',
@@ -59,7 +55,7 @@ export default function ShoppingCart() {
               Items in your shopping cart
             </h2>
 
-            <ul  className="divide-y divide-gray-200 border-b border-t border-gray-200">
+            <ul className="divide-y divide-gray-200 border-b border-t border-gray-200">
               {cart.map((product) => (
                 <li key={product.id} className="flex py-6">
                   <div className="shrink-0">
@@ -71,61 +67,64 @@ export default function ShoppingCart() {
                   </div>
 
                   <div className="ml-4 flex flex-1 flex-col sm:ml-6">
-                    <div>
-                      <div className="flex justify-between">
-                        <h4 className="text-sm">
-                          <a href={product.href} className="font-medium text-gray-700 hover:text-gray-800">
+                    {/* Clickable Product Details */}
+                    <Link to={`/product/${product.id}`} className="block">
+                      <div>
+                        <div className="flex justify-between">
+                          <h4 className="text-sm font-medium text-gray-700 hover:text-gray-800">
                             {product.name}
-                          </a>
-                        </h4>
-                        <p className="ml-4 text-sm font-medium text-gray-900">${product.price.toFixed(2)}</p>
+                          </h4>
+                          <p className="ml-4 text-sm font-medium text-gray-900">
+                            ${product.price.toFixed(2)}
+                          </p>
+                        </div>
+                        <p className="mt-1 text-sm text-gray-500">{product.description}</p>
                       </div>
-                      <p className="mt-1 text-sm text-gray-500">{product.color} | {product.size}</p>
-                      <p className="mt-1 text-sm text-gray-500">{product.description}</p>
-                    </div>
+                    </Link>
 
-                    <div className="mt-4 flex flex-1 items-end justify-between">
-                      <p className="flex items-center space-x-2 text-sm text-gray-700">
+                    <div className="mt-4 flex items-center justify-between space-x-4">
+                      {/* Stock Status */}
+                      <p className="flex items-center text-sm text-gray-700">
                         {product.inStock ? (
-                          <CheckIcon aria-hidden="true" className="size-5 shrink-0 text-green-500" />
+                          <CheckIcon className="h-5 w-5 text-green-500" />
                         ) : (
-                          <ClockIcon aria-hidden="true" className="size-5 shrink-0 text-gray-300" />
+                          <ClockIcon className="h-5 w-5 text-gray-300" />
                         )}
-                        <span>{product.inStock ? 'In stock' : `Will ship in ${product.leadTime}`}</span>
+                        <span className="ml-2">
+                          {product.inStock ? "In stock" : `Will ship in ${product.leadTime}`}
+                        </span>
                       </p>
 
                       {/* Quantity Selector */}
-                      <div className="flex items-center">
+                      <div className="flex items-center bg-gray-200 rounded-md">
                         <button
                           type="button"
-                          onClick={() =>
-                            updateQuantity(product.id, Math.max(1, product.quantity - 1))
-                          }
-                          className="px-2 py-1 text-sm font-medium text-gray-700 bg-gray-200 rounded-md"
+                          onClick={() => updateQuantity(product.id, Math.max(1, product.quantity - 1))}
+                          className="px-3 py-1 text-gray-700"
                         >
                           -
                         </button>
-                        <span className="mx-2 text-sm">{product.quantity}</span>
+                        <span className="px-4 text-sm font-medium">{product.quantity}</span>
                         <button
                           type="button"
                           onClick={() => updateQuantity(product.id, product.quantity + 1)}
-                          className="px-2 py-1 text-sm font-medium text-gray-700 bg-gray-200 rounded-md"
+                          className="px-3 py-1 text-gray-700"
                         >
                           +
                         </button>
                       </div>
 
-                      <div className="ml-4">
-                        <button
-                          type="button"
-                          onClick={() => removeItem(product.id)}
-                          className="text-sm font-medium text-red-600 hover:text-red-500"
-                        >
-                          Remove
-                        </button>
-                      </div>
+                      {/* Remove Button */}
+                      <button
+                        type="button"
+                        onClick={() => removeItem(product.id)}
+                        className="text-sm font-medium text-red-600 hover:text-red-500"
+                      >
+                        Remove
+                      </button>
                     </div>
                   </div>
+
                 </li>
               ))}
             </ul>
@@ -157,7 +156,7 @@ export default function ShoppingCart() {
 
             <div className="mt-6 text-center text-sm">
               <p>
-              
+
                 <a href="/home" className="font-medium text-indigo-600 hover:text-indigo-500">
                   Continue Shopping <span aria-hidden="true"> &rarr;</span>
                 </a>
