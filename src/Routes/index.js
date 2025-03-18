@@ -25,6 +25,7 @@ import ProductDisplay from "../Pages/ProductDetails.js"
 import UserCart from "../Pages/UserCart.js";
 import Payment from "../Pages/Payment.js"
 import PaymentSuccess from "../Components/PaymentSuccess.js"
+import WriteReview from "../Pages/WriteReview.js"
 
 
 const router = createBrowserRouter([
@@ -79,6 +80,12 @@ const router = createBrowserRouter([
       {
         path: "payment-success",
         element: <PaymentSuccess  />,
+        children : [
+          {
+            path: "write-review",
+            element: <WriteReview/>,
+          }
+        ]
       },
       {
         path: "user-panel",

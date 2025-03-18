@@ -19,20 +19,31 @@ const UserReviews = ({ reviews }) => {
     return (
         <div className="bg-white p-6 rounded-lg shadow-xl border-2 border-orange-400 space-y-4">
             <h3 className="text-xl font-semibold">⭐ User Reviews</h3>
+
+            {/* Average Rating */}
             <div className="flex items-center gap-2">
                 <span className="font-medium">Average Rating:</span> 
                 <StarRating rating={averageRating} />
             </div>
 
             {/* Scrollable Reviews Section */}
-            <div className="max-h-48 overflow-y-auto space-y-4">
-                {reviews.map(({ reviewer, rating, comment }, i) => (
-                    <div key={i} className="p-4 bg-orange-100 rounded-lg shadow">
+            <div className="max-h-64 overflow-y-auto space-y-4">
+                {reviews.map(({ reviewer, rating, comment, productName, productId }, i) => (
+                    <div key={i} className="p-4 bg-orange-100 rounded-lg shadow space-y-2">
+                        {/* Product Details */}
+                        <div className="text-sm text-gray-600">
+                            <p><strong>Product:</strong> {productName}</p>
+                            <p><strong>Product ID:</strong> {productId}</p>
+                        </div>
+
+                        {/* Reviewer Info */}
                         <div className="flex items-center justify-between">
                             <strong className="text-lg">{reviewer}</strong> 
                             <StarRating rating={rating} />
                         </div>
-                        <p className="text-gray-700 mt-2 italic">"{comment}"</p>
+                        
+                        {/* Review Comment */}
+                        <p className="text-gray-700 mt-1 italic">"{comment}"</p>
                     </div>
                 ))}
             </div>

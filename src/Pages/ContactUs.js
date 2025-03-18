@@ -2,6 +2,7 @@ import React, { useContext, useState } from "react";
 import { ThemeContext } from "../Helpers/ThemeContext";
 import { BuildingOffice2Icon, EnvelopeIcon, CheckCircleIcon } from "@heroicons/react/24/outline";
 import { motion, AnimatePresence } from "framer-motion";
+import Footer from "../Components/Footer";
 import clsx from "clsx";
 
 const ContactUs = () => {
@@ -101,6 +102,7 @@ const ContactUs = () => {
 
         </div>
       </div>
+      <Footer/>
     </div>
   );
 };

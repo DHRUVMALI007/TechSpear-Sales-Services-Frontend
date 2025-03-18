@@ -22,10 +22,11 @@ const mostSoldProducts = [
 ];
 
 const reviews = [
-    { reviewer: "John Doe", rating: 5, comment: "Great product!" },
-    { reviewer: "Jane Smith", rating: 4, comment: "Good performance!" },
-    { reviewer: "Mike Johnson", rating: 2, comment: "Average experience." },
+    { reviewer: "John Doe", rating: 5, comment: "Great product!", productName: "Gaming Laptop", productId: "12345" },
+    { reviewer: "Jane Smith", rating: 4, comment: "Good performance!", productName: "Gaming Laptop", productId: "12345" },
+    { reviewer: "Mike Johnson", rating: 2, comment: "Average experience.", productName: "Gaming Laptop", productId: "12345" },
 ];
+
 
 const tabs = [
     { name: "📊 Sales", component: <SalesChart data={salesData} /> },
