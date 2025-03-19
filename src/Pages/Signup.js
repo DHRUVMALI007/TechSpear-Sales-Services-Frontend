@@ -4,11 +4,17 @@ import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { toast } from 'react-toastify';
 import img from './user_im.png';
+import { useSelector,useDispatch } from 'react-redux';
+import { registerUser } from '../features/userSlice';
 
 const SignUp = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const navigate = useNavigate();
+  const [load,setLoad]=useState(false)
+  // const navigate = useNavigate();
+
+  const dispatch =useDispatch();
+  const selector = useSelector((state)=>state)
 
   const [data, setData] = useState({
     email: "",
@@ -25,34 +31,62 @@ const SignUp = () => {
 
   const handleUploadPic = (e) => {
     const file = e.target.files[0];
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      setData((prev) => ({ ...prev, profilePic: reader.result }));
-    };
-    if (file) {
-      reader.readAsDataURL(file);
-    }
+    // const reader = new FileReader();
+    console.log("FILE")
+    console.log(file)
+    if (!file) return;
+    setData((prev) => ({ ...prev, profilePic: file }));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (data.password === data.confirmPassword) {
-      try {
-        const fetchData = await axios.post(`http://localhost:5000/api/v1/signup`, data);
-        const result = await fetchData.data;
-        if (result.success) {
-          toast.success(result.msg);
-          navigate("/login");
-        } else {
-          toast.error(result.msg);
-        }
-      } catch (er) {
-        console.log(er);
+    setLoad(true)
+    if (data.password !== data.confirmPassword) {
+      toast.error("Confirm password and password must be the same.");
+      return;
+    }
+
+    try {
+      const formData = new FormData();
+      formData.append("name", data.name);
+      formData.append("email", data.email);
+      formData.append("password", data.password);
+      formData.append("confirmPassword", data.confirmPassword);
+      formData.append("profilePic", data.profilePic);
+      console.log(selector)
+      dispatch(registerUser(formData))
+      const response = await axios.post("http://localhost:5000/api/v1/users/register", formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
+
+      if(response){
+        setLoad(false)
+      }else{
+        setLoad(true)
       }
-    } else {
-      console.log("Confirm password and password must be the same.");
+      console.log("Response:", response.data);
+      toast.success(response.data.message);
+
+    } catch (error) {
+      console.log("Full Error:", error);
+
+      let errorMessage = "Something went wrong";
+
+      if (error.response?.data) {
+        const match = error.response.data.match(/<pre>(.*?)<br>/);
+        if (match) {
+          errorMessage = match[1].trim(); // Extract text before <br>
+        }
+      }
+
+      console.log("Backend Error Message:", errorMessage);
+      toast.error(errorMessage);
     }
   };
+
+  // {load ? <p>loading..</p> : null}
+  // {load ? <p>Loading...</p> : null}
+  { load && <p>Loading...</p> }
 
   return (
     <section className='flex items-center justify-center min-h-screen bg-gray-900'>
@@ -94,7 +128,7 @@ const SignUp = () => {
               required
             />
           </div>
-          
+
           <div className='mb-4 relative'>
             <label className='block text-gray-400'>Password</label>
             <div className='relative'>
@@ -130,14 +164,14 @@ const SignUp = () => {
               </span>
             </div>
           </div>
-          
+
           <button type='submit' className='w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg transition-all border border-gray-600'>
             Sign Up
           </button>
         </form>
 
         <p className='text-center mt-6 text-gray-400'>
-          Already have an account? 
+          Already have an account?
           <Link to='/login' className='text-blue-400 hover:underline ml-1'>Login</Link>
         </p>
       </div>
