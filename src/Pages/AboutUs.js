@@ -1,5 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
+import Footer from "../Components/Footer";
+
 import dell from './Dell_Logo.png'
 import hp from './hp_logo.png'
 import asus from './Asus.png'
@@ -301,6 +303,7 @@ const AboutUs = () => {
 
                 </main>
             )}
+            <Footer />
         </div>
     )
 }

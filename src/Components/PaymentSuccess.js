@@ -1,7 +1,7 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { motion } from "framer-motion";
 import { FaCreditCard, FaPaypal, FaUniversity, FaArrowLeft, FaCheckCircle } from "react-icons/fa";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Outlet } from "react-router-dom";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import successSound from "./success.mp3";
@@ -21,27 +21,44 @@ export default function PaymentSelection() {
     const [expiry, setExpiry] = useState("");
     const [cvv, setCvv] = useState("");
     const [upiId, setUpiId] = useState("");
+    const [stopNavigation, setStopNavigation] = useState(false);
+    const navigateTimeout = useRef(null); // Store timeout ID
+    const [showReviewModal, setShowReviewModal] = useState(false);
+
+
 
     const navigate = useNavigate();
     const amountToPay = 2500;
 
     useEffect(() => {
-        if (paymentSuccess) {
+        if (paymentSuccess && !stopNavigation) {
             const audio = new Audio(successSound);
             audio.play();
+
             const interval = setInterval(() => {
                 setCountdown((prev) => prev - 1);
             }, 1000);
 
-            setTimeout(() => {
+            navigateTimeout.current = setTimeout(() => {
                 clearInterval(interval);
-                navigate("/");
+                if (!stopNavigation) {
+                    navigate("/");
+                }
             }, 3000);
 
-            return () => clearInterval(interval);
+            return () => {
+                clearInterval(interval);
+                clearTimeout(navigateTimeout.current); // Ensure timeout is cleared
+            };
         }
-    }, [paymentSuccess, navigate]);
+    }, [paymentSuccess, navigate, stopNavigation]);
 
+    const handleWriteReview = () => {
+        setStopNavigation(true);
+        clearTimeout(navigateTimeout.current); // Stop automatic navigation
+        setShowReviewModal(true);  // Open modal instead of navigating
+        navigate("write-review");
+    };
     const formatCardNumber = (value) => {
         return value.replace(/\D/g, "").replace(/(\d{4})/g, "$1 ").trim();
     };
@@ -70,7 +87,7 @@ export default function PaymentSelection() {
             toast.error("Invalid UPI ID! Format should be 'example@upi'.");
             return;
         }
-        
+
         setPaymentSuccess(true);
     };
 
@@ -137,10 +154,56 @@ export default function PaymentSelection() {
                     </>
                 )
             ) : (
-                <motion.div className="bg-white shadow-2xl rounded-3xl p-10 text-center max-w-lg w-full relative z-10">
-                    <FaCheckCircle className="text-green-500 text-7xl drop-shadow-lg" />
-                    <h2 className="text-3xl font-extrabold text-green-700 mt-6">Payment Successful!</h2>
-                    <p className="text-gray-700 mt-4 text-lg">Thank you for your purchase.</p>
+                <motion.div
+                    initial={{ scale: 0.8, opacity: 0 }}
+                    animate={{ scale: 1, opacity: 1 }}
+                    transition={{ duration: 0.5, ease: "easeOut" }}
+                    className="bg-white dark:bg-gray-900 shadow-2xl rounded-3xl p-10 text-center max-w-lg w-full relative z-10"
+                >
+                    {/* Centered Icon */}
+                    <div className="flex justify-center items-center">
+                        <FaCheckCircle className="text-green-500 text-7xl drop-shadow-lg animate-pulse" />
+                    </div>
+
+                    <h2 className="text-3xl font-extrabold text-green-700 dark:text-green-400 mt-6">
+                        Payment Successful!
+                    </h2>
+                    <p className="text-gray-700 dark:text-gray-300 mt-4 text-lg">
+                        Thank you for your purchase.
+                    </p>
+
+                    {/* Write Review Section */}
+                    <p className="mt-6 text-gray-700 dark:text-gray-300 text-lg">
+                        Would you like to share your experience?
+                    </p>
+                    <motion.button
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                        transition={{ type: "spring", stiffness: 300 }}
+                        className="mt-4 px-6 py-3 bg-indigo-600 text-white rounded-lg font-semibold text-lg shadow-md hover:bg-indigo-700 transition"
+                        onClick={handleWriteReview}  // Updated function call
+                    >
+                        Write a Review
+                    </motion.button>
+
+                    {showReviewModal && (
+                        <motion.div
+                            initial={{ opacity: 0, scale: 0.8 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            transition={{ duration: 0.3 }}
+                            className="fixed inset-0 flex items-start justify-center bg-black bg-opacity-50 z-50 pt-24 sm:pt-32"
+                        >
+                            <div className="bg-white p-6 rounded-lg shadow-lg max-w-lg w-full relative">
+                                <button
+                                    className="absolute top-2 right-2 text-gray-500 hover:text-gray-700"
+                                    onClick={() => setShowReviewModal(false)}
+                                >
+                                    ✖
+                                </button>
+                                <Outlet />
+                            </div>
+                        </motion.div>
+                    )}
                 </motion.div>
             )}
         </motion.div>

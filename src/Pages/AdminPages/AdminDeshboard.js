@@ -1,227 +1,98 @@
-import React, { useState } from 'react';
-import { Line } from 'react-chartjs-2';
-import { Chart as ChartJS, CategoryScale, LinearScale, LineElement, PointElement, Title, Tooltip, Legend } from 'chart.js';
-import { FaStar, FaStarHalfAlt, FaRegStar } from 'react-icons/fa';
-import { FaChevronDown, FaChevronUp } from 'react-icons/fa';
+import React, { useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import SalesChart from "../../Components/Dashboard/SalesChart";
+import RevenueChart from "../../Components/Dashboard/RevenueChart";
+import OrdersOverview from "../../Components/Dashboard/OrdersOverview";
+import MostSoldProducts from "../../Components/Dashboard/MostSoldProduct";
+import UserReviews from "../../Components/Dashboard/UserReviews";
+
+const salesData = {
+    labels: ["Jan", "Feb", "Mar", "Apr", "May"],
+    datasets: [{ label: "Sales", data: [30, 45, 60, 90, 120], borderColor: "green", backgroundColor: "lightgreen", fill: true }],
+};
+
+const revenueData = {
+    labels: ["Jan", "Feb", "Mar", "Apr", "May"],
+    datasets: [{ label: "Revenue Growth", data: [1000, 1500, 1800, 2500, 3200], borderColor: "blue", backgroundColor: "lightblue", fill: true }],
+};
+
+const mostSoldProducts = [
+    { name: "Laptop", description: "High-performance laptop.", price: "$1200", stock: 50 },
+    { name: "Gaming PC", description: "Powerful gaming PC.", price: "$1800", stock: 30 },
+];
+
+const reviews = [
+    { reviewer: "John Doe", rating: 5, comment: "Great product!", productName: "Gaming Laptop", productId: "12345" },
+    { reviewer: "Jane Smith", rating: 4, comment: "Good performance!", productName: "Gaming Laptop", productId: "12345" },
+    { reviewer: "Mike Johnson", rating: 2, comment: "Average experience.", productName: "Gaming Laptop", productId: "12345" },
+];
 
 
-ChartJS.register(CategoryScale, LinearScale, LineElement, PointElement, Title, Tooltip, Legend);
+const tabs = [
+    { name: "📊 Sales", component: <SalesChart data={salesData} /> },
+    { name: "💰 Revenue", component: <RevenueChart data={revenueData} /> },
+    { name: "🛍️ Orders", component: <OrdersOverview totalOrders={150} pendingOrders={30} completedOrders={120} /> },
+    { name: "🔥 Most Sold Product", component: <MostSoldProducts products={mostSoldProducts} /> },
+    { name: "⭐ Reviews", component: <UserReviews reviews={reviews} /> },
+];
 
 const Dashboard = () => {
-    // Sample Data for Charts
-    const salesData = {
-        labels: ['January', 'February', 'March', 'April', 'May'],
-        datasets: [
-            {
-                label: 'Sales',
-                data: [30, 45, 60, 90, 120],
-                borderColor: 'rgba(75, 192, 192, 1)',
-                backgroundColor: 'rgba(75, 192, 192, 0.2)',
-                fill: true,
-            },
-        ],
-    };
-
-    const revenueData = {
-        labels: ['January', 'February', 'March', 'April', 'May'],
-        datasets: [
-            {
-                label: 'Revenue Growth',
-                data: [1000, 1500, 1800, 2500, 3200],
-                borderColor: 'rgba(54, 162, 235, 1)',
-                backgroundColor: 'rgba(54, 162, 235, 0.2)',
-                fill: true,
-            },
-        ],
-    };
-
-    // Sample Data for Most Sold Products
-    const mostSoldProducts = ['Laptop', 'Gaming PC', 'Mouse'];
-    const productDetails = {
-        'Laptop': { description: 'High-performance laptop for work and play.', price: '$1,200', stock: 50 },
-        'Gaming PC': { description: 'Powerful gaming PC with latest graphics.', price: '$1,800', stock: 30 },
-        'Mouse': { description: 'Ergonomic wireless mouse for smooth navigation.', price: '$50', stock: 100 },
-    };
-
-    // Sample Reviews Data
-    const reviews = [
-        { reviewer: 'John Doe', rating: 5, comment: 'Excellent product! The laptop is fast and sleek.' },
-        { reviewer: 'Jane Smith', rating: 4, comment: 'Great performance, but the battery could be better.' },
-        { reviewer: 'David Brown', rating: 3, comment: 'The mouse is good, but not great for long hours of use.' },
-    ];
-
-    // State for product details and review toggle
-    const [selectedProduct, setSelectedProduct] = useState(null);
-    const [selectedReview, setSelectedReview] = useState(null);
-
-    // Toggle product details visibility
-    const handleProductClick = (product) => {
-        setSelectedProduct(selectedProduct === product ? null : product);
-    };
-
-    // Toggle review description visibility
-    const handleReviewClick = (index) => {
-        setSelectedReview(selectedReview === index ? null : index);
-    };
-
-    // Sales & Revenue Feedback
-    const salesChange = ((salesData.datasets[0].data[4] - salesData.datasets[0].data[3]) / salesData.datasets[0].data[3]) * 100;
-    const revenueChange = ((revenueData.datasets[0].data[4] - revenueData.datasets[0].data[3]) / revenueData.datasets[0].data[3]) * 100;
-
-    const salesFeedback = salesChange > 0
-        ? `📈 Sales have increased by ${salesChange.toFixed(2)}% this month! Keep it up!`
-        : `📉 Sales have decreased by ${Math.abs(salesChange).toFixed(2)}%. Try to improve your sales this month.`;
-
-    const revenueFeedback = revenueChange > 0
-        ? `📈 Revenue has increased by ${revenueChange.toFixed(2)}% this month! Great work!`
-        : `📉 Revenue has decreased by ${Math.abs(revenueChange).toFixed(2)}%. Focus on increasing revenue.`;
-
-    // Function to display rating as stars
-    const renderStars = (rating) => {
-        const stars = [];
-        for (let i = 1; i <= 5; i++) {
-            if (i <= rating) {
-                stars.push(<FaStar key={i} className="text-yellow-500" />);
-            } else if (i - 0.5 <= rating) {
-                stars.push(<FaStarHalfAlt key={i} className="text-yellow-500" />);
-            } else {
-                stars.push(<FaRegStar key={i} className="text-yellow-500" />);
-            }
-        }
-        return stars;
-    };
-
-    // Calculate average review rating
-    const averageRating = reviews.reduce((acc, review) => acc + review.rating, 0) / reviews.length;
+    const [activeTab, setActiveTab] = useState("📊 Sales");
 
     return (
-        <>
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 p-6">
-
-                {/* Sales Chart with Border */}
-                <div className="bg-white p-4 rounded-lg shadow-2xl border-[3px] border-green-400">
-                    <h3 className="text-xl font-semibold text-gray-700">📊 Sales Chart</h3>
-                    <Line data={salesData} />
-                    <p className="mt-4">{salesFeedback}</p>
-                </div>
-
-                {/* Revenue Growth with Border */}
-                <div className="bg-white p-4 rounded-lg shadow-2xl border-[3px] border-blue-400">
-                    <h3 className="text-xl font-semibold text-gray-700">📈 Revenue Growth</h3>
-                    <Line data={revenueData} />
-                    <p className="mt-4">{revenueFeedback}</p>
-                </div>
-
-                {/* Orders Overview with Border */}
-                <div className="bg-white p-6 rounded-lg shadow-2xl border-[3px] border-yellow-400">
-                    <h3 className="text-xl font-semibold text-gray-800 mb-4">🛍️ Orders Overview</h3>
-                    <div className="space-y-4">
-                        {/* Total Orders */}
-                        <div className="flex items-center justify-between p-4 bg-blue-100 rounded-lg hover:shadow-xl transition duration-300">
-                            <div className="flex items-center">
-                                <svg className="h-6 w-6 text-blue-600 mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 8l7-7 7 7M4 4h16v12H4V4z" />
-                                </svg>
-                                <span className="text-lg font-medium text-gray-700">Total Orders:</span>
-                            </div>
-                            <span className="text-xl font-semibold text-blue-600">150</span>
-                        </div>
-
-                        {/* Pending Orders */}
-                        <div className="flex items-center justify-between p-4 bg-yellow-100 rounded-lg hover:shadow-xl transition duration-300">
-                            <div className="flex items-center">
-                                <svg className="h-6 w-6 text-yellow-600 mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4m0 4v4m0-8h4m-4 0H8" />
-                                </svg>
-                                <span className="text-lg font-medium text-gray-700">Pending Orders:</span>
-                            </div>
-                            <span className="text-xl font-semibold text-yellow-600">30</span>
-                        </div>
-
-                        {/* Completed Orders */}
-                        <div className="flex items-center justify-between p-4 bg-green-100 rounded-lg hover:shadow-xl transition duration-300">
-                            <div className="flex items-center">
-                                <svg className="h-6 w-6 text-green-600 mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
-                                </svg>
-                                <span className="text-lg font-medium text-gray-700">Completed Orders:</span>
-                            </div>
-                            <span className="text-xl font-semibold text-green-600">120</span>
-                        </div>
-                    </div>
-                </div>
-
-                {/* Most Sold Products with Border */}
-                <div className="bg-white p-6 rounded-lg shadow-2xl border-[3px] border-purple-400">
-                    <h3 className="text-xl font-semibold text-gray-800 mb-4">🔥 Most Sold Products</h3>
-                    <div className="space-y-4">
-                        {mostSoldProducts.map((product) => (
-                            <div
-                                key={product}
-                                className="p-4 bg-purple-100 rounded-lg hover:shadow-xl transition duration-300 cursor-pointer"
-                                onClick={() => handleProductClick(product)}
-                            >
-                                {/* Product Name and Icon */}
-                                <div className="flex justify-between items-center">
-                                    <span className="text-lg font-medium text-gray-700">{product}</span>
-                                    <div className="ml-2 text-purple-600">
-                                        {selectedProduct === product ? (
-                                            <FaChevronUp className="h-5 w-5" />
-                                        ) : (
-                                            <FaChevronDown className="h-5 w-5" />
-                                        )}
-                                    </div>
-                                </div>
-
-                                {/* Conditionally Render Product Description below the product */}
-                                {selectedProduct === product && (
-                                    <div className="text-sm text-gray-600 mt-2">
-                                        <p><strong>Description:</strong> {productDetails[product].description}</p>
-                                        <p><strong>Price:</strong> {productDetails[product].price}</p>
-                                        <p><strong>Stock:</strong> {productDetails[product].stock} units available</p>
-                                    </div>
-                                )}
-                            </div>
-                        ))}
-                    </div>
-                </div>
-            </div>
-
-            {/* User Reviews Section with Border */}
-            <div className="bg-white p-6 rounded-lg shadow-2xl">
-                <h3 className="text-xl font-semibold text-gray-800 mb-4">⭐ User Reviews</h3>
-
-                {/* Display Average Rating */}
-                <div className="flex items-center mb-4">
-                    <span className="text-lg font-semibold text-gray-700">Average Rating:</span>
-                    <div className="flex space-x-1 ml-2">
-                        {renderStars(averageRating)}
-                    </div>
-                </div>
-
-                <div className="space-y-4">
-                    {reviews.map((review, index) => (
-                        <div
-                            key={index}
-                            className="flex flex-col p-4 bg-orange-100 rounded-lg hover:shadow-xl transition duration-300 cursor-pointer"
-                            onClick={() => handleReviewClick(index)}
+        <div className="p-6">
+            {/* Tabs for md and below */}
+            <div className="block xl:hidden">
+                <div className="flex gap-4 pb-3 mb-6 border-b border-gray-300 dark:border-gray-600 overflow-x-auto">
+                    {tabs.map((tab) => (
+                        <button
+                            key={tab.name}
+                            onClick={() => setActiveTab(tab.name)}
+                            className={`relative px-6 py-3 text-lg font-semibold transition duration-300 rounded-lg shadow-md focus:outline-none ${activeTab === tab.name
+                                    ? "bg-gradient-to-r from-blue-500 to-purple-500 text-white"
+                                    : "bg-gray-200 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-700"
+                                }`}
                         >
-                            <div className="flex justify-between items-center">
-                                <span className="text-lg font-medium text-gray-700">{review.reviewer}</span>
-                                <div className="flex space-x-1">
-                                    {renderStars(review.rating)}
-                                </div>
-                            </div>
-                            {selectedReview === index && (
-                                <div className="mt-2 text-sm text-gray-600">
-                                    <p><strong>Comment:</strong> {review.comment}</p>
-                                </div>
+
+
+                            {activeTab === tab.name && (
+                                <motion.div
+                                    layoutId="activeTab"
+                                    className="absolute inset-0 bg-blue-500 opacity-20 rounded-lg"
+                                />
                             )}
-                        </div>
+                            {tab.name}
+                        </button>
                     ))}
                 </div>
+                {/* Tab Content with Animation */}
+                <div className="w-full">
+                    <AnimatePresence mode="wait">
+                        <motion.div
+                            key={activeTab}
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0, y: -20 }}
+                            transition={{ duration: 0.3 }}
+                            className="w-full"
+                        >
+                            {tabs.find((tab) => tab.name === activeTab)?.component}
+                        </motion.div>
+                    </AnimatePresence>
+                </div>
             </div>
-        </>
+
+            {/* Grid layout for lg and larger */}
+            <div className="hidden xl:grid grid-cols-1 xl:grid-cols-2 gap-6">
+                <SalesChart data={salesData} />
+                <RevenueChart data={revenueData} />
+                <OrdersOverview totalOrders={150} pendingOrders={30} completedOrders={120} />
+                <MostSoldProducts products={mostSoldProducts} />
+                <div className="col-span-1 xl:col-span-2">
+                    <UserReviews reviews={reviews} />
+                </div>
+            </div>
+        </div>
     );
 };
 
