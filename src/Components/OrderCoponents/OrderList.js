@@ -77,14 +77,17 @@ export default function OrderHistory() {
   // const [isRefundModalOpen, setIsRefundModalOpen] = useState(false);
   const [showInvoice, setShowInvoice] = useState(false);
   const [refundDescription, setRefundDescription] = useState("");
-
   const [refundReason, setRefundReason] = useState("");
   const [refundImage, setRefundImage] = useState(null);
   const [refundMethod, setRefundMethod] = useState("");
 
   const handleViewInvoice = (order) => {
-    setSelectedOrder(order); // Ensure selected order is set
-    setShowInvoice(true);
+    setSelectedOrder(order); // Set the order for invoice
+    setShowInvoice(true); // Show invoice modal
+  };
+  const closeInvoice = () => {
+    setShowInvoice(false);
+    setSelectedOrder(null); // Reset selectedOrder to prevent refund modal from opening
   };
 
   const handleRefundClick = (order) => {
@@ -171,12 +174,15 @@ export default function OrderHistory() {
                             </a>
                           </MenuItem>
                           <MenuItem>
-                            <a
-                              href={order.invoiceHref}
-                              className="block px-4 py-2 text-sm text-gray-700 data-[focus]:bg-gray-100 data-[focus]:text-gray-900 data-[focus]:outline-none"
+                            <button
+                              onClick={() => {
+                                setSelectedOrder(order);
+                                setShowInvoice(true);
+                              }}
+                              className="block w-full text-left px-4 py-2 text-sm text-gray-700 data-[focus]:bg-gray-100 data-[focus]:text-gray-900 data-[focus]:outline-none"
                             >
                               Invoice
-                            </a>
+                            </button>
                           </MenuItem>
                           {/* Refund Button */}
                           {order.status === 'Delivered' && !order.refunded && (
@@ -398,8 +404,17 @@ export default function OrderHistory() {
       )}
 
       {showInvoice && selectedOrder && (
-        <Invoice order={selectedOrder} onClose={() => setShowInvoice(true)} />
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
+          <div className="bg-white p-6 rounded-lg shadow-lg w-[90%] max-w-3xl max-h-[80vh] overflow-y-auto mt-20">
+            <Invoice order={selectedOrder} onClose={() => closeInvoice()} />
+           
+          </div>
+        </div>
       )}
+
+
+
+
     </div>
   );
 }
