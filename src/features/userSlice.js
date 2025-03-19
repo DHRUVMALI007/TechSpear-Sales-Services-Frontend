@@ -10,7 +10,7 @@ export const registerUser= createAsyncThunk('user/register',async(formData,{reje
           return response.data
     }
     catch(error){
-        return rejectWithValue(error.response?.data || "Something went wrong"); 
+        return rejectWithValue(error.response?.data?.message || "Something went wrong"); 
     }
     
 })
@@ -19,21 +19,23 @@ const userSlice= createSlice({
     name:"userKaAuth",
     initialState:{
         user:null,
-        error:false,
+        error:null,
         loading:false
     },
     extraReducers:(builder)=>{
         builder.addCase(registerUser.pending,(state,action)=>{
             state.loading=true;
-            state.error=false;
+            state.error=null;
         })
         builder.addCase(registerUser.fulfilled,(state,action)=>{
             state.user=action.payload;
             state.loading=false;
-            state.error=false;
+            state.error=null;
         })
         builder.addCase(registerUser.rejected,(state,action)=>{
-              state.error=true
+            console.log(action.payload)
+              state.loading=false;
+              state.error=action.payload;
         })
     }
 })

@@ -10,12 +10,12 @@ import { registerUser } from '../features/userSlice';
 const SignUp = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const [load,setLoad]=useState(false)
-  // const navigate = useNavigate();
+ 
+  const navigate = useNavigate();
 
   const dispatch =useDispatch();
-  const selector = useSelector((state)=>state)
-
+  const {user,error,loading} = useSelector((state)=>state)
+  
   const [data, setData] = useState({
     email: "",
     password: "",
@@ -40,7 +40,7 @@ const SignUp = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setLoad(true)
+  
     if (data.password !== data.confirmPassword) {
       toast.error("Confirm password and password must be the same.");
       return;
@@ -53,40 +53,30 @@ const SignUp = () => {
       formData.append("password", data.password);
       formData.append("confirmPassword", data.confirmPassword);
       formData.append("profilePic", data.profilePic);
-      console.log(selector)
-      dispatch(registerUser(formData))
-      const response = await axios.post("http://localhost:5000/api/v1/users/register", formData, {
-        headers: { "Content-Type": "multipart/form-data" },
-      });
+     
+      await dispatch(registerUser(formData)).unwrap();
+   
+      toast.success(user?.message || "something wnet wrong")
+      console.log(user?.data)
 
-      if(response){
-        setLoad(false)
-      }else{
-        setLoad(true)
+      console.log(user?.data?.role)
+
+      if(user?.data?.role==="User"){
+        navigate("/login")
       }
-      console.log("Response:", response.data);
-      toast.success(response.data.message);
-
-    } catch (error) {
-      console.log("Full Error:", error);
-
-      let errorMessage = "Something went wrong";
-
-      if (error.response?.data) {
-        const match = error.response.data.match(/<pre>(.*?)<br>/);
-        if (match) {
-          errorMessage = match[1].trim(); // Extract text before <br>
-        }
+      if(user?.data?.role==="Admin"){
+        navigate("/Admin-panel")
       }
+    
+      // toast.success("registered")
 
-      console.log("Backend Error Message:", errorMessage);
-      toast.error(errorMessage);
+      
+    } catch (error) { 
+        toast.error(error)
+
     }
   };
-
-  // {load ? <p>loading..</p> : null}
-  // {load ? <p>Loading...</p> : null}
-  { load && <p>Loading...</p> }
+  
 
   return (
     <section className='flex items-center justify-center min-h-screen bg-gray-900'>
@@ -165,8 +155,11 @@ const SignUp = () => {
             </div>
           </div>
 
-          <button type='submit' className='w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg transition-all border border-gray-600'>
-            Sign Up
+          <button type='submit' className='w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg transition-all border border-gray-600 flex justify-center gap-2' >
+          {loading ? "Loading" : "Register Account"}
+            {loading ? (
+             <span className='h-6 w-6 border-2 border-white border-t-transparent rounded-full animate-spin'></span>
+            ) : null}      
           </button>
         </form>
 
