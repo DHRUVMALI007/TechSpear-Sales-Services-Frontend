@@ -56,21 +56,18 @@ const SignUp = () => {
      
       await dispatch(registerUser(formData)).unwrap();
    
-      toast.success(user?.message)
+      toast.success(user?.message || "something wnet wrong")
       console.log(user?.data)
 
       console.log(user?.data?.role)
 
-      // if(user?.data?.role==="User"){
-      //   navigate("/login")
-      // }
-      // if(user?.data?.role==="Admin"){
-      //   navigate("/Admin-panel")
-      // }
+      if(user?.data?.role==="User"){
+        navigate("/login")
+      }
+      if(user?.data?.role==="Admin"){
+        navigate("/Admin-panel")
+      }
     
-
-      navigate("/login");
-
       // toast.success("registered")
 
       
