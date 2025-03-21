@@ -2,8 +2,9 @@ import React, { useEffect, useState, useContext } from "react";
 import { ThemeContext } from "../Helpers/ThemeContext";
 import Logo from "./Logo";
 import { SiSearxng } from "react-icons/si";
-import { FaBars, FaTimes, FaUserCircle, FaShoppingCart, FaSun, FaMoon } from "react-icons/fa";
+import { FaBars, FaTimes, FaUserCircle, FaShoppingCart } from "react-icons/fa";
 import { Link, useNavigate } from "react-router-dom";
+import axios from "axios";
 
 const Header = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -24,24 +25,36 @@ const Header = () => {
   }, []);
 
   useEffect(() => {
-    // Check login status from localStorage
-    const user = localStorage.getItem("user");
-    setIsLoggedIn(!!user); // If user exists, set logged-in state
+    // Check if token exists in localStorage
+    const token = localStorage.getItem("token");
+    setIsLoggedIn(!!token);
   }, []);
+
+  // Logout function
+  const handleLogout = async () => {
+    try {
+      await axios.post(`http://localhost:5000/api/v1/users/logout`, {}, { withCredentials: true });
+      localStorage.removeItem("token"); // Remove token from localStorage
+      setIsLoggedIn(false);
+      navigate("/login");
+    } catch (error) {
+      console.error("Logout failed", error);
+    }
+  };
 
   return (
     <>
       {/* Header */}
       <header
-        className={`sticky top-0 left-0 z-[100] w-full h-auto md:h-24 lg:h-28 transition duration-200 ${isDarkMode ? "bg-gray-900 text-white shadow-lg" : "bg-white text-gray-800 shadow-md"
-          } ${isScrolled ? "shadow-lg" : ""}`}
-        style={{ "--header-height": "4rem" }}
+        className={`sticky top-0 left-0 z-[100] w-full h-auto md:h-24 lg:h-28 transition duration-200 ${
+          isDarkMode ? "bg-gray-900 text-white shadow-lg" : "bg-white text-gray-800 shadow-md"
+        } ${isScrolled ? "shadow-lg" : ""}`}
       >
         <div className="lg:container mx-auto flex items-center justify-between py-2 px-2 md:px-8 text-lg font-semibold">
           {/* Logo */}
           <div className="flex items-center">
             <Link to="/">
-              <Logo className="h-10 sm:h-12 md:h-16 lg:h-20 w-auto max-w-[150px] sm:max-w-[180px] md:max-w-[200px]" />
+              <Logo className="h-10 sm:h-12 md:h-16 lg:h-20 w-auto" />
             </Link>
           </div>
 
@@ -67,16 +80,9 @@ const Header = () => {
               </button>
             </div>
 
-            {/* Dark Mode Toggle */}
-            {/* <button onClick={toggleTheme} className="hidden lg:inline text-xl p-2 rounded-full hover:bg-gray-700 transition">
-              {isDarkMode ? <FaSun className="text-yellow-400" /> : <FaMoon className="text-gray-600" />}
-            </button> */}
-
-            {/* User Panel - Dynamic Login/Logout */}
-
             {/* Shopping Cart */}
             <div className="relative">
-              <button className="text-xl hover:text-blue-500" aria-label="Shopping Cart" onClick={() => navigate("user-cart")}>
+              <button className="text-xl hover:text-blue-500" onClick={() => navigate("user-cart")}>
                 <FaShoppingCart />
               </button>
               {cartCount > 0 && (
@@ -85,23 +91,31 @@ const Header = () => {
                 </span>
               )}
             </div>
-            {/* {isLoggedIn ? (
-                <Link to="/User-panel" className="text-lg md:text-xl hover:text-blue-500" aria-label="User Profile">
+
+            {/* User Profile & Login/Logout */}
+            {isLoggedIn ? (
+              <>
+                <Link to="/User-panel" className="text-lg md:text-xl hover:text-blue-500">
                   <FaUserCircle />
                 </Link>
-              ) : (
-                <Link to="/login" className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition hidden lg:inline">
-                  Login
-                </Link>
-              )} */}
-            <Link to="/User-panel" className="text-lg md:text-xl hover:text-blue-500" aria-label="User Profile">
-              <FaUserCircle />
-            </Link>
-            <Link to="/login" className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition hidden lg:inline">
-                  Login
-                </Link>
+                <button
+                  onClick={handleLogout}
+                  className="px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600 transition hidden lg:inline"
+                >
+                  Logout
+                </button>
+              </>
+            ) : (
+              <Link
+                to="/login"
+                className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition hidden lg:inline"
+              >
+                Login
+              </Link>
+            )}
+
             {/* Mobile Menu Button */}
-            <button className="text-2xl lg:hidden" onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} aria-label="Toggle menu">
+            <button className="text-2xl lg:hidden" onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}>
               <FaBars />
             </button>
           </div>
@@ -110,9 +124,9 @@ const Header = () => {
 
       {/* Sidebar (Mobile Menu) */}
       <div
-        className={`fixed left-0 top-[var(--header-height)] w-64 h-screen ${isDarkMode ? "bg-gray-900 text-white" : "bg-white text-gray-800"
-          } shadow-md z-[90] transition-transform duration-300 ${isMobileMenuOpen ? "translate-x-0" : "-translate-x-full"
-          }`}
+        className={`fixed left-0 top-0 w-64 h-screen ${
+          isDarkMode ? "bg-gray-900 text-white" : "bg-white text-gray-800"
+        } shadow-md z-[90] transition-transform duration-300 ${isMobileMenuOpen ? "translate-x-0" : "-translate-x-full"}`}
       >
         <div className="flex justify-between items-center p-4 border-b">
           <h2 className="text-xl font-semibold">Menu</h2>
@@ -128,16 +142,19 @@ const Header = () => {
 
           {/* Dynamic Login/Logout in Sidebar */}
           {isLoggedIn ? (
-            <Link to="/User-panel" className="hover:text-blue-500" onClick={() => setIsMobileMenuOpen(false)}>User Panel</Link>
+            <>
+              <Link to="/User-panel" className="hover:text-blue-500" onClick={() => setIsMobileMenuOpen(false)}>User Panel</Link>
+              <button onClick={handleLogout} className="hover:text-red-500">Logout</button>
+            </>
           ) : (
-            <Link to="/login" className="hover:text-blue-500" onClick={() => setIsMobileMenuOpen(false)}>Login / Register</Link>
+            <Link to="/login" className="hover:text-blue-500" onClick={() => setIsMobileMenuOpen(false)}>Login</Link>
           )}
 
           {/* Dark Mode Toggle Inside Sidebar */}
           <div className="flex items-center justify-between p-2 border-t mt-4">
             <span className="text-lg font-medium">Dark Mode:</span>
             <button onClick={toggleTheme} className="text-xl p-2 rounded-full hover:bg-gray-700 transition">
-              {isDarkMode ? <FaSun className="text-yellow-400" /> : <FaMoon className="text-gray-600" />}
+              {isDarkMode ? "🌞" : "🌙"}
             </button>
           </div>
         </nav>
