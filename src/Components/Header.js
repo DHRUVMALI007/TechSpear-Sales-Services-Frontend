@@ -56,7 +56,7 @@ const Header = () => {
           {/* Right Icons */}
           <div className="flex items-center space-x-4">
             {/* Search */}
-            <div className="hidden md:flex items-center w-auto lg:w-full max-w-sm border rounded-full focus-within:shadow pl-2">
+            <div className="hidden sm:flex items-center w-auto lg:w-full max-w-sm border rounded-full focus-within:shadow pl-2">
               <input
                 type="search"
                 placeholder="Search Here..."
@@ -90,14 +90,14 @@ const Header = () => {
                   <FaUserCircle />
                 </Link>
               ) : (
-                <Link to="/login" className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition">
+                <Link to="/login" className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition hidden lg:inline">
                   Login
                 </Link>
               )} */}
             <Link to="/User-panel" className="text-lg md:text-xl hover:text-blue-500" aria-label="User Profile">
               <FaUserCircle />
             </Link>
-            <Link to="/login" className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition">
+            <Link to="/login" className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition hidden lg:inline">
                   Login
                 </Link>
             {/* Mobile Menu Button */}

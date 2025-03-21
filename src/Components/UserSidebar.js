@@ -13,7 +13,7 @@ export default function UserSidebar() {
   const borderColor = isDarkMode ? "border-r border-gray-700" : "border-r border-gray-300";
 
   return (
-    <aside className={`${bgColor} ${textColor} ${borderColor} h-screen p-4 transition-all duration-300 w-16 md:w-64 flex flex-col space-y-4`}>
+    <aside className={`${bgColor} ${textColor} ${borderColor} h-screen p-4 transition-all duration-300 w-16 lg:w-64 flex flex-col space-y-4`}>
       <nav className="space-y-4">
         <SidebarLink to="" icon={<FaUser size={24} />} label="User Profile" tooltipId="userProfile" hoverColor={hoverColor} />
         <SidebarLink to="order-manage" icon={<FaBox size={24} />} label="Order History" tooltipId="orderHistory" hoverColor={hoverColor} />
@@ -37,11 +37,11 @@ const SidebarLink = ({ to, icon, label, tooltipId, hoverColor }) => {
   return (
     <Link
       to={to}
-      className={`flex items-center gap-2 p-2 rounded-md cursor-pointer transition-all ${hoverColor}`}
+      className={`flex items-center gap-2 p-2 rounded-lg cursor-pointer transition-all ${hoverColor}`}
       data-tooltip-id={tooltipId}
     >
       {icon}
-      <span className="hidden md:inline ml-4">{label}</span>
+      <span className="hidden lg:inline ml-4">{label}</span>
     </Link>
   );
 };
