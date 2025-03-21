@@ -1,26 +1,50 @@
 import React, { useState } from 'react';
 import { FaUser, FaEye, FaEyeSlash } from "react-icons/fa";
 import { Link, useNavigate } from 'react-router-dom';
+import { loginUser } from '../features/userSlice';
+import { useDispatch, useSelector } from 'react-redux';
+import { toast } from 'react-toastify';
 
 const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [data, setData] = useState({ email: "", password: "" });
   const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const { loading, user, error } = useSelector((state) => state)
 
   const handleOnChange = (e) => {
     const { name, value } = e.target;
     setData((prev) => ({ ...prev, [name]: value }));
   };
-
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if (data.email === 'admin@gmail.com' && data.password === 'dhruv@1234') {
-      navigate('/Admin-panel');
-    } else {
-      console.log("Invalid credentials");
+    try {
+      const resultAction = await dispatch(loginUser(data));
+  
+      console.log("Redux Response:", resultAction); 
+  
+      if (loginUser.fulfilled.match(resultAction)) {
+        const { user, message } = resultAction.payload.data || {};
+        console.log("User:", user);
+  
+        toast.success(message || "Login successful");
+  
+        if (user?.role === "Admin") {
+          navigate("/Admin-panel");
+        } else if (user?.role === "User") {
+          navigate("/");
+        }
+      } else if (loginUser.rejected.match(resultAction)) {
+        const errorMessage = resultAction.payload ;
+        console.error("Redux Error:", errorMessage);
+        toast.error(errorMessage);
+      }
+    } catch (error) {
+      console.error("Unexpected Error:", error);
+      toast.error(error.message || "Something went wrong");
     }
   };
-
+  
   return (
     <section className='flex items-center justify-center min-h-screen bg-gray-900'>
       <div className='bg-gray-800 p-8 rounded-lg shadow-lg w-full max-w-md border border-gray-600'>
@@ -44,7 +68,7 @@ const Login = () => {
               required
             />
           </div>
-          
+
           <div className='mb-4 relative'>
             <label className='block text-gray-400'>Password</label>
             <div className='relative'>
@@ -62,18 +86,18 @@ const Login = () => {
               </span>
             </div>
           </div>
-          
+
           <div className='text-right mb-4'>
             <Link to='/forgot-password' className='text-blue-400 hover:underline'>Forgot password?</Link>
           </div>
-          
+
           <button type='submit' className='w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg transition-all border border-gray-600'>
-            Login
+            {loading ? "Loading" :"Login"}
           </button>
         </form>
 
         <p className='text-center mt-6 text-gray-400'>
-          Don't have an account? 
+          Don't have an account?
           <Link to='/sign-up' className='text-blue-400 hover:underline ml-1'>Sign up</Link>
         </p>
       </div>

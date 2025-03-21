@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback, useMemo } from "react";
 import { toast } from "react-toastify";
 import moment from "moment"; // Import moment for date formatting
 import { FaTrash } from "react-icons/fa";
+import axios, { all } from "axios";
 
 const AllUsers = () => {
   const [allUser, setAllUsers] = useState([]);
@@ -16,12 +17,28 @@ const AllUsers = () => {
     { _id: "3", name: "Bob Johnson", email: "bob.johnson@example.com", createdAt: "2023-02-01" },
   ], []); // empty array ensures this array is memoized
 
+const getAllUser = async () => {
+    try {
+        const response=await axios.get("http://localhost:5000/api/v1/users/getAllUser")
+        console.log(response.data.data)
+
+        return response.data.data
+    } catch (error) {
+        return error
+    }
+}
+
+useEffect(()=>{
+  setAllUsers(getAllUser())
+  allUser.data.map()
+},[])
+
   // Fetch Users Function (Can be modified to fetch from API)
   const fetchAllUsers = useCallback(async () => {
     try {
       setLoading(true); // Show loader before fetching
       await new Promise((resolve) => setTimeout(resolve, 1000)); // Simulate API call delay
-      setAllUsers(mockUsers); // Set mock data
+       // Set mock data
     } catch (error) {
       toast.error("Failed to fetch users");
     } finally {
@@ -73,7 +90,7 @@ const AllUsers = () => {
               </tr>
             </thead>
             <tbody>
-              {allUser.map((el, index) => (
+              {allUser.data[0].map((el, index) => (
                 <tr key={el._id} className="hover:bg-gray-100">
                   <td className="p-2 border text-center">{index + 1}</td>
                   <td className="p-2 border">{el.name}</td>
