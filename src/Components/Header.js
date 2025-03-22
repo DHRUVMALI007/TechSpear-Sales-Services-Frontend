@@ -10,7 +10,8 @@ const Header = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const [cartCount] = useState(3); // Example cart count
-  const [isLoggedIn, setIsLoggedIn] = useState(false); // Manage login state
+  const [isLoggedIn, setIsLoggedIn] = useState(false); // Login state
+  const [user, setUser] = useState(null); // Store user details
 
   const { isDarkMode, toggleTheme } = useContext(ThemeContext);
   const navigate = useNavigate();
@@ -24,17 +25,46 @@ const Header = () => {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
+  // Fetch user on page load
   useEffect(() => {
-    // Check if token exists in localStorage
-    const token = localStorage.getItem("token");
-    setIsLoggedIn(!!token);
+    const fetchUser = async () => {
+      try {
+        const storedUser = localStorage.getItem("user");
+        if (storedUser) {
+          setUser(JSON.parse(storedUser));
+          setIsLoggedIn(true);
+          return;
+        }
+
+        const response = await axios.get("http://localhost:5000/api/v1/users/getCurrentUser", {
+          withCredentials: true,
+        });
+
+        if (response.data?.data?.user) {
+          localStorage.setItem("user", JSON.stringify(response.data.data.user)); // Save user data
+          setUser(response.data.data.user);
+          setIsLoggedIn(true);
+        } else {
+          localStorage.removeItem("user");
+          setIsLoggedIn(false);
+        }
+      } catch (error) {
+        console.error("Error fetching user:", error.response?.data?.message || error.message);
+        localStorage.removeItem("user");
+        setIsLoggedIn(false);
+      }
+    };
+
+    fetchUser();
   }, []);
 
   // Logout function
   const handleLogout = async () => {
     try {
-      await axios.post(`http://localhost:5000/api/v1/users/logout`, {}, { withCredentials: true });
-      localStorage.removeItem("token"); // Remove token from localStorage
+      await axios.post("http://localhost:5000/api/v1/users/logout", {}, { withCredentials: true });
+      localStorage.removeItem("token");
+      localStorage.removeItem("user");
+      setUser(null);
       setIsLoggedIn(false);
       navigate("/login");
     } catch (error) {

@@ -11,19 +11,23 @@ export default function ProfilePage() {
   const [editMode, setEditMode] = useState(false);
   const [showPopup, setShowPopup] = useState(false);
   const [popupMessage, setPopupMessage] = useState("");
+  const [isLoading, setIsLoading] = useState(false); // ⬅️ Loading state
 
   useEffect(() => {
     fetchUserProfile();
   }, []);
 
-  // Fetch user profile from backend
+  // Fetch user profile
   const fetchUserProfile = async () => {
     try {
+      setIsLoading(true);
       const response = await axios.get("http://localhost:5000/api/v1/users/getCurrentUser", { withCredentials: true });
       setUser(response.data.data.user);
       setFormData(response.data.data.user);
     } catch (error) {
       console.error("Error fetching user profile:", error.response?.data?.message || error.message);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -47,6 +51,7 @@ export default function ProfilePage() {
 
   // Upload profile picture
   const uploadProfilePicture = async (file) => {
+    setIsLoading(true);
     const formData = new FormData();
     formData.append("profilePic", file);
 
@@ -55,27 +60,31 @@ export default function ProfilePage() {
         withCredentials: true,
         headers: { "Content-Type": "multipart/form-data" },
       });
-      
-      // console.log(response.data.data)
+
       setUser(response.data.data);
       setPopupMessage("Profile picture updated successfully!");
       setShowPopup(true);
     } catch (error) {
       console.error("Error updating profile picture:", error.response?.data?.message || error.message);
+    } finally {
+      setIsLoading(false);
     }
   };
 
   // Handle profile update
   const handleSave = async () => {
+    setIsLoading(true);
     try {
       const response = await axios.patch("http://localhost:5000/api/v1/users/updateDetails", formData, { withCredentials: true });
-      // console.log('data',response.data.data)
+
       setUser(response.data.data);
       setEditMode(false);
       setPopupMessage("Your profile has been updated successfully!");
       setShowPopup(true);
     } catch (error) {
       console.error("Error updating profile:", error.response?.data?.message || error.message);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -92,7 +101,12 @@ export default function ProfilePage() {
   const buttonPrimary = isDarkMode ? "bg-[#5765F2] hover:bg-[#3E4CCF]" : "bg-blue-500 hover:bg-blue-700";
   const buttonSecondary = isDarkMode ? "bg-[#3E4366] hover:bg-[#2A2F4A]" : "bg-gray-300 hover:bg-gray-400";
 
-  if (!user) return <div className="text-center">Loading...</div>;
+  if (isLoading) return <>
+    <div className="text-center text-lg font-semibold">Loading...</div>
+    <div className="text-center mt-6">It Take Some time For Updatation. Pls Wait.</div>
+  </>;
+
+  if (!user) return <div className="text-center">No user found.</div>;
 
   return (
     <div className={`h-screen w-full flex items-center justify-center ${bgColor} mb-24`}>
@@ -130,7 +144,11 @@ export default function ProfilePage() {
         </div>
 
         <div className="mt-6 flex justify-center">
-          {editMode ? (
+          {isLoading ? (
+            <div className="flex justify-center">
+              <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-blue-500"></div>
+            </div>
+          ) : editMode ? (
             <>
               <button onClick={handleSave} className={`px-6 py-2 text-white rounded-md transition-all ${buttonPrimary}`}>
                 Save
