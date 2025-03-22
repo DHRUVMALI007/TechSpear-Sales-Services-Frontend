@@ -14,14 +14,15 @@ const SignUp = () => {
   const navigate = useNavigate();
 
   const dispatch =useDispatch();
-  const {user,error,loading} = useSelector((state)=>state)
+  const { user, error, loading } = useSelector((state) => state); 
+  // const {user,error,loading} = useSelector((state)=>state)
   
   const [data, setData] = useState({
     email: "",
     password: "",
     name: "",
     confirmPassword: "",
-    profilePic: img,
+    profilePic: null
   });
 
   const handleOnChange = (e) => {
@@ -38,6 +39,8 @@ const SignUp = () => {
     setData((prev) => ({ ...prev, profilePic: file }));
   };
 
+
+
   const handleSubmit = async (e) => {
     e.preventDefault();
   
@@ -45,39 +48,29 @@ const SignUp = () => {
       toast.error("Confirm password and password must be the same.");
       return;
     }
-
-    try {
+  
       const formData = new FormData();
       formData.append("name", data.name);
       formData.append("email", data.email);
       formData.append("password", data.password);
       formData.append("confirmPassword", data.confirmPassword);
       formData.append("profilePic", data.profilePic);
-     
-      await dispatch(registerUser(formData)).unwrap();
-   
-      toast.success(user?.message || "something wnet wrong")
-      console.log(user?.data)
-
-      console.log(user?.data?.role)
-
-      if(user?.data?.role==="User"){
-        navigate("/login")
-      }
-      if(user?.data?.role==="Admin"){
-        navigate("/Admin-panel")
-      }
-    
-      // toast.success("registered")
+      try {
+        const resultAction = await dispatch(registerUser(formData)).unwrap();
+        console.log(resultAction)
 
       
-    } catch (error) { 
-        toast.error(error)
+          toast.success(resultAction.message || "Registered successfully!");
+          navigate("/login");
+      
+      } catch (error) {
+        console.error("Registration Error:", error);
+        toast.error(error || "Unexpected error.");
+      }
+     
 
-    }
   };
   
-
   return (
     <section className='flex items-center justify-center min-h-screen bg-gray-900'>
       <div className='bg-gray-800 p-8 rounded-lg shadow-lg w-full max-w-md border border-gray-600 sm:my-5'>

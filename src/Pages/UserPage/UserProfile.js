@@ -1,45 +1,82 @@
-import { useState, useContext } from "react";
+import { useState, useEffect, useContext } from "react";
+import axios from "axios";
 import { FaCamera, FaEdit } from "react-icons/fa";
 import { ThemeContext } from "../../Helpers/ThemeContext";
 import img from "../user_im.png";
 
 export default function ProfilePage() {
   const { isDarkMode } = useContext(ThemeContext);
-
-  const [user, setUser] = useState({
-    name: "John Doe",
-    email: "johndoe@example.com",
-    address: "1234 Main St, City, Country",
-    profileImage: img,
-    lastUpdated: new Date().toLocaleString(),
-  });
-
-  const [formData, setFormData] = useState(user);
+  const [user, setUser] = useState(null);
+  const [formData, setFormData] = useState(null);
   const [editMode, setEditMode] = useState(false);
   const [showPopup, setShowPopup] = useState(false);
   const [popupMessage, setPopupMessage] = useState("");
 
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prevData) => ({
-      ...prevData,
-      [name]: value,
-    }));
+  useEffect(() => {
+    fetchUserProfile();
+  }, []);
+
+  // Fetch user profile from backend
+  const fetchUserProfile = async () => {
+    try {
+      const response = await axios.get("http://localhost:5000/api/v1/users/getCurrentUser", { withCredentials: true });
+      setUser(response.data.data.user);
+      setFormData(response.data.data.user);
+    } catch (error) {
+      console.error("Error fetching user profile:", error.response?.data?.message || error.message);
+    }
   };
 
+  // Handle input change
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+  };
+
+  // Handle image upload
   const handleImageChange = (e) => {
     const file = e.target.files[0];
     if (file) {
       const imageUrl = URL.createObjectURL(file);
-      setFormData((prev) => ({ ...prev, profileImage: imageUrl }));
+      setFormData((prev) => ({ ...prev, profilePic: imageUrl }));
+
+      // Upload image to backend
+      uploadProfilePicture(file);
     }
   };
 
-  const handleSave = () => {
-    setUser({ ...formData, lastUpdated: new Date().toLocaleString() });
-    setEditMode(false);
-    setPopupMessage("Your profile has been updated successfully!");
-    setShowPopup(true);
+  // Upload profile picture
+  const uploadProfilePicture = async (file) => {
+    const formData = new FormData();
+    formData.append("profilePic", file);
+
+    try {
+      const response = await axios.patch("http://localhost:5000/api/v1/users/updateProfilePic", formData, {
+        withCredentials: true,
+        headers: { "Content-Type": "multipart/form-data" },
+      });
+      
+      // console.log(response.data.data)
+      setUser(response.data.data);
+      setPopupMessage("Profile picture updated successfully!");
+      setShowPopup(true);
+    } catch (error) {
+      console.error("Error updating profile picture:", error.response?.data?.message || error.message);
+    }
+  };
+
+  // Handle profile update
+  const handleSave = async () => {
+    try {
+      const response = await axios.patch("http://localhost:5000/api/v1/users/updateDetails", formData, { withCredentials: true });
+      // console.log('data',response.data.data)
+      setUser(response.data.data);
+      setEditMode(false);
+      setPopupMessage("Your profile has been updated successfully!");
+      setShowPopup(true);
+    } catch (error) {
+      console.error("Error updating profile:", error.response?.data?.message || error.message);
+    }
   };
 
   const handleCancel = () => {
@@ -55,36 +92,26 @@ export default function ProfilePage() {
   const buttonPrimary = isDarkMode ? "bg-[#5765F2] hover:bg-[#3E4CCF]" : "bg-blue-500 hover:bg-blue-700";
   const buttonSecondary = isDarkMode ? "bg-[#3E4366] hover:bg-[#2A2F4A]" : "bg-gray-300 hover:bg-gray-400";
 
+  if (!user) return <div className="text-center">Loading...</div>;
+
   return (
     <div className={`h-screen w-full flex items-center justify-center ${bgColor} mb-24`}>
       <div className={`${cardColor} p-8 rounded-lg shadow-lg w-full max-w-lg relative`}>
         <div className="flex flex-col items-center">
           <div className="relative w-32 h-32 mb-4">
-            <img
-              src={formData.profileImage}
-              alt="Profile"
-              className="w-32 h-32 rounded-full object-cover border-4 border-gray-300"
-            />
+            <img src={formData.profilePic || img} alt="Profile" className="w-32 h-32 rounded-full object-cover border-4 border-gray-300" />
             {editMode && (
-              <label
-                htmlFor="profile-image"
-                className="absolute bottom-0 right-0 bg-blue-500 p-2 rounded-full cursor-pointer"
-              >
+              <label htmlFor="profile-image" className="absolute bottom-0 right-0 bg-blue-500 p-2 rounded-full cursor-pointer">
                 <FaCamera className="text-white" />
               </label>
             )}
-            <input
-              type="file"
-              id="profile-image"
-              className="hidden"
-              onChange={handleImageChange}
-            />
+            <input type="file" id="profile-image" className="hidden" onChange={handleImageChange} />
           </div>
           <h2 className="text-xl font-bold">Your Profile</h2>
         </div>
 
         <div className="mt-6 space-y-4">
-          {["name", "email", "address"].map((field, index) => (
+          {["name", "email"].map((field, index) => (
             <div key={index} className="relative">
               <input
                 type={field === "email" ? "email" : "text"}
@@ -105,40 +132,28 @@ export default function ProfilePage() {
         <div className="mt-6 flex justify-center">
           {editMode ? (
             <>
-              <button
-                onClick={handleSave}
-                className={`px-6 py-2 text-white rounded-md transition-all ${buttonPrimary}`}
-              >
+              <button onClick={handleSave} className={`px-6 py-2 text-white rounded-md transition-all ${buttonPrimary}`}>
                 Save
               </button>
-              <button
-                onClick={handleCancel}
-                className={`ml-4 px-6 py-2 rounded-md transition-all ${buttonSecondary}`}
-              >
+              <button onClick={handleCancel} className={`ml-4 px-6 py-2 rounded-md transition-all ${buttonSecondary}`}>
                 Cancel
               </button>
             </>
           ) : (
-            <button
-              onClick={() => setEditMode(true)}
-              className="px-6 py-2 bg-green-500 text-white rounded-md hover:bg-green-700 transition-all"
-            >
+            <button onClick={() => setEditMode(true)} className="px-6 py-2 bg-green-500 text-white rounded-md hover:bg-green-700 transition-all">
               Edit Profile
             </button>
           )}
         </div>
 
-        <p className="text-sm mt-4 text-center">Last updated: {user.lastUpdated}</p>
+        <p className="text-sm mt-4 text-center">Last updated: {new Date(user.updatedAt).toLocaleString()}</p>
       </div>
 
       {showPopup && (
         <div className="fixed top-0 left-0 w-full h-full flex items-center justify-center bg-black bg-opacity-50">
           <div className={`${cardColor} p-6 rounded-lg shadow-lg`}>
             <p className="text-lg font-semibold">{popupMessage}</p>
-            <button
-              onClick={() => setShowPopup(false)}
-              className={`mt-4 px-6 py-2 text-white rounded-md transition-all ${buttonPrimary}`}
-            >
+            <button onClick={() => setShowPopup(false)} className={`mt-4 px-6 py-2 text-white rounded-md transition-all ${buttonPrimary}`}>
               OK
             </button>
           </div>
