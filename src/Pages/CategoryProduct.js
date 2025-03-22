@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 import productCategory from "../Helpers/ProductCategory";
 import VerticalCard from "../Components/VerticalCardProduct";
-import { HiFilter, HiArrowLeft } from "react-icons/hi"; // Import back icon
+import { HiFilter } from "react-icons/hi"; // Import back icon
 
 const staticProducts = [
     { id: 1, name: "Gaming Laptop", sellingPrice: 800, category: "laptop" },
@@ -18,7 +18,6 @@ const staticProducts = [
 ];
 
 const CategoryProduct = () => {
-    const navigate = useNavigate();
     const location = useLocation();
     const urlSearch = new URLSearchParams(location.search);
     const urlCategoryList = urlSearch.getAll("category");
@@ -66,12 +65,7 @@ const CategoryProduct = () => {
     return (
         <div className="container mx-auto p-4">
             {/* Back Button */}
-            <button
-                className="flex items-center gap-2 text-blue-600 hover:text-blue-800 font-semibold mb-4"
-                onClick={() => navigate("/")}
-            >
-                <HiArrowLeft size={20} /> Back to Home
-            </button>
+            
 
             {/* Top section for filters & sorting */}
             <div className="flex justify-between items-center mb-4">

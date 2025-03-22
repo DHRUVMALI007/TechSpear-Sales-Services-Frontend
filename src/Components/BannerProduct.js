@@ -1,36 +1,16 @@
 import React, { useState, useEffect } from "react";
 import { FaArrowLeft, FaArrowRight } from "react-icons/fa";
+import banner1 from "./Banner Images/Home.png";
+import banner2 from "./Banner Images/Home (2).png";
+import banner3 from "./Banner Images/Home (3).png";
+import banner4 from "./Banner Images/Home (4).png";
 
 const Banner = () => {
   const bannerImages = [
-    {
-      id: 1,
-      mobileImageUrl:
-        "https://images.unsplash.com/photo-1521747116042-5a810fda9664?crop=entropy&cs=tinysrgb&fit=max&ixid=MXwyMDg1MnwwfDF8c2VhcmNofDJ8fG1vYmlsZXxlbnwwfHx8fDE2Nzk3MzQ3NjY&ixlib=rb-1.2.1&q=80&w=500",
-      desktopImageUrl:
-        "https://images.unsplash.com/photo-1521747116042-5a810fda9664?crop=entropy&cs=tinysrgb&fit=max&ixid=MXwyMDg1MnwwfDF8c2VhcmNofDJ8fG1vYmlsZXxlbnwwfHx8fDE2Nzk3MzQ3NjY&ixlib=rb-1.2.1&q=80&w=1080",
-    },
-    {
-      id: 2,
-      mobileImageUrl:
-        "https://images.unsplash.com/photo-1521747116042-5a810fda9664?crop=entropy&cs=tinysrgb&fit=max&ixid=MXwyMDg1MnwwfDF8c2VhcmNofDJ8fG1vYmlsZXxlbnwwfHx8fDE2Nzk3MzQ3NjY&ixlib=rb-1.2.1&q=80&w=500",
-      desktopImageUrl:
-        "https://images.unsplash.com/photo-1521747116042-5a810fda9664?crop=entropy&cs=tinysrgb&fit=max&ixid=MXwyMDg1MnwwfDF8c2VhcmNofDJ8fG1vYmlsZXxlbnwwfHx8fDE2Nzk3MzQ3NjY&ixlib=rb-1.2.1&q=80&w=1080",
-    },
-    {
-      id: 2,
-      mobileImageUrl:
-        "https://images.unsplash.com/photo-1521747116042-5a810fda9664?crop=entropy&cs=tinysrgb&fit=max&ixid=MXwyMDg1MnwwfDF8c2VhcmNofDJ8fG1vYmlsZXxlbnwwfHx8fDE2Nzk3MzQ3NjY&ixlib=rb-1.2.1&q=80&w=500",
-      desktopImageUrl:
-        "https://images.unsplash.com/photo-1521747116042-5a810fda9664?crop=entropy&cs=tinysrgb&fit=max&ixid=MXwyMDg1MnwwfDF8c2VhcmNofDJ8fG1vYmlsZXxlbnwwfHx8fDE2Nzk3MzQ3NjY&ixlib=rb-1.2.1&q=80&w=1080",
-    },
-    {
-      id: 2,
-      mobileImageUrl:
-        "https://images.unsplash.com/photo-1521747116042-5a810fda9664?crop=entropy&cs=tinysrgb&fit=max&ixid=MXwyMDg1MnwwfDF8c2VhcmNofDJ8fG1vYmlsZXxlbnwwfHx8fDE2Nzk3MzQ3NjY&ixlib=rb-1.2.1&q=80&w=500",
-      desktopImageUrl:
-        "https://images.unsplash.com/photo-1521747116042-5a810fda9664?crop=entropy&cs=tinysrgb&fit=max&ixid=MXwyMDg1MnwwfDF8c2VhcmNofDJ8fG1vYmlsZXxlbnwwfHx8fDE2Nzk3MzQ3NjY&ixlib=rb-1.2.1&q=80&w=1080",
-    },
+    { id: 1, imageUrl: banner1, link: "/product-category?category=Laptop" },
+    { id: 2, imageUrl: banner2, link: "/product-category?category=PC" },
+    { id: 3, imageUrl: banner3, link: "/product-category?category=Accessory" },
+    { id: 4, imageUrl: banner4, link: "/product-category?category=Other" },
   ];
 
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -53,19 +33,16 @@ const Banner = () => {
   };
 
   return (
-    <div className="relative w-full h-[300px] md:h-[450px] lg:h-[550px] bg-gray-900">
-      {/* Image Section */}
-      <div className="absolute top-0 left-0 w-full h-full overflow-hidden">
-        <img
-          src={bannerImages[currentIndex].mobileImageUrl}
-          alt={`Banner ${currentIndex + 1}`}
-          className="w-full h-full object-cover md:hidden"
-        />
-        <img
-          src={bannerImages[currentIndex].desktopImageUrl}
-          alt={`Banner ${currentIndex + 1}`}
-          className="w-full h-full object-cover hidden md:block"
-        />
+    <div className="relative w-full aspect-[16/9] bg-gray-900">
+      {/* Image Section with Clickable Link */}
+      <div className="absolute top-0 left-0 w-full h-full lg:h-auto overflow-hidden">
+        <a href={bannerImages[currentIndex].link}>
+          <img
+            src={bannerImages[currentIndex].imageUrl}
+            alt={`Banner ${currentIndex + 1}`}
+            className="w-full h-full object-contain cursor-pointer"
+          />
+        </a>
       </div>
 
       {/* Navigation Buttons */}
@@ -84,11 +61,12 @@ const Banner = () => {
       </button>
 
       {/* Indicators */}
-      <div className="absolute bottom-6 left-1/2 transform -translate-x-1/2 flex gap-3">
+      <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex gap-2 md:gap-3">
         {bannerImages.map((_, index) => (
-          <div
+          <button
             key={index}
-            className={`w-4 h-4 rounded-full transition-all duration-300 ${
+            onClick={() => setCurrentIndex(index)}
+            className={`w-2 h-2 md:w-4 md:h-4 rounded-full transition-all duration-300 ${
               index === currentIndex ? "bg-white scale-125" : "bg-gray-500"
             }`}
           />
