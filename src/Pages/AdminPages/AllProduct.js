@@ -1,58 +1,33 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { FaEdit, FaTrash, FaTimes, FaSearch, FaCheck, FaTimesCircle, FaArrowLeft, FaArrowRight } from 'react-icons/fa';
 import { toast } from 'react-toastify';
 import categoryData from '../../Helpers/ProductCategory';
 import UploadProduct from '../../Components/UploadProduct';
-import dell from './Dell_Logo.png';
-import hp from './hp_logo.png';
-import asus from './Asus.png';
-
+import { useDispatch, useSelector } from 'react-redux';
+import { getAllProduct } from '../../features/productSlice';
+import { useSearchParams } from 'react-router-dom';
 const AllProducts = () => {
-  const [products, setProducts] = useState([
-    {
-      id: '1',
-      name: 'Laptop A',
-      price: '$1200',
-      description: 'High performance laptop with 16GB RAM.',
-      images: [dell, hp],
-      category: 'Laptop',
-    },
-    {
-      id: '2',
-      name: 'Laptop B',
-      price: '$900',
-      description: 'Affordable laptop for daily tasks.',
-      images: [hp, dell],
-      category: 'Laptop',
-    },
-    {
-      id: '3',
-      name: 'Desktop C',
-      price: '$1500',
-      description: 'Powerful desktop with gaming capabilities.',
-      images: [asus],
-      category: 'Desktop',
-    },
-  ]);
+  const dispatch = useDispatch();
+  const { product } = useSelector((state) => state.product)
+
+  const [products, setProducts] = useState([]);
+  useEffect(() => {
+    dispatch(getAllProduct()).unwrap().then((data) => {
+      setProducts(data.data); // Update local state with fetched products
+    });
+
+  }, [dispatch]);
+
+  // console.log('products', products)
 
   const [searchQuery, setSearchQuery] = useState('');
   const [openEditModal, setOpenEditModal] = useState(false);
   const [currentProduct, setCurrentProduct] = useState(null);
   const [showUploadProduct, setShowUploadProduct] = useState(false);
   const [deleteProductId, setDeleteProductId] = useState(null);
-  const [refundStatus, setRefundStatus] = useState({});
   const [selectedImageIndex, setSelectedImageIndex] = useState(null);
   const [selectedImages, setSelectedImages] = useState([]);
-  const [refunds, ] = useState([
-    {
-      userId: '101',
-      userName: 'John Doe',
-      orderId: 'ORD1234',
-      reason: 'Defective Product',
-      description: 'Received product with a damaged screen.',
-      images: [hp, dell],
-    },
-  ]);
+
   const openModal = (images, index) => {
     setSelectedImages(images);
     setSelectedImageIndex(index);
@@ -68,14 +43,6 @@ const AllProducts = () => {
       prev === 0 ? selectedImages.length - 1 : prev - 1
     );
   };
-  const handleAccept = (orderId) => {
-    setRefundStatus((prev) => ({ ...prev, [orderId]: "Accepted" }));
-  };
-
-  const handleReject = (orderId) => {
-    setRefundStatus((prev) => ({ ...prev, [orderId]: "Rejected" }));
-  };
-
   const handleEditClick = (product) => {
     setCurrentProduct({ ...product });
     setOpenEditModal(true);
@@ -108,10 +75,10 @@ const AllProducts = () => {
     setCurrentProduct({ ...currentProduct, images: updatedImages });
   };
 
-  const filteredProducts = products.filter((product) =>
-    product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    product.category.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  // const filteredProducts = products.filter((product) =>
+  //   product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+  //   product.category.toLowerCase().includes(searchQuery.toLowerCase())
+  // );
 
   return (
     <div className="p-4">
@@ -159,11 +126,11 @@ const AllProducts = () => {
           </tr>
         </thead>
         <tbody>
-          {filteredProducts.map((product) => (
-            <tr key={product.id} className="hover:bg-gray-100">
+          {products.map((prod) => (
+            <tr key={prod._id} className="hover:bg-gray-100">
               <td className="p-2 border text-center">
                 <div className="flex overflow-x-auto space-x-2 w-full h-20">
-                  {product.images.slice(0, 5).map((img, index) => (
+                  {prod.otherProductImg?.slice(0, 5).map((img, index) => (
                     <img
                       key={index}
                       src={img}
@@ -173,23 +140,24 @@ const AllProducts = () => {
                   ))}
                 </div>
               </td>
-
-              <td className="p-2 border">{product.name}</td>
-              <td className="p-2 border">{product.price}</td>
-              <td className="p-2 border">{product.category}</td>
+              <td className="p-2 border">{prod.productName}</td>
+              <td className="p-2 border">{prod.price}</td>
+              <td className="p-2 border">{prod.category}</td>
               <td className="p-2 border">
-                {product.description.length > 30 ? `${product.description.slice(0, 40)}...` : product.description}
+                {prod.description?.length > 40
+                  ? `${prod.description.slice(0, 40)}...`
+                  : prod.description}
               </td>
-              <td className="p-2 border-t flex justify-center items-center gap-2">
+              <td className="p-2 border flex justify-center items-center gap-2">
                 <button
-                  onClick={() => handleEditClick(product)}
-                  className="bg-yellow-500 text-white p-3 mt-4 w-12 h-12 flex justify-center items-center rounded"
+                  onClick={() => handleEditClick(prod)}
+                  className="bg-yellow-500 text-white p-3 w-12 h-12 flex justify-center items-center rounded"
                 >
                   <FaEdit />
                 </button>
                 <button
-                  onClick={() => handleDeleteClick(product.id)}
-                  className="bg-red-500 text-white p-3 mt-4 w-12 h-12 flex justify-center items-center rounded"
+                  onClick={() => handleDeleteClick(prod._id)}
+                  className="bg-red-500 text-white p-3 w-12 h-12 flex justify-center items-center rounded"
                 >
                   <FaTrash />
                 </button>
@@ -350,133 +318,6 @@ const AllProducts = () => {
           </div>
         </div>
       )}
-      <div className="overflow-x-auto">
-      <h2 className="font-bold text-lg mt-5">Refund Requests</h2>
-      <div className="w-full overflow-x-auto">
-        <table className="min-w-full border-collapse border border-gray-300 mb-6 mt-5">
-          <thead className="bg-slate-900 text-white sticky top-0">
-            <tr>
-              <th className="p-2 border">User Name</th>
-              <th className="p-2 border">Order ID</th>
-              <th className="p-2 border">Reason</th>
-              <th className="p-2 border">Description</th>
-              <th className="p-2 border">Image</th>
-              <th className="p-2 border">Action</th>
-            </tr>
-          </thead>
-          <tbody>
-            {refunds.map((refund, index) => (
-              <tr key={index} className="hover:bg-gray-100">
-                <td className="p-2 border">{refund.userName}</td>
-                <td className="p-2 border">{refund.orderId}</td>
-                <td className="p-2 border">{refund.reason}</td>
-                <td className="p-2 border">{refund.description}</td>
-                <td className="p-2 border text-center">
-                  <div className="flex overflow-x-auto space-x-2 w-40 max-w-full">
-                    {refund.images.map((img, i) => (
-                      <img
-                        key={i}
-                        src={img}
-                        alt="refund"
-                        className="w-16 h-16 object-cover rounded cursor-pointer shrink-0"
-                        onClick={() => openModal(refund.images, i)}
-                      />
-                    ))}
-                  </div>
-                </td>
-                <td className="p-2 border text-center">
-                  {refundStatus[refund.orderId] ? (
-                    <span
-                      className={`font-semibold ${
-                        refundStatus[refund.orderId] === "Accepted"
-                          ? "text-green-600"
-                          : "text-red-600"
-                      }`}
-                    >
-                      {refundStatus[refund.orderId]}
-                    </span>
-                  ) : (
-                    <div className="flex space-x-2 justify-center">
-                      <button
-                        className="bg-green-600 text-white px-3 py-1 rounded hover:bg-green-700 hidden xl:inline-block"
-                        onClick={() => handleAccept(refund.orderId)}
-                      >
-                        Accept
-                      </button>
-                      <button
-                        className="bg-red-600 text-white px-3 py-1 rounded hover:bg-red-700 hidden xl:inline-block"
-                        onClick={() => handleReject(refund.orderId)}
-                      >
-                        Reject
-                      </button>
-
-                      {/* Icons for mobile */}
-                      <button
-                        className="text-green-600 xl:hidden"
-                        onClick={() => handleAccept(refund.orderId)}
-                      >
-                        <FaCheck size={20} />
-                      </button>
-                      <button
-                        className="text-red-600 xl:hidden"
-                        onClick={() => handleReject(refund.orderId)}
-                      >
-                        <FaTimesCircle size={20} />
-                      </button>
-                    </div>
-                  )}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-
-      {/* Full-Screen Image Modal */}
-      {selectedImageIndex !== null && (
-        <div
-          className="fixed inset-0 bg-white bg-opacity-95 flex items-center justify-center z-50"
-          onClick={closeModal}
-        >
-          {/* Close Button */}
-          <button
-            className="absolute top-5 right-5 bg-gray-800 text-white p-2 rounded-full"
-            onClick={closeModal}
-          >
-            <FaTimes size={24} />
-          </button>
-
-          {/* Previous Image */}
-          <button
-            className="absolute left-5 bg-gray-800 text-white p-3 rounded-full"
-            onClick={(e) => {
-              e.stopPropagation();
-              prevImage();
-            }}
-          >
-            <FaArrowLeft size={24} />
-          </button>
-
-          <img
-            src={selectedImages[selectedImageIndex]}
-            alt="Refund"
-            className="max-w-[90%] max-h-[90vh] rounded-lg shadow-lg"
-            onClick={(e) => e.stopPropagation()} // Prevent modal close when clicking image
-          />
-
-          {/* Next Image */}
-          <button
-            className="absolute right-5 bg-gray-800 text-white p-3 rounded-full"
-            onClick={(e) => {
-              e.stopPropagation();
-              nextImage();
-            }}
-          >
-            <FaArrowRight size={24} />
-          </button>
-        </div>
-      )}
-    </div>
     </div>
   );
 };
