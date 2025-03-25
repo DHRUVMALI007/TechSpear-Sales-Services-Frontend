@@ -1,25 +1,21 @@
 import React, { useEffect, useState } from 'react';
-import { FaEdit, FaTrash, FaTimes, FaSearch, FaCheck, FaTimesCircle, FaArrowLeft, FaArrowRight } from 'react-icons/fa';
+import { FaEdit, FaTrash, FaTimes, FaSearch } from 'react-icons/fa';
 import { toast } from 'react-toastify';
-import categoryData from '../../Helpers/ProductCategory';
+import { CgClose } from "react-icons/cg";
 import UploadProduct from '../../Components/UploadProduct';
 import { useDispatch, useSelector } from 'react-redux';
-import { getAllProduct } from '../../features/productSlice';
-import { useSearchParams } from 'react-router-dom';
+import { deleteProduct, getAllProduct, updateProduct } from '../../features/productSlice';
+
+import productCategory from "../../Helpers/ProductCategory";
+import { FaCloudUploadAlt } from "react-icons/fa";
+
 const AllProducts = () => {
   const dispatch = useDispatch();
-  const { product } = useSelector((state) => state.product)
+
+  const { loading, error, product } = useSelector((state) => state.product)
 
   const [products, setProducts] = useState([]);
-  useEffect(() => {
-    dispatch(getAllProduct()).unwrap().then((data) => {
-      setProducts(data.data); // Update local state with fetched products
-    });
-
-  }, [dispatch]);
-
-  // console.log('products', products)
-
+  
   const [searchQuery, setSearchQuery] = useState('');
   const [openEditModal, setOpenEditModal] = useState(false);
   const [currentProduct, setCurrentProduct] = useState(null);
@@ -27,6 +23,139 @@ const AllProducts = () => {
   const [deleteProductId, setDeleteProductId] = useState(null);
   const [selectedImageIndex, setSelectedImageIndex] = useState(null);
   const [selectedImages, setSelectedImages] = useState([]);
+  const [editId, setEditId] = useState(null)
+
+
+  const [data, setData] = useState({
+    productName: "",
+    description: "",
+    price: "",
+    category: "",
+    stock: "",
+    underlinePrice: "",
+    mainProductImg: null, // Change to `null` to store File object
+    otherProductImg: [],
+  });
+
+
+  useEffect(() => {
+    dispatch(getAllProduct()).unwrap().then((data) => {
+      setProducts(data.data);
+      toast.info("Getting all products")
+    }).catch((error) => {
+      console.error("Error fetching products:", error);
+      console.log(error.message)
+      toast.error(error?.message || error);
+    });
+  }, [dispatch]);
+
+  // console.log('products ary stateuse', products)
+
+  const handleEditClick = (productId) => {
+    const selectedProduct = products.find((p) => p._id === productId);
+    if (!selectedProduct) {
+      toast.error("Product not found!");
+      return;
+    }
+
+    setEditId(productId);
+    setCurrentProduct(selectedProduct);
+    setData({
+      productName: selectedProduct.productName,
+      description: selectedProduct.description,
+      price: selectedProduct.price,
+      category: selectedProduct.category,
+      stock: selectedProduct.stock,
+      underlinePrice: selectedProduct.underlinePrice,
+      mainProductImg: selectedProduct.mainProductImg || null,
+      otherProductImg: selectedProduct.otherProductImg || [],
+    });
+    setOpenEditModal(true);
+  };
+
+  const handleMainImageUpload = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setData((prev) => ({ ...prev, mainProductImg: file }));
+    }
+  };
+
+  const handleOtherImagesUpload = (e) => {
+    const files = Array.from(e.target.files);
+    setData((prev) => ({
+      ...prev,
+      otherProductImg: [...prev.otherProductImg, ...files],
+    }));
+  };
+
+  const handleDeleteMainImage = () => {
+    setData((prev) => ({ ...prev, mainProductImg: null }));
+  };
+
+  const handleDeleteOtherImage = (index) => {
+    setData((prev) => {
+      const updatedImages = [...prev.otherProductImg];
+      updatedImages.splice(index, 1);
+      return { ...prev, otherProductImg: updatedImages };
+    });
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+  
+    if (!editId) {
+      toast.error("Product ID is missing. Unable to update the product.");
+      return;
+    }
+  
+    const formData = new FormData();
+    formData.append("productName", data.productName);
+    formData.append("description", data.description);
+    formData.append("price", data.price);
+    formData.append("category", data.category);
+    formData.append("stock", data.stock);
+    formData.append("underlinePrice", data.underlinePrice);
+  
+    // if (data.mainProductImg instanceof File) {
+    //   formData.append("mainProductImg", data.mainProductImg);
+    // }
+  
+    // data.otherProductImg.forEach((file) => {
+    //   if (file instanceof File) {
+    //     formData.append("otherProductImg", file);
+    //   }
+    // });
+    if (data.mainProductImg) {
+      formData.append("mainProductImg", data.mainProductImg);
+  }
+
+  // ✅ Append Other Product Images
+  if (data.otherProductImg.length > 0) {
+      data.otherProductImg.forEach((img, index) => {
+          formData.append("otherProductImg", img);
+      });
+  }
+    console.log("Dispatching Redux action with FormData...");
+    for (let pair of formData.entries()) {
+      console.log(pair[0], pair[1]);
+    }
+
+    try {
+      // let tdata= {name:"nandnai",description:"learning finding er."};
+      const response = await dispatch(updateProduct({ editId, formData })).unwrap();
+      console.log("Updated product response:", response);
+      toast.success(response?.message)
+  
+      // toast.success("Product updated successfully!");
+      setOpenEditModal(false);
+      
+      dispatch(getAllProduct()); // Refresh the product list
+    } catch (error) {
+      console.error("Update product error:", error);
+      toast.error(error?.message || "Failed to update product.");
+    }
+  };
+  
 
   const openModal = (images, index) => {
     setSelectedImages(images);
@@ -43,10 +172,6 @@ const AllProducts = () => {
       prev === 0 ? selectedImages.length - 1 : prev - 1
     );
   };
-  const handleEditClick = (product) => {
-    setCurrentProduct({ ...product });
-    setOpenEditModal(true);
-  };
 
 
   const handleDeleteClick = (productId) => {
@@ -54,16 +179,15 @@ const AllProducts = () => {
   };
 
   const confirmDelete = () => {
-    setProducts((prev) => prev.filter((product) => product.id !== deleteProductId));
+    dispatch(deleteProduct(deleteProductId))
+    setProducts((prev) => {
+      console.log(prev);
+      return prev.filter((product) => product._id !== deleteProductId)
+    });
     toast.success('Product deleted successfully!');
     setDeleteProductId(null);
   };
 
-  const handleUpdateProduct = (updatedProduct) => {
-    setProducts((prev) => prev.map((p) => (p.id === updatedProduct.id ? updatedProduct : p)));
-    setOpenEditModal(false);
-    toast.success('Product updated successfully!');
-  };
 
   const handleImageChange = (e) => {
     const files = Array.from(e.target.files);
@@ -150,8 +274,8 @@ const AllProducts = () => {
               </td>
               <td className="p-2 border flex justify-center items-center gap-2">
                 <button
-                  onClick={() => handleEditClick(prod)}
-                  className="bg-yellow-500 text-white p-3 w-12 h-12 flex justify-center items-center rounded"
+                  onClick={() => handleEditClick(prod._id)}
+                  className="bg-blue-500 text-white p-3 w-12 h-12 text-[13px] flex justify-center items-center rounded"
                 >
                   <FaEdit />
                 </button>
@@ -203,117 +327,133 @@ const AllProducts = () => {
             </button>
             <h3 className="text-lg font-bold mb-4">Edit Product</h3>
 
-            <form
-              onSubmit={(e) => {
-                e.preventDefault();
-                handleUpdateProduct(currentProduct);
-              }}
-            >
-              {/* Form fields for editing */}
-              <div className="mb-4">
-                <label htmlFor="name" className="block text-sm font-medium text-gray-700">
-                  Product Name
-                </label>
-                <input
-                  id="name"
-                  name="name"
-                  value={currentProduct.name}
-                  onChange={(e) => setCurrentProduct({ ...currentProduct, name: e.target.value })}
-                  className="w-full p-2 border border-gray-300 rounded"
-                  required
-                />
-              </div>
+            <form className="grid p-4 gap-2 overflow-auto h-full pb-5" onSubmit={handleSubmit} encType='multipart/form-data'>
+              <label htmlFor="productName">Product Name:</label>
+              <input
+                type="text"
+                id="productName"
+                placeholder="Enter product name"
+                value={data.productName}
+                onChange={(e) => setData({ ...data, productName: e.target.value })}
+                className="p-2 bg-slate-100 border rounded"
+                required
+              />
 
-              <div className="mb-4">
-                <label htmlFor="category" className="block text-sm font-medium text-gray-700">
-                  Category
-                </label>
-                <select
-                  id="category"
-                  name="category"
-                  value={currentProduct.category}
-                  onChange={(e) => setCurrentProduct({ ...currentProduct, category: e.target.value })}
-                  className="w-full p-2 border border-gray-300 rounded"
-                  required
-                >
-                  {categoryData.map((cat) => (
-                    <option key={cat.id} value={cat.value}>
-                      {cat.label}
-                    </option>
-                  ))}
-                </select>
-              </div>
+              <label htmlFor="category" className="mt-3">Category:</label>
+              <select
+                required
+                value={data.category}
+                onChange={(e) => setData({ ...data, category: e.target.value })}
+                className="p-2 bg-slate-100 border rounded"
+              >
+                <option value="">Select Category</option>
+                {productCategory.map((el, index) => (
+                  <option value={el.value} key={el.value + index}>{el.label}</option>
+                ))}
+              </select>
 
-              <div className="mb-4">
-                <label htmlFor="description" className="block text-sm font-medium text-gray-700">
-                  Description
-                </label>
-                <textarea
-                  value={currentProduct.description}
-                  onChange={(e) => setCurrentProduct({ ...currentProduct, description: e.target.value })}
-                  className="w-full p-2 border rounded mb-2"
-                  placeholder="Description"
-                  rows={5}
-                  style={{ resize: 'none', overflowY: 'auto' }}
-                />
-              </div>
-
-              <div className="mb-4">
-                <label htmlFor="price" className="block text-sm font-medium text-gray-700">
-                  Price
-                </label>
-                <input
-                  id="price"
-                  name="price"
-                  value={currentProduct.price}
-                  onChange={(e) => setCurrentProduct({ ...currentProduct, price: e.target.value })}
-                  className="w-full p-2 border border-gray-300 rounded"
-                  required
-                />
-              </div>
-
-              <div className="mb-4">
-                <label className="block text-sm font-medium text-gray-700">
-                  Product Images
-                </label>
-                <div className="flex space-x-2 overflow-x-auto mt-2 relative">
-                  {currentProduct.images.map((img, index) => (
-                    <div key={index} className="relative">
-                      <img src={img} alt="Product" className="w-16 h-16 object-cover rounded" />
-                      <button
-                        type="button"
-                        onClick={() => removeImage(index)}
-                        className="absolute top-0 right-0 bg-gray-800 text-white p-1 rounded-full hover:bg-gray-600"
-                      >
-                        <FaTimes />
-                      </button>
-                    </div>
-                  ))}
+              {/* ✅ Main Product Image Upload */}
+              <label className="mt-3">Main Product Image:</label>
+              <label htmlFor="uploadMainImageInput">
+                <div className="p-2 bg-slate-100 border rounded h-32 w-full flex justify-center items-center cursor-pointer">
+                  <div className="text-slate-500 flex justify-center items-center flex-col gap-2">
+                    <span className="text-4xl"><FaCloudUploadAlt /></span>
+                    <p className="text-sm">Upload Main Product Image</p>
+                    <input type="file" id="uploadMainImageInput" className="hidden" onChange={handleMainImageUpload} />
+                  </div>
                 </div>
-                <input
-                  type="file"
-                  accept="image/*"
-                  multiple
-                  onChange={handleImageChange}
-                  className="mt-2 w-full p-2 border border-gray-300 rounded"
-                />
+              </label>
+              {data.mainProductImg && (
+                <div className="relative group mt-2">
+                  <img src={data.mainProductImg} alt="Main Product" width={100} className="bg-slate-100 border cursor-pointer" />
+                  <div
+                    className="absolute top-0 right-0 p-1 text-white bg-red-600 rounded-full cursor-pointer"
+                    onClick={handleDeleteMainImage}
+                  >
+                    <CgClose className="text-lg" />
+                  </div>
+                </div>
+              )}
+
+              {/* ✅ Other Product Images Upload */}
+              <label className="mt-3">Other Product Images:</label>
+              <label htmlFor="uploadOtherImagesInput">
+                <div className="p-2 bg-slate-100 border rounded h-32 w-full flex justify-center items-center cursor-pointer">
+                  <div className="text-slate-500 flex justify-center items-center flex-col gap-2">
+                    <span className="text-4xl"><FaCloudUploadAlt /></span>
+                    <p className="text-sm">Upload Other Product Images</p>
+                    <input type="file" id="uploadOtherImagesInput" className="hidden" onChange={handleOtherImagesUpload} multiple />
+                  </div>
+                </div>
+              </label>
+              <div className="flex gap-2 flex-wrap mt-2">
+                {data.otherProductImg.map((img, index) => (
+                  <div className="relative group" key={index}>
+                    <img src={img} alt="Other Product" width={80} height={80} className="bg-slate-100 border cursor-pointer" />
+                    <div
+                      className="absolute top-0 right-0 p-1 text-white bg-red-600 rounded-full cursor-pointer"
+                      onClick={() => handleDeleteOtherImage(index)}
+                    >
+                      <CgClose className="text-lg" />
+                    </div>
+                  </div>
+                ))}
               </div>
 
-              <div className="flex justify-between">
-                <button
-                  type="button"
-                  onClick={() => setOpenEditModal(false)}
-                  className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-700"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
-                >
-                  Update Product
-                </button>
-              </div>
+              <label htmlFor="price" className="mt-3">Price:</label>
+              <input
+                type="number"
+                id="price"
+                placeholder="Enter price"
+                value={data.price}
+                onChange={(e) => setData({ ...data, price: e.target.value })}
+                className="p-2 bg-slate-100 border rounded"
+                required
+              />
+
+              <label htmlFor="underlinePrice" className="mt-3">Underline Price:</label>
+              <input
+                type="number"
+                id="underlinePrice"
+                placeholder="Enter underline price"
+                value={data.underlinePrice}
+                onChange={(e) => setData({ ...data, underlinePrice: e.target.value })}
+                className="p-2 bg-slate-100 border rounded"
+                required
+              />
+
+              <label htmlFor="stock" className="mt-3">Stock:</label>
+              <input
+                type="number"
+                id="stock"
+                placeholder="Enter stock quantity"
+                value={data.stock}
+                onChange={(e) => setData({ ...data, stock: e.target.value })}
+                className="p-2 bg-slate-100 border rounded"
+                required
+              />
+
+              <label htmlFor="description" className="mt-3">Product Description:</label>
+              <textarea
+                id="description"
+                placeholder="Enter product description"
+                value={data.description}
+                onChange={(e) => setData({ ...data, description: e.target.value })}
+                className="p-2 bg-slate-100 border rounded resize-none h-24"
+                required
+              ></textarea>
+              <button
+                type="submit"
+                disabled={loading}
+                className={`px-3 py-2 mb-10 text-white flex justify-center items-center ${loading ? "bg-red-400 cursor-not-allowed" : "bg-red-600 hover:bg-red-700"
+                  }`}
+              >
+                {loading ? (
+                  <div className="h-5 w-5 border-4 border-white border-t-transparent rounded-full animate-spin"></div>
+                ) : (
+                  "Update Product"
+                )}
+              </button>
             </form>
           </div>
         </div>

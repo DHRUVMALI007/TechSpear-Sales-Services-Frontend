@@ -5,5 +5,6 @@ export const store= configureStore({
     reducer:{
         auth:userReducer,
         product:productReducer
+        
     }
 })
