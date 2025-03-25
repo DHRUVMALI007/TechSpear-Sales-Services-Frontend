@@ -2,6 +2,9 @@ import React, { useState, useEffect, useCallback } from "react";
 import { toast } from "react-toastify";
 import moment from "moment";
 import { FaTrash } from "react-icons/fa";
+import { useDispatch } from "react-redux";
+import { getCurrentUser } from "../../features/userSlice";
+import { useNavigate } from "react-router-dom";
 
 const AllUsers = () => {
   const [allUser, setAllUsers] = useState([]);
@@ -9,18 +12,35 @@ const AllUsers = () => {
   const [showModal, setShowModal] = useState(false);
   const [userToDelete, setUserToDelete] = useState(null);
 
-  // Fetch Users from API
+
+  const navigate=useNavigate()
+
   const fetchAllUsers = useCallback(async () => {
     try {
       setLoading(true);
-      const response = await fetch("http://localhost:5000/api/v1/users/getAllUser");
+      const token= localStorage.getItem("token")
+      const response = await fetch("http://localhost:5000/api/v1/users/getAllUser", {
+        method: "GET",
+        headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${token}` // Important
+        }
+    });
       const data = await response.json();
-
+      // console.log(data)
+      // console.log('stats')
+      // console.log(data?.statusCode)
+      if (data?.statusCode === 400) {
+        console.error("Unauthorized: Token missing or expired");
+        navigate("/login") // Redirect to login
+        return;
+    }
       if (!response.ok) throw new Error(data.message || "Failed to fetch users");
 
       // Ensure data is an array and remove admin users
       const users = Array.isArray(data.data) ? data.data.filter((d) => d.role !== "Admin") : [];
       setAllUsers(users);
+      toast.info(data?.message)
     } catch (error) {
       toast.error(error.message);
       setAllUsers([]); // Ensure state is always an array
@@ -47,8 +67,9 @@ const AllUsers = () => {
             "Authorization": `Bearer ${token}`,
           },
         });
-
         const data = await response.json();
+       
+
         if (!response.ok) throw new Error(data.message || "Failed to delete user");
 
         setAllUsers((prevUsers) => prevUsers.filter(user => user._id !== userToDelete));

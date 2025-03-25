@@ -14,7 +14,7 @@ const SignUp = () => {
   const navigate = useNavigate();
 
   const dispatch =useDispatch();
-  const { user, error, loading } = useSelector((state) => state); 
+  const { user, error, loading } = useSelector((state) => state.auth); 
   // const {user,error,loading} = useSelector((state)=>state)
   
   const [data, setData] = useState({
