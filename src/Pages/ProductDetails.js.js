@@ -9,7 +9,7 @@ import CategoryWiseProductDisplay from '../Components/CategoryWiseProductDisplay
 const ProductDetails = () => {
     const navigate = useNavigate();
     const { isDarkMode } = useContext(ThemeContext);
-
+//
     const dummyProduct = {
         productName: 'Gaming Laptop',
         brandName: 'TechBrand',

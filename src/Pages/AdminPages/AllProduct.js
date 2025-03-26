@@ -49,7 +49,7 @@ const AllProducts = () => {
     });
   }, [dispatch]);
 
-  // console.log('products ary stateuse', products)
+  console.log('products ary stateuse', products)
 
   const handleEditClick = (productId) => {
     const selectedProduct = products.find((p) => p._id === productId);
@@ -115,16 +115,7 @@ const AllProducts = () => {
     formData.append("category", data.category);
     formData.append("stock", data.stock);
     formData.append("underlinePrice", data.underlinePrice);
-  
-    // if (data.mainProductImg instanceof File) {
-    //   formData.append("mainProductImg", data.mainProductImg);
-    // }
-  
-    // data.otherProductImg.forEach((file) => {
-    //   if (file instanceof File) {
-    //     formData.append("otherProductImg", file);
-    //   }
-    // });
+    formData.append("isTrending", data.isTrending);
     if (data.mainProductImg) {
       formData.append("mainProductImg", data.mainProductImg);
   }
@@ -246,6 +237,9 @@ const AllProducts = () => {
             <th className="p-2 border">Price</th>
             <th className="p-2 border">Category</th>
             <th className="p-2 border">Description</th>
+            <th className="p-2 border">Underline Price</th>
+            <th className="p-2 border">Stock</th>
+            <th className='p-2 border'>Trending</th>
             <th className="p-2 border">Action</th>
           </tr>
         </thead>
@@ -265,23 +259,26 @@ const AllProducts = () => {
                 </div>
               </td>
               <td className="p-2 border">{prod.productName}</td>
-              <td className="p-2 border">{prod.price}</td>
+              <td className="p-2 border text-green-600 font-bold">{prod.price}</td>
               <td className="p-2 border">{prod.category}</td>
               <td className="p-2 border">
                 {prod.description?.length > 40
                   ? `${prod.description.slice(0, 40)}...`
                   : prod.description}
               </td>
-              <td className="p-2 border flex justify-center items-center gap-2">
+              <td className='p-2 border line-through text-gray-500'>{prod.underlinePrice}</td>
+              <td className='p-2 border'>{prod.stock}</td>
+              <td className={`p-2 border font-medium ${prod?.isTrending? 'text-green-600':'text-red-600'}`}>{prod?.isTrending ? "Yes":"No" }</td>
+              <td className="p-2 border flex justify-center items-center gap-2 ">
                 <button
-                  onClick={() => handleEditClick(prod._id)}
-                  className="bg-blue-500 text-white p-3 w-12 h-12 text-[13px] flex justify-center items-center rounded"
+                  onClick={() => handleEditClick(prod._id)} 
+                  className="bg-blue-500 text-white p-3 w-12 h-12 text-[13px] flex justify-center items-center rounded-full"
                 >
                   <FaEdit />
                 </button>
                 <button
                   onClick={() => handleDeleteClick(prod._id)}
-                  className="bg-red-500 text-white p-3 w-12 h-12 flex justify-center items-center rounded"
+                  className="bg-red-500 text-white p-3 w-12 h-12 flex justify-center items-center rounded-full"
                 >
                   <FaTrash />
                 </button>

@@ -17,6 +17,7 @@ const UploadProduct = ({ onClose, fetchData }) => {
         underlinePrice: "",
         mainProductImg: null, // Change to `null` to store File object
         otherProductImg: [],
+        isTrending: false
     });
     const dispatch = useDispatch()
     const handleMainImageUpload = (e) => {
@@ -56,6 +57,7 @@ const UploadProduct = ({ onClose, fetchData }) => {
         formData.append("category", data.category);
         formData.append("stock", data.stock);
         formData.append("underlinePrice", data.underlinePrice);
+        formData.append("isTrending", data.isTrending);
 
         if (data.mainProductImg) {
             formData.append("mainProductImg", data.mainProductImg);
@@ -65,10 +67,10 @@ const UploadProduct = ({ onClose, fetchData }) => {
             formData.append("otherProductImg", file);
         });
 
-        // console.log("Dispatching Redux action with FormData...");
-        // for (let [key, value] of formData.entries()) {
-        //     console.log(key, value);
-        // }
+        console.log("Dispatching Redux action with FormData...");
+        for (let [key, value] of formData.entries()) {
+            console.log(key, value);
+        }
 
         dispatch(uploadProduct(formData))
             .unwrap()
@@ -210,6 +212,17 @@ const UploadProduct = ({ onClose, fetchData }) => {
                         className="p-2 bg-slate-100 border rounded resize-none h-24"
                         required
                     ></textarea>
+
+                    <div className="flex justify-center items-center gap-6 mt-3 mb-3">
+                        <label htmlFor="isTrending" className="text-rose-950">Is Trending? Product?</label>
+                        <input
+                            type="checkbox"
+                            id="isTrending"
+                            value={data.isTrending}
+                            onChange={(e) => setData({ ...data, isTrending: e.target.checked })} 
+                            className=" bg-slate-600 border rounded" />
+                    </div>
+
                     <button
                         type="submit"
                         disabled={loading}
