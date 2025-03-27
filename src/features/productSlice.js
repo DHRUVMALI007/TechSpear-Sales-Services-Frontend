@@ -1,9 +1,6 @@
 import { createSlice } from "@reduxjs/toolkit";
 import { createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
-import { act } from "react";
-import { data } from "react-router-dom";
-import { toast } from "react-toastify";
 
 
 const baseUrl = "http://localhost:5000/api/v1/products"
@@ -99,6 +96,18 @@ export const deleteProduct = createAsyncThunk("product/delete", async (productId
         return er?.response?.data?.message;
     }
 })
+
+export const getSingleProductDetails = createAsyncThunk("product/detailed",async (productId)=>{
+    try {
+        const response = await axios.get(`${baseUrl}/getSingleProduct/${productId}`)
+        console.log(response.data)
+        return response.data
+    }
+    catch (er) {
+        return er?.response?.data?.message;
+    }
+})
+
 
 const productSlice = createSlice({
     name: "product",

@@ -25,6 +25,7 @@ const CategoryProduct = () => {
                 const queryParams = new URLSearchParams();
                 filterCategoryList.forEach((category) => queryParams.append("category", category));
                 if (sortBy) queryParams.append("sortOption", sortBy === "asc" ? "LowToHigh" : "HighToLow");
+                console.log(sortBy);
 
                 const response = await axios.get(`http://localhost:5000/api/v1/products/getCategoryBasedProduct?${queryParams.toString()}`);
                 setData(response.data.data);
@@ -101,9 +102,9 @@ const CategoryProduct = () => {
                 </div>
 
                 <div>
-                    <p className="font-medium text-gray-800 text-lg my-2">Search Results: {data.length}</p>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                        {data.length !== 0 ? <VerticalCard data={data} /> : <p>No products found.</p>}
+                    <p className="font-medium text-gray-800 text-lg my-2">Search Results: {data?.length}</p>
+                    <div className="w-full flex gap-4">
+                        {data.length !== 0 ? <VerticalCard data={data} className={`w-full h-full `}/> : <p>No products found.</p>}
                     </div>
                 </div>
             </div>

@@ -1,44 +1,47 @@
-import React, { useState, useContext } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useContext, useEffect } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
 import { FaStar, FaStarHalf } from 'react-icons/fa';
 import { IoMdAdd, IoMdRemove } from "react-icons/io";
 import { ThemeContext } from "../Helpers/ThemeContext";
 import displayINRCurrency from '../Helpers/displayCurrency';
 import CategoryWiseProductDisplay from '../Components/CategoryWiseProductDisplay';
+import { useDispatch, useSelector } from "react-redux";
+import { getSingleProductDetails } from '../features/productSlice';
+import { toast } from 'react-toastify';
 
 const ProductDetails = () => {
-    const navigate = useNavigate();
-    const { isDarkMode } = useContext(ThemeContext);
-//
-    const dummyProduct = {
-        productName: 'Gaming Laptop',
-        brandName: 'TechBrand',
-        category: 'Laptops',
-        productImage: [
-            'https://images.unsplash.com/photo-1521747116042-5a810fda9664?crop=entropy&cs=tinysrgb&fit=max&ixid=MXwyMDg1MnwwfDF8c2VhcmNofDJ8fG1vYmlsZXxlbnwwfHx8fDE2Nzk3MzQ3NjY&ixlib=rb-1.2.1&q=80&w=500',
-            'https://source.unsplash.com/400x400/?computer,technology',
-            'https://source.unsplash.com/400x400/?keyboard,mouse',
-            'https://source.unsplash.com/400x400/?tech,device',
-        ],
-        description: 'High-performance gaming laptop with powerful graphics and an ultra-fast processor.',
-        price: 100000,
-        sellingPrice: 90000,
-        features: [
-            "High-Resolution Display",
-            "Powerful Graphics Card",
-            "Fast SSD Storage",
-            "RGB Backlit Keyboard",
-            "Long Battery Life"
-        ]
-    };
-
-    const [data] = useState(dummyProduct);
-    const [activeImage, setActiveImage] = useState(data.productImage[0]);
+    const [data, setData] = useState(null);
+    const [activeImage, setActiveImage] = useState(""); // Initialize activeImage
     const [expanded, setExpanded] = useState(false);
+
+    const navigate = useNavigate();
+    const { id } = useParams();
+    const dispatch = useDispatch();
+
+    useEffect(() => {
+        const getDetail = async () => {
+            const res = await dispatch(getSingleProductDetails(id));
+            if (res.payload?.data) {
+                setData(res.payload.data);
+                setActiveImage(res.payload.data.mainProductImg || ""); // Set default image
+                toast.success(res.payload?.message);
+            } else {
+                toast.error("Failed to fetch product details.");
+            }
+        };
+        getDetail();
+    }, [dispatch, id]); // Added dependency array
+
+    // console.log(data)
+    const { isDarkMode } = useContext(ThemeContext);
+
+    if (!data) {
+        return <p className="text-center mt-10">Loading product details...</p>;
+    }
 
     return (
         <div className={`${isDarkMode ? "bg-gray-900 text-white" : "bg-white text-gray-900"}`}>
-            <div className={`container mx-auto p-6 ${isDarkMode ? "bg-gray-900 text-white" : "bg-white text-gray-900"}`}>
+            <div className="container mx-auto p-6">
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
 
                     {/* Product Image Section */}
@@ -54,7 +57,7 @@ const ProductDetails = () => {
 
                         {/* Thumbnails */}
                         <div className="flex flex-row lg:flex-col gap-2 overflow-x-auto lg:overflow-y-auto">
-                            {data.productImage.map((imgURL, index) => (
+                            {data.otherProductImg?.map((imgURL, index) => (
                                 <img
                                     key={index}
                                     src={imgURL}
@@ -84,8 +87,8 @@ const ProductDetails = () => {
 
                         {/* Price */}
                         <div className="flex items-center gap-3 text-2xl font-semibold my-2">
-                            <p className="text-red-600">{displayINRCurrency(data.sellingPrice)}</p>
-                            <p className="line-through text-gray-400">{displayINRCurrency(data.price)}</p>
+                            <p className="text-red-600">{displayINRCurrency(data.price)}</p>
+                            <p className="line-through text-gray-400">{displayINRCurrency(data.underlinePrice)}</p>
                         </div>
 
                         {/* Buttons */}
@@ -112,7 +115,7 @@ const ProductDetails = () => {
                             </button>
                             {expanded && (
                                 <ul className="mt-2 space-y-1">
-                                    {data.features.map((feature, index) => (
+                                    {data.features?.map((feature, index) => (
                                         <li key={index} className="flex items-center gap-2">
                                             ✅ {feature}
                                         </li>
@@ -135,11 +138,8 @@ const ProductDetails = () => {
                     heading={'Recommended Products'}
                     className="no-scroll"
                 />
-
-
             </div>
         </div>
-
     );
 };
 

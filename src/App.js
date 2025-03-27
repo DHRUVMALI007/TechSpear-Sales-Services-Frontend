@@ -9,7 +9,7 @@ function App() {
   const location = useLocation();  // To get the current route
 
   // Check if the current path contains '/Admin-panel' (or any other admin-related route)
-  const isAdminPage = location.pathname.startsWith("/admin-panel");
+  const isAdminPage = location.pathname.startsWith("/Admin-panel");
 
   return (
     <>

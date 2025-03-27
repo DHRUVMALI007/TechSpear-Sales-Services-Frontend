@@ -5,16 +5,25 @@ import BannerProduct from "../Components/BannerProduct";
 import HorizontalCardProduct from "../Components/HorizontalCardProduct";
 import VerticalCardProduct from "../Components/VerticalCardProduct";
 import Footer from "../Components/Footer";
+import { useSelector ,useDispatch } from "react-redux";
+import { getAllProduct } from "../features/productSlice";
 
 const Home = () => {
-  const [loading, setLoading] = useState(true);
+  // const [loading, setLoading] = useState(true);
   const { isDarkMode } = useContext(ThemeContext);
 
-  useEffect(() => {
-    setTimeout(() => {
-      setLoading(false);
-    }, 1000);
-  }, []);
+  const dispatch= useDispatch()
+  const {product,loading,error}=useSelector((state)=>state.product)
+// console.log("MYHOME PROUDUCT",product)
+  useEffect(()=>{
+    dispatch(getAllProduct());
+  },[dispatch])
+
+  const trendingProd= product?.data?.filter((item)=>item.isTrending===true)
+  const otherProd= product?.data?.filter((item)=>item.isTrending===false)
+  // console.log("trend",trendingProd)
+  // console.log("Other",otherProd)
+  //console.log("Loading",loading) -comes with the backend api
 
   return (
     <div
@@ -32,10 +41,11 @@ const Home = () => {
         <div className="px-4 md:px-8 lg:px-12 py-6 space-y-8">
           <CategoryList />
           <BannerProduct />
-          <HorizontalCardProduct />
-          <HorizontalCardProduct />
-          <HorizontalCardProduct />
-          <VerticalCardProduct />
+          <HorizontalCardProduct heading={"Trending Products"} products={trendingProd} loading={loading}/>
+          <HorizontalCardProduct heading={"Other Products"} products={otherProd} loading={loading}/>
+
+          {/* <HorizontalCardProduct heading={"Trending Productsss"}/> */}
+       
         </div>
       )}
       <Footer /> {/* Ensure Footer is inside the return statement */}
