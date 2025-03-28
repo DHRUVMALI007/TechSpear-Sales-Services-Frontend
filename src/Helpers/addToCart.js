@@ -1,25 +1,36 @@
 import { toast } from 'react-toastify';
+import { useDispatch, useSelector } from 'react-redux';
+import { addToCartProduct } from '../features/cartSlice';
 
-const addToCart = (e, id) => {
-    e?.stopPropagation();
-    e?.preventDefault();
+const useAddToCart = () => {
+    const dispatch = useDispatch();
+    const { user } = useSelector((state) => state.auth);
+    // const {cartItem} = useSelector((state)=>state.cart)
+//getting that user
+    console.log("cart ka user ",user?.data?.user)
 
-    if (!id) return;
+    const addToCart = (e, id) => {
+        e?.stopPropagation();
+        e?.preventDefault();
 
-    // Get the cart from local storage
-    let cart = JSON.parse(localStorage.getItem('cart')) || [];
+        console.log("CART -> Product ID:", id);
 
-    // Check if the product already exists in the cart
-    const existingItem = cart.find(item => item.id === id);
+        try {
+            if (!user?.data?.user?._id) {
+                toast.error("Please log in to add products to the cart.");
+                return;
+            }
 
-    if (existingItem) {
-        toast.info("Product is already in the cart");
-    } else {
-        // Add new product to the cart
-        cart.push({ id, quantity: 1 });
-        localStorage.setItem('cart', JSON.stringify(cart));
-        toast.success("Product added to cart");
-    }
+            dispatch(addToCartProduct({userId:user?.data?.user?._id,productId:id})); //  Pass data correctly
+            // toast.success(cartItem?.data?.message);
+            toast("Cart added")
+        } catch (er) {
+            console.log("Error:", er);
+            toast.error(er.message || "Something went wrong.");
+        }
+    };
+
+    return addToCart; // ✅ Return the function, not call it
 };
 
-export default addToCart;
+export default useAddToCart;

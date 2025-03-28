@@ -2,19 +2,28 @@ import React, { useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import { ThemeContext } from "../Helpers/ThemeContext";
 
+import useAddToCart from "../Helpers/addToCart";
+
 export default function ProductGrid({ data, className }) {
   const { isDarkMode } = useContext(ThemeContext);
   const navigate = useNavigate();
+  const addToCart = useAddToCart()
+
+  const handleAddToCart = async (e, id) => {
+    await addToCart(e, id);
+  };
+
+
 
   return (
     <div className={`${isDarkMode ? "bg-gray-900 text-white" : "bg-gray-100 text-gray-900"} py-16 w-full h-full ${className}`}>
       <div className="max-w-7xl mx-auto px-4 lg:px-8 w-full">
-        <h2 className="text-3xl font-bold text-center mb-10">Our Products</h2>
+        <h2 className="text-3xl font-bold text-center mb-10">Tech Products</h2>
 
         {/* Product Grid */}
         <div className="flex gap-6 flex-wrap justify-center">
           {data.length === 0 ? (
-            <p className="text-center text-lg font-semibold">No products found</p>
+            <p className="text-center text-lg font-semibold">No products found.</p>
           ) : (
             data.map((product) => (
               <div
@@ -44,7 +53,7 @@ export default function ProductGrid({ data, className }) {
                     className="w-full py-2 text-lg font-medium rounded-lg bg-blue-600 text-white hover:bg-blue-700"
                     onClick={(e) => {
                       e.stopPropagation(); // Prevent parent click event from triggering
-                      navigate("/user-cart");
+                      handleAddToCart(e,product._id);
                     }}
                   >
                     Add to Cart

@@ -8,15 +8,23 @@ import CategoryWiseProductDisplay from '../Components/CategoryWiseProductDisplay
 import { useDispatch, useSelector } from "react-redux";
 import { getSingleProductDetails } from '../features/productSlice';
 import { toast } from 'react-toastify';
+import useAddToCart from '../Helpers/addToCart';
 
 const ProductDetails = () => {
     const [data, setData] = useState(null);
     const [activeImage, setActiveImage] = useState(""); // Initialize activeImage
     const [expanded, setExpanded] = useState(false);
+    const addToCart = useAddToCart();
 
     const navigate = useNavigate();
     const { id } = useParams();
     const dispatch = useDispatch();
+
+    
+  const handleAddToCart = async (e, id) => {
+    await addToCart(e, id);
+  };
+
 
     useEffect(() => {
         const getDetail = async () => {
@@ -93,7 +101,7 @@ const ProductDetails = () => {
 
                         {/* Buttons */}
                         <div className="flex gap-4 mt-4">
-                            <button className="bg-red-600 text-white px-5 py-2 rounded-lg font-medium hover:bg-red-700 transition">
+                            <button className="bg-red-600 text-white px-5 py-2 rounded-lg font-medium hover:bg-red-700 transition" onClick={(e)=>handleAddToCart(e,data._id)}>
                                 Add to Cart
                             </button>
                             <button

@@ -1,16 +1,18 @@
-import React, { useRef, useContext } from "react";
+import React, { useRef, useContext, use } from "react";
 import { FaAngleLeft, FaAngleRight } from "react-icons/fa6";
 import { Link } from "react-router-dom";
 import { ThemeContext } from "../Helpers/ThemeContext";
 import displayINRCurrency from "../Helpers/displayCurrency";
 import "../App.css"; // Ensure 'no-scrollbar' class is included
+import useAddToCart from "../Helpers/addToCart";
 
 const HorizontalCardProduct = ({ category, heading, products =[], loading }) => {
     const { isDarkMode } = useContext(ThemeContext);
     const scrollElement = useRef();
-
-    console.log("products", products);
-    console.log("loading", loading);
+    const addToCart= useAddToCart()
+  
+    console.log("Horizontl products", products);
+    console.log("Horizontl loading", loading);
 
     const scrollRight = () => {
         scrollElement.current.scrollBy({ left: 400, behavior: "smooth" });
@@ -19,6 +21,12 @@ const HorizontalCardProduct = ({ category, heading, products =[], loading }) => 
     const scrollLeft = () => {
         scrollElement.current.scrollBy({ left: -400, behavior: "smooth" });
     };
+
+    
+  const handleAddToCart = async (e, id) => {
+    await addToCart(e, id);
+  };
+
 
     return (
         <div className={`w-full pb-8 relative ${isDarkMode ? "bg-gray-900 text-white" : "bg-gray-50 text-gray-900"}`}>
@@ -61,7 +69,7 @@ const HorizontalCardProduct = ({ category, heading, products =[], loading }) => 
                                 to={`/product/${product._id}`}
                                 key={product._id}
                                 className={`group rounded-lg shadow-md hover:shadow-lg transition transform hover:-translate-y-1 min-w-[220px] sm:min-w-[260px] md:min-w-[280px] 
-                                    max-w-[220px] sm:max-w-[260px] md:max-w-[280px] flex flex-col
+                                    max-w-[220px] sm:max-w-[260px] md:max-w-[280px] flex flex-col 
                                     ${isDarkMode ? "bg-gray-800 text-white" : "bg-white text-gray-900"}`}
                             >
                                 {/* Product Image */}
@@ -96,6 +104,7 @@ const HorizontalCardProduct = ({ category, heading, products =[], loading }) => 
                                     <button
                                         className={`w-full text-xs sm:text-sm font-medium py-2 rounded-lg transition
                                             ${isDarkMode ? "bg-red-600 text-white hover:bg-red-700" : "bg-blue-600 text-white hover:bg-blue-700"}`}
+                                            onClick={(e)=>handleAddToCart(e,product._id)}
                                     >
                                         Add to Cart
                                     </button>

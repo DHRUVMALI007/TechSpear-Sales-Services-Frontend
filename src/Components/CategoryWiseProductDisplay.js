@@ -4,11 +4,12 @@ import displayINRCurrency from '../Helpers/displayCurrency';
 import addToCart from '../Helpers/addToCart';
 import scrollTop from '../Helpers/scrollTop';
 import axios from 'axios';
+import useAddToCart from '../Helpers/addToCart';
 
 const CategroyWiseProductDisplay = ({ category, heading }) => {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(false); 
-
+    const addToCart = useAddToCart();
   useEffect(() => {
     if (!category) return; // Agar category undefined ho to API request avoid karna
 
@@ -19,7 +20,7 @@ const CategroyWiseProductDisplay = ({ category, heading }) => {
           `http://localhost:5000/api/v1/products/getCategoryBasedProduct?category=${category}`
         );
 
-        console.log("API Response:", response.data.data);
+        console.log("API Response categorywiseProd:", response.data.data);
         setData(response.data.data);
       } catch (error) {
         console.error("Error fetching category products:", error);
