@@ -12,7 +12,7 @@ const HorizontalCardProduct = ({ category, heading, products =[], loading }) => 
     const addToCart= useAddToCart()
   
     console.log("Horizontl products", products);
-    console.log("Horizontl loading", loading);
+    // console.log("Horizontl loading", loading);
 
     const scrollRight = () => {
         scrollElement.current.scrollBy({ left: 400, behavior: "smooth" });

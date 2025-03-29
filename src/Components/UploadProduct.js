@@ -76,6 +76,8 @@ const UploadProduct = ({ onClose, fetchData }) => {
             .unwrap()
             .then((data) => {
                 console.log("mydt", data)
+                //admin can alow msg
+                toast(data)
                 toast.success(data?.message);
                 fetchData?.();  // If you need to refresh data after upload
                 onClose();  // Close modal or reset form

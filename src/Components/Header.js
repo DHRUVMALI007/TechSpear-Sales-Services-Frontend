@@ -5,6 +5,9 @@ import { SiSearxng } from "react-icons/si";
 import { FaBars, FaTimes, FaUserCircle, FaShoppingCart } from "react-icons/fa";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
+import { useSelector } from "react-redux";
+import { persistor } from "../redux/store";
+import { toast } from "react-toastify";
 
 const Header = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -16,6 +19,11 @@ const Header = () => {
   const { isDarkMode, toggleTheme } = useContext(ThemeContext);
   const navigate = useNavigate();
 
+  const {cartItems}= useSelector((state)=>state.cart)
+  console.log(cartItems)
+
+  const mycountlen= cartItems?.data?.cartItem?.items?.length || 0;
+  console.log(mycountlen)
   // Detect Scroll to add shadow effect
   useEffect(() => {
     const handleScroll = () => {
@@ -62,8 +70,13 @@ const Header = () => {
   const handleLogout = async () => {
     try {
       await axios.post("http://localhost:5000/api/v1/users/logout", {}, { withCredentials: true });
+
       localStorage.removeItem("token");
       localStorage.removeItem("user");
+
+      persistor.purge();   // Persisted state bhi clear karega
+      window.location.reload(); // Ensure fresh state load hota hai
+    
       setUser(null);
       setIsLoggedIn(false);
       navigate("/login");
@@ -71,6 +84,11 @@ const Header = () => {
       console.error("Logout failed", error);
     }
   };
+  useEffect(() => {
+    console.log("User state:", user);
+    console.log("Is Logged In:", isLoggedIn);
+  }, [user, isLoggedIn]);
+  
 
   return (
     <>
@@ -114,9 +132,9 @@ const Header = () => {
               <button className="text-xl hover:text-blue-500" onClick={() => navigate("user-cart")}>
                 <FaShoppingCart />
               </button>
-              {cartCount > 0 && (
+              {mycountlen > 0 && (
                 <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
-                  {cartCount}
+                  {mycountlen}
                 </span>
               )}
             </div>

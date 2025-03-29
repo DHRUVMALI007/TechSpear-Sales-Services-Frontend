@@ -14,7 +14,8 @@ const Home = () => {
 
   const dispatch= useDispatch()
   const {product,loading,error}=useSelector((state)=>state.product)
-// console.log("MYHOME PROUDUCT",product)
+console.log("MYHOME PROUDUCT",product)
+
   useEffect(()=>{
     dispatch(getAllProduct());
   },[dispatch])

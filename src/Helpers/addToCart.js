@@ -5,11 +5,12 @@ import { addToCartProduct } from '../features/cartSlice';
 const useAddToCart = () => {
     const dispatch = useDispatch();
     const { user } = useSelector((state) => state.auth);
-    // const {cartItem} = useSelector((state)=>state.cart)
-//getting that user
-    console.log("cart ka user ",user?.data?.user)
+    const { cartItems } = useSelector((state) => state.cart);
 
-    const addToCart = (e, id) => {
+    console.log('my cart', cartItems);
+    console.log("cart ka user", user?.data?.user);
+
+    const addToCart = async (e, id) => {
         e?.stopPropagation();
         e?.preventDefault();
 
@@ -21,16 +22,24 @@ const useAddToCart = () => {
                 return;
             }
 
-            dispatch(addToCartProduct({userId:user?.data?.user?._id,productId:id})); //  Pass data correctly
-            // toast.success(cartItem?.data?.message);
-            toast("Cart added")
-        } catch (er) {
-            console.log("Error:", er);
-            toast.error(er.message || "Something went wrong.");
+            await dispatch(addToCartProduct({ userId: user?.data?.user?._id, productId: id }))
+                .unwrap() // Ensures rejection is thrown as an error
+                .then((res) => {
+                    console.log("Cart Updated Successfully:", res);
+                    toast.success(res?.message || "Product added to cart!");
+                })
+                .catch((error) => {
+                    console.error("Cart Error:", error);
+                    toast.error(error || "Failed to add product to cart.");
+                });
+
+        } catch (err) {
+            console.error("Unexpected Error:", err);
+            toast.error("An unexpected error occurred.");
         }
     };
 
-    return addToCart; // ✅ Return the function, not call it
+    return addToCart;
 };
 
 export default useAddToCart;

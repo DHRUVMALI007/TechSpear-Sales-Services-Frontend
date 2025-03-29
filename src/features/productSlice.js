@@ -28,25 +28,28 @@ export const uploadProduct = createAsyncThunk("product/upload", async (formData,
 })
 
 export const getAllProduct = createAsyncThunk("product/getall", async () => {
-    const token = localStorage.getItem("token")
+    const token = localStorage.getItem("token");
+    
     if (!token) {
-        // console.log("User is not authenticated");
-        throw new Error("User is Not Authenticated.")
-        // return;
+        throw new Error("User is Not Authenticated.");
     }
-    try {
-        console.log(token)
-        const response = await axios.get(`${baseUrl}/getAllProducts`, { headers: { "Authorization": `Bearer ${token}` } }, { withCredentials: true }
-        )
 
-        console.log(response.data)
+    try {
+        console.log("Token:", token);
+        
+        const response = await axios.get(`${baseUrl}/getAllProducts`, {
+            withCredentials: true,
+            headers: { "Authorization": `Bearer ${token}` }
+        });
+
+        console.log("API Response:", response.data);
         return response.data;
     }
     catch (error) {
-        console.log(error?.response?.data?.message)
-        return error?.response?.data?.message;
+        console.log("API Error:", error?.response?.data?.message);
+        throw new Error(error?.response?.data?.message || "Something went wrong");
     }
-})
+});
 
 export const updateProduct = createAsyncThunk("product/update", async ({ editId, formData }) => {
 
