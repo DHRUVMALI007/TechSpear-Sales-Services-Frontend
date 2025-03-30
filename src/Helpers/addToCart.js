@@ -26,7 +26,14 @@ const useAddToCart = () => {
                 .unwrap() // Ensures rejection is thrown as an error
                 .then((res) => {
                     console.log("Cart Updated Successfully:", res);
-                    toast.success(res?.message || "Product added to cart!");
+                    console.log(res?.message)
+                    // toast.success(res?.message || "Product added to cart!");
+                    // ✅ Ensure res.message exists before showing toast
+                    if (res?.message) {
+                        toast.success(res.message, { position: "top-right", autoClose: 3000 });
+                    } else {
+                        toast.error("Unexpected response format.");
+                    }
                 })
                 .catch((error) => {
                     console.error("Cart Error:", error);

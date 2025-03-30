@@ -5,7 +5,7 @@ import { SiSearxng } from "react-icons/si";
 import { FaBars, FaTimes, FaUserCircle, FaShoppingCart } from "react-icons/fa";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
-import { useSelector } from "react-redux";
+import { useSelector} from "react-redux";
 import { persistor } from "../redux/store";
 import { toast } from "react-toastify";
 
@@ -82,6 +82,8 @@ const Header = () => {
       navigate("/login");
     } catch (error) {
       console.error("Logout failed", error);
+      setUser(null)
+      setIsLoggedIn(false)
     }
   };
   useEffect(() => {

@@ -43,12 +43,32 @@ export const loginUser = createAsyncThunk('user/login', async (data, { rejectWit
 
 export const getCurrentUser = createAsyncThunk("user/getCurrUser", async({ rejectWithValue }) => {
     try{
-      const response= await axios.get(`${baseURL}/getCurrentUser`);
+      const response = await axios.get(`${baseURL}/getCurrentUser`, { withCredentials: true });
+
       return response.data;
     }
     catch(er){
         return er
     }
+})
+
+export const updatePassword = createAsyncThunk("user/updatePass",async({oldPassword,newPassword},{rejectWithValue})=>{
+
+  try {
+    console.log({oldPassword,newPassword})
+    const response= await axios.patch(`${baseURL}/updatePass`,{oldPassword,newPassword},{
+      withCredentials:true,
+      headers:{
+        "Content-Type":"application/json"
+      }
+    })
+
+    return response.data
+
+  } catch (error) {
+    return rejectWithValue(error?.response?.data?.message);
+  }
+
 })
 
 const userSlice = createSlice({

@@ -4,6 +4,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { getCart, delteCartItem, updateCartQuntity } from "../features/cartSlice";
 import { toast } from "react-toastify";
+import displayINRCurrency from "../Helpers/displayCurrency";
 
 export default function ShoppingCart() {
   const navigate = useNavigate();
@@ -106,7 +107,7 @@ export default function ShoppingCart() {
                             {product.productId?.productName}
                           </h4>
                           <p className="ml-4 text-sm font-medium text-gray-900">
-                            {product.productId?.price?.toFixed(2)}
+                            {displayINRCurrency(product.productId?.price?.toFixed(2))}
                           </p>
                         </div>
                       </Link>
@@ -169,7 +170,7 @@ export default function ShoppingCart() {
                   <div className="flex items-center justify-between">
                     <dt className="text-base font-medium text-gray-900">Subtotal</dt>
                     <dd className="ml-4 text-base font-medium text-gray-900">
-                      {subtotal.toFixed(2)}
+                      {displayINRCurrency(subtotal.toFixed(2))}
                     </dd>
                   </div>
                 </dl>

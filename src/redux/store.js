@@ -5,6 +5,7 @@ import storage from "redux-persist/lib/storage";
 import userReducer from "../features/userSlice.js";
 import productReducer from "../features/productSlice.js";
 import cartReducer from "../features/cartSlice.js";
+import addressReducer from "../features/addressSlice.js"
 
 // Separate persist configs for each reducer
 const userPersistConfig = {
@@ -31,6 +32,7 @@ export const store = configureStore({
     auth: persistedAuthReducer,
     product: persistedProductReducer,
     cart: cartReducer,
+    address:addressReducer
   },
 });
 
