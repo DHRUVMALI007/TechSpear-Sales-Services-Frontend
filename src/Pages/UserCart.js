@@ -5,6 +5,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { getCart, delteCartItem, updateCartQuntity } from "../features/cartSlice";
 import { toast } from "react-toastify";
 import displayINRCurrency from "../Helpers/displayCurrency";
+import { findNonSerializableValue } from "@reduxjs/toolkit";
 
 export default function ShoppingCart() {
   const navigate = useNavigate();
@@ -46,6 +47,15 @@ export default function ShoppingCart() {
     }
   };
 
+  const handlePayment = ()=>{
+    if (!cartItems?.data?.cartItem?.items || cartItems.data.cartItem.items.length === 0) {
+      alert("Your cart is Empty. You can't Check it out.");
+    } else {
+      navigate("/payment-integration");
+    }
+    
+  }
+
   // Remove Item from Cart
   const removeItem = async (id) => {
     try {
@@ -76,7 +86,7 @@ export default function ShoppingCart() {
           Shopping Cart
         </h1>
 
-        {cartItems?.data?.cartItem?.items?.length === 0 ? (
+        {!cartItems?.data?.cartItem?.items || cartItems?.data?.cartItem?.items?.length === 0 ? (
           <div className="text-center py-10">
             <p className="text-lg text-gray-500">Your cart is empty.</p>
             <Link
@@ -182,7 +192,7 @@ export default function ShoppingCart() {
               <div className="mt-10">
                 <button
                   type="button"
-                  onClick={() => navigate("/payment-integration")}
+                  onClick={() => handlePayment()}
                   className="w-full rounded-md bg-indigo-600 px-4 py-3 text-white hover:bg-indigo-700"
                 >
                   Checkout

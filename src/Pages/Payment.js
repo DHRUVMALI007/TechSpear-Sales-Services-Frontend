@@ -5,6 +5,7 @@ import { useDispatch, useSelector } from "react-redux";
 import displayINRCurrency from "../Helpers/displayCurrency";
 import { toast } from "react-toastify";
 import { addAddress } from "../features/addressSlice";
+import { createOrder } from "../features/orderSlice";
 
 export default function Example() {
 
@@ -15,37 +16,78 @@ export default function Example() {
     city: "",
     country: "",
     state: "",
-    pinCode: "", 
+    pinCode: "",
     phone: "",
-});
+  });
 
   const navigate = useNavigate();
 
   const dispatch = useDispatch()
 
-  const {cartItems}= useSelector((state)=>state.cart)
+  const { cartItems } = useSelector((state) => state.cart)
   console.log(cartItems?.data)
-  const {user}= useSelector((state)=>state.auth)
+  const { user } = useSelector((state) => state.auth)
   console.log(user)
-  const userId= user?.data?.user?._id;
+  const userId = user?.data?.user?._id;
 
-  const handleOnChange = (e)=>{
-    setFormData({...formData , [e.target.name]:e.target.value})
+  const { address } = useSelector((state) => state.address)
+  console.log("user add", address)
+
+  const handleOnChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value })
 
   }
   // console.log(formData)
 
-  const handleConfirmOrder = async(e) => {
+  const handleConfirmOrder = async (e) => {
     e.preventDefault();
     console.log("Called fun confirm order")
-    try{
-        const res= await dispatch(addAddress({userId,formData}))
-        console.log(res)
-        toast.success(res?.payload?.message)
+    try {
+      if (!userId) {
+        toast.error("User not found, please login.");
+        navigate("/login");
+        return;
+      }
+
+      if (!cartItems?.data?.cartItem?._id) {
+        toast.error("Your cart is empty.");
+        navigate("/user-cart");
+        return;
+      }
+      if (formData.email === "") {
+        toast.error("Pls enter all the detail of Shipping.")
+      }
+      const res = await dispatch(addAddress({ userId, formData })).unwrap()
+
+      console.log(res)
+      toast.success(res?.message || res?.payload?.message)
+      console.log(res?.data?._id)
+      console.log(res?.payload?.data?._id)
+
+      // if (!res?.payload?.data?._id) {
+      //   toast.error("Address not found or not store in db. pls again refresh and set address.")
+      // }
+
+      try {
+
+        const ordr = await dispatch(createOrder({ userId, addressInfo: res?.data?._id, cartItems: cartItems?.data?.cartItem?._id })).unwrap()
+
+        toast.success(ordr?.message)
+
+        console.log(ordr)
+      }
+      catch (er) {
+        toast.error(er)
+        console.log(er)
+      }
+
     }
-    catch(error){
-        toast.error(error)
+    catch (error) {
+      console.log(error)
+      toast.error(error)
     }
+
+
     // navigate("/payment-success", { state: { paymentStatus: "success" } });
   };
   const subtotal = cartItems?.data?.cartItem?.items?.reduce(
@@ -53,16 +95,16 @@ export default function Example() {
     0
   ) || 0;
 
- 
 
-  
+
+
   return (
     <div className="bg-gray-50">
       <div className="mx-auto max-w-2xl px-4 pb-24 pt-16 sm:px-6 lg:max-w-7xl lg:px-8">
         <h2 className="sr-only">Checkout</h2>
 
         <form className="lg:grid lg:grid-cols-2 lg:gap-x-12 xl:gap-x-16">
-          <div className=" lg:mt-0 lg:sticky lg:top-0 overflow-y-auto h-screen scrollbar-hide mb-32"> 
+          <div className=" lg:mt-0 lg:sticky lg:top-0 overflow-y-auto h-screen scrollbar-hide mb-32">
             <div>
               <h2 className="text-lg font-medium text-gray-900">Contact information</h2>
 
@@ -89,7 +131,7 @@ export default function Example() {
               <h2 className="text-lg font-medium text-gray-900">Shipping information</h2>
 
               <div className="mt-4 grid grid-cols-1 gap-y-6 sm:grid-cols-2 sm:gap-x-4">
-                
+
                 <div className="sm:col-span-2">
                   <label htmlFor="address" className="block text-sm/6 font-medium text-gray-700">
                     Full Address
@@ -255,14 +297,14 @@ export default function Example() {
                       </div>
 
                       <div className="flex flex-1 items-end justify-between pt-2">
-                        <p className="mt-1 text-sm font-medium text-gray-900"> { displayINRCurrency(product?.productId?.price)}</p>
+                        <p className="mt-1 text-sm font-medium text-gray-900"> {displayINRCurrency(product?.productId?.price)}</p>
                       </div>
                     </div>
                   </li>
                 ))}
               </ul>
               <dl className="space-y-6 border-t border-gray-200 px-4 py-6 sm:px-6">
-                
+
                 <div className="flex items-center justify-between border-t border-gray-200 pt-6">
                   <dt className="text-base font-medium">Total</dt>
                   <dd className="text-base font-medium text-gray-900">{displayINRCurrency(subtotal)}</dd>
@@ -272,7 +314,7 @@ export default function Example() {
               <div className="border-t border-gray-200 px-4 py-6 sm:px-6">
                 <button
                   type="submit"
-                  onClick={(e)=>handleConfirmOrder(e)}
+                  onClick={(e) => handleConfirmOrder(e)}
                   className="w-full rounded-md border border-transparent bg-indigo-600 px-4 py-3 text-base font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:ring-offset-gray-50"
                 >
                   Confirm Order

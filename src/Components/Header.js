@@ -16,6 +16,8 @@ const Header = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false); // Login state
   const [user, setUser] = useState(null); // Store user details
 
+  const {isAuthenticate} = useSelector((state)=>state.auth)
+  console.log("is auth ",isAuthenticate)
   const { isDarkMode, toggleTheme } = useContext(ThemeContext);
   const navigate = useNavigate();
 
@@ -142,7 +144,7 @@ const Header = () => {
             </div>
 
             {/* User Profile & Login/Logout */}
-            {isLoggedIn ? (
+            {isAuthenticate ? (
               <>
                 <Link to="/User-panel" className="text-lg md:text-xl hover:text-blue-500">
                   <FaUserCircle />

@@ -26,7 +26,7 @@ import UserCart from "../Pages/UserCart.js";
 import Payment from "../Pages/Payment.js"
 import PaymentSuccess from "../Components/PaymentSuccess.js"
 import WriteReview from "../Pages/WriteReview.js"
-
+import ProtectedRoute from "./ProtectedRoute.js";
 
 const router = createBrowserRouter([
   {
@@ -67,11 +67,18 @@ const router = createBrowserRouter([
       },
       {
         path: "user-cart",
-        element: <UserCart />,
+        element: <ProtectedRoute />, // 🔒 Protect User Cart
+        children: [{ path: "", element: <UserCart /> }],
       },
       {
         path: "payment-integration",
-        element: <Payment />,
+        element: <ProtectedRoute />, // Wrap with ProtectedRoute
+        children: [
+          {
+            path: "",
+            element: <Payment />,
+          },
+        ],
       },
       {
         path: "product/:id",
@@ -79,70 +86,52 @@ const router = createBrowserRouter([
       },
       {
         path: "payment-success",
-        element: <PaymentSuccess  />,
-        children : [
-          {
-            path: "write-review",
-            element: <WriteReview/>,
-          }
-        ]
-      },
-      {
-        path: "user-panel",
-        element: <UserPanel />,
+        element: <ProtectedRoute />, // 🔒 Protect Payment Success Page
         children: [
           {
             path: "",
-            element: <UserProfile />,
+            element: <PaymentSuccess />,
           },
           {
-            path: "order-manage",
-            element: <OrderManage />,
+            path: "write-review",
+            element: <WriteReview />,
           },
+        ],
+      },      
+      {
+        path: "user-panel",
+        element: <ProtectedRoute />,  // 🔒 Protect user panel
+        children: [
           {
-            path: "Appointment-history",
-            element: <AppoitmentHistory />,
+            path: "",
+            element: <UserPanel />,
+            children: [
+              { path: "", element: <UserProfile /> },
+              { path: "order-manage", element: <OrderManage /> },
+              { path: "Appointment-history", element: <AppoitmentHistory /> },
+              { path: "Payment-history", element: <PaymentHistory /> },
+              { path: "User-Setting", element: <UserSetting /> },
+            ],
           },
-          {
-            path: "Payment-history",
-            element: <PaymentHistory />,
-          },
-          {
-            path: "User-Setting",
-            element: <UserSetting />,
-          },
-
-        ]
+        ],
       },
       {
         path: "admin-panel",
-        element: <AdminPanel />,
+        element: <ProtectedRoute />, // 🔒 Protect admin panel
         children: [
           {
             path: "",
-            element: <AdminDeshboard />,
+            element: <AdminPanel />,
+            children: [
+              { path: "", element: <AdminDeshboard /> },
+              { path: "all-user", element: <AllUser /> },
+              { path: "all-product", element: <AllProduct /> },
+              { path: "order-management", element: <OrderManagement /> },
+              { path: "payment-management", element: <PaymentManagement /> },
+              { path: "service-management", element: <ServiceManagement /> },
+            ],
           },
-          {
-            path: "all-user",
-            element: <AllUser />,
-          },
-          {
-            path: "all-product",
-            element: <AllProduct />,
-          },
-          {
-            path: "order-management",
-            element: <OrderManagement />,
-          },
-          {
-            path: "payment-management",
-            element: <PaymentManagement />,
-          },
-          {
-            path: "service-management",
-            element: <ServiceManagement />,
-          },
-        ]
+        ],
       },
       {
         path: "product-category",

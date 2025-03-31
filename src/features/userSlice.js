@@ -77,16 +77,19 @@ const userSlice = createSlice({
     user: null,
     error: null,
     loading: false,
+    isAuthenticate:false
   },
   extraReducers: (builder) => {
     builder
       .addCase(registerUser.pending, (state) => {
         state.loading = true;
         state.error = null;
+        state.isAuthenticate=false;
       })
       .addCase(registerUser.fulfilled, (state, action) => {
         console.log("User Registered Successfully:", action.payload);
         state.user = action.payload;
+        state.isAuthenticate=false
         state.loading = false;
         state.error = null;
       })
@@ -94,6 +97,7 @@ const userSlice = createSlice({
         //   console.error("Register Error:", action.payload);
         state.loading = false;
         state.error = action.payload;
+        state.isAuthenticate=false
       });
 
     builder
@@ -101,16 +105,21 @@ const userSlice = createSlice({
         state.loading = true;
         state.error = null;
         state.user = null;
+        state.isAuthenticate=false
+
       })
       .addCase(loginUser.fulfilled, (state, action) => {
         state.loading = false;
         state.user = action.payload;
         state.error = null;
+        state.isAuthenticate=true
       })
       .addCase(loginUser.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
         state.user = null;
+        state.isAuthenticate=false
+
       });
 
       builder
@@ -118,10 +127,12 @@ const userSlice = createSlice({
         state.loading = true;
         state.error = null;
         state.user = null;
+        state.isAuthenticate=false
       })
       .addCase(getCurrentUser.fulfilled, (state, action) => {
         state.loading = false;
         state.user = action.payload;
+        state.isAuthenticate=true
         state.error = null;
       })
       .addCase(getCurrentUser.rejected, (state, action) => {
@@ -129,7 +140,7 @@ const userSlice = createSlice({
         state.error = action.payload;
         state.user = null;
       });
-
+      
      
   },
 });
