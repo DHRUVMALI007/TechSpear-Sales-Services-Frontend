@@ -15,7 +15,7 @@ const AllProducts = () => {
   const { loading, error, product } = useSelector((state) => state.product)
 
   const [products, setProducts] = useState([]);
-  
+
   const [searchQuery, setSearchQuery] = useState('');
   const [openEditModal, setOpenEditModal] = useState(false);
   const [currentProduct, setCurrentProduct] = useState(null);
@@ -102,12 +102,12 @@ const AllProducts = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-  
+
     if (!editId) {
       toast.error("Product ID is missing. Unable to update the product.");
       return;
     }
-  
+
     const formData = new FormData();
     formData.append("productName", data.productName);
     formData.append("description", data.description);
@@ -118,14 +118,14 @@ const AllProducts = () => {
     formData.append("isTrending", data.isTrending);
     if (data.mainProductImg) {
       formData.append("mainProductImg", data.mainProductImg);
-  }
+    }
 
-  // ✅ Append Other Product Images
-  if (data.otherProductImg.length > 0) {
+    // ✅ Append Other Product Images
+    if (data.otherProductImg.length > 0) {
       data.otherProductImg.forEach((img, index) => {
-          formData.append("otherProductImg", img);
+        formData.append("otherProductImg", img);
       });
-  }
+    }
     console.log("Dispatching Redux action with FormData...");
     for (let pair of formData.entries()) {
       console.log(pair[0], pair[1]);
@@ -136,17 +136,17 @@ const AllProducts = () => {
       const response = await dispatch(updateProduct({ editId, formData })).unwrap();
       console.log("Updated product response:", response);
       toast.success(response?.message)
-  
+
       // toast.success("Product updated successfully!");
       setOpenEditModal(false);
-      
+
       dispatch(getAllProduct()); // Refresh the product list
     } catch (error) {
       console.error("Update product error:", error);
       toast.error(error?.message || "Failed to update product.");
     }
   };
-  
+
 
   const openModal = (images, index) => {
     setSelectedImages(images);
@@ -238,51 +238,56 @@ const AllProducts = () => {
             <th className="p-2 border">Category</th>
             <th className="p-2 border">Description</th>
             <th className="p-2 border">Underline Price</th>
-            <th className="p-2 border">Stock</th>
-            <th className='p-2 border'>Trending</th>
             <th className="p-2 border">Action</th>
           </tr>
         </thead>
         <tbody>
           {products.map((prod) => (
             <tr key={prod._id} className="hover:bg-gray-100">
+              {/* Images Column with Scroll */}
               <td className="p-2 border text-center">
-                <div className="flex overflow-x-auto space-x-2 w-full h-20">
-                  {prod.otherProductImg?.slice(0, 5).map((img, index) => (
-                    <img
-                      key={index}
-                      src={img}
-                      alt="product"
-                      className="w-16 h-16 object-cover rounded"
-                    />
-                  ))}
+                <div className="relative w-20 h-20 overflow-hidden">
+                  <div className="flex w-full h-full overflow-x-auto scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-gray-200 snap-x snap-mandatory">
+                    {prod.otherProductImg?.map((img, index) => (
+                      <img
+                        key={index}
+                        src={img}
+                        alt="product"
+                        className="w-20 h-20 object-cover rounded snap-center"
+                      />
+                    ))}
+                  </div>
                 </div>
               </td>
+
+
+              {/* Other Details */}
               <td className="p-2 border">{prod.productName}</td>
               <td className="p-2 border text-green-600 font-bold">{prod.price}</td>
               <td className="p-2 border">{prod.category}</td>
               <td className="p-2 border">
-                {prod.description?.length > 40
-                  ? `${prod.description.slice(0, 40)}...`
-                  : prod.description}
+                {prod.description?.length > 40 ? `${prod.description.slice(0, 40)}...` : prod.description}
               </td>
-              <td className='p-2 border line-through text-gray-500'>{prod.underlinePrice}</td>
-              <td className='p-2 border'>{prod.stock}</td>
-              <td className={`p-2 border font-medium ${prod?.isTrending? 'text-green-600':'text-red-600'}`}>{prod?.isTrending ? "Yes":"No" }</td>
-              <td className="p-2 border flex justify-center items-center gap-2 ">
-                <button
-                  onClick={() => handleEditClick(prod._id)} 
-                  className="bg-blue-500 text-white p-3 w-12 h-12 text-[13px] flex justify-center items-center rounded-full"
-                >
-                  <FaEdit />
-                </button>
-                <button
-                  onClick={() => handleDeleteClick(prod._id)}
-                  className="bg-red-500 text-white p-3 w-12 h-12 flex justify-center items-center rounded-full"
-                >
-                  <FaTrash />
-                </button>
+              <td className="p-2 border line-through text-gray-500">{prod.underlinePrice}</td>
+
+              {/* Actions */}
+              <td className="p-2 border whitespace-nowrap">
+                <div className="flex justify-center items-center gap-2">
+                  <button
+                    onClick={() => handleEditClick(prod._id)}
+                    className="bg-blue-500 text-white p-3 w-12 h-12 flex justify-center items-center rounded-full border-none"
+                  >
+                    <FaEdit />
+                  </button>
+                  <button
+                    onClick={() => handleDeleteClick(prod._id)}
+                    className="bg-red-500 text-white p-3 w-12 h-12 flex justify-center items-center rounded-full border-none"
+                  >
+                    <FaTrash />
+                  </button>
+                </div>
               </td>
+
             </tr>
           ))}
         </tbody>
