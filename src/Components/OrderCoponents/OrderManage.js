@@ -54,9 +54,9 @@ const OrderManagement = () => {
                     orderStatus: newStatus, // Ensure it's sent as an object
                 })
             ).unwrap();
-            
+
             toast.success(response?.message || "Order status updated");
-    
+
             // Update local state only if API request is successful
             setOrders((prevOrders) =>
                 prevOrders.map((order) =>
@@ -66,10 +66,10 @@ const OrderManagement = () => {
         } catch (er) {
             toast.error(er || "Failed to update order status");
         }
-    
+
         setEditingOrder(null);
     };
-    
+
     // Handle order cancellation
     const handleCancelOrder = (id) => {
         setShowCancelModal(true);
@@ -114,10 +114,12 @@ const OrderManagement = () => {
                     value={filterStatus}
                     onChange={handleFilterChange}
                 >
+                    <option>Select Status</option>
                     <option value="All">All</option>
-                    <option value="Confirmed">Confirmed</option>
                     <option value="Pending">Pending</option>
-                    <option value="Cancelled">Cancelled</option>
+                    <option value="Shipped">Shipped</option>
+                    <option value="Delivered">Delivered</option>
+                    <option value="Cancel">Cancel</option>
                 </select>
             </div>
 
