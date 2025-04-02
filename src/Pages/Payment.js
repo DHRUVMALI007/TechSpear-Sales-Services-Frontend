@@ -6,6 +6,8 @@ import displayINRCurrency from "../Helpers/displayCurrency";
 import { toast } from "react-toastify";
 import { addAddress } from "../features/addressSlice";
 import { createOrder } from "../features/orderSlice";
+import { createPayment, verifyPayment } from "../features/paymentSlice";
+import loadScript from "../Helpers/loadScript";
 
 export default function Example() {
 
@@ -37,12 +39,27 @@ export default function Example() {
     setFormData({ ...formData, [e.target.name]: e.target.value })
 
   }
+
+  const subtotal = cartItems?.data?.cartItem?.items?.reduce(
+    (sum, item) => sum + (item.productId?.price || 0) * (item.quantity || 1),
+    0
+  ) || 0;
+
   // console.log(formData)
 
   const handleConfirmOrder = async (e) => {
     e.preventDefault();
     console.log("Called fun confirm order")
+
     try {
+      const isLoaded = await loadScript("https://checkout.razorpay.com/v1/checkout.js");
+
+      if (!isLoaded) {
+        console.error("Razorpay SDK failed to load.");
+        toast.error("Razorpay SDK failed to load.")
+        return;
+      }
+
       if (!userId) {
         toast.error("User not found, please login.");
         navigate("/login");
@@ -73,8 +90,63 @@ export default function Example() {
         const ordr = await dispatch(createOrder({ userId, addressInfo: res?.data?._id, cartItems: cartItems?.data?.cartItem?._id })).unwrap()
 
         toast.success(ordr?.message)
-
         console.log(ordr)
+
+        const orderId = ordr?.data?._id;
+        if (!orderId) {
+          toast.error("Failed To create Order")
+          return;
+        }
+
+        const paymentRs = await dispatch(createPayment({ userId, orderId, amount: subtotal })).unwrap()
+        console.log(paymentRs)
+
+
+
+        const options = {
+          key: "rzp_test_pnNFdssTvAiGlD",
+          amount: subtotal * 100, // Convert to paisa 
+          currency: "INR",
+          name: "Tech Speare",
+          description: "Test Transaction",
+          order_id: paymentRs?.data?.payment?.
+            razorpayOrderId,
+          handler: async function (response) {
+            console.log("Payment Success:", response);
+            console.log("Razorpay Payment ID:", response.razorpay_payment_id);
+            console.log("Razorpay Order ID:", response.razorpay_order_id);
+            console.log("Razorpay Signature:", response.razorpay_signature);
+
+            if (!response.razorpay_order_id || !response.razorpay_signature) {
+              console.error("Missing required Razorpay parameters.");
+              toast.error("Payment verification failed.");
+              return;
+            }
+            const verifyRes= await dispatch(
+              verifyPayment({
+                razorpayPaymentId: response.razorpay_payment_id,
+                razorpayOrderId: response.razorpay_order_id,
+                razorpaySignature: response.razorpay_signature,
+                orderId,
+              })
+            ).unwrap()
+            console.log("Payment Verification Response:", verifyRes);
+            toast.success(verifyRes.message);
+          },
+          prefill: {
+            name: user?.data?.user?.name,
+            email: user?.data?.user?.email
+          },
+          theme: {
+            color: "#3399cc",
+          },
+        };
+
+        const razorpayInstance = new window.Razorpay(options);
+        razorpayInstance.open();
+
+
+
       }
       catch (er) {
         toast.error(er)
@@ -90,12 +162,6 @@ export default function Example() {
 
     // navigate("/payment-success", { state: { paymentStatus: "success" } });
   };
-  const subtotal = cartItems?.data?.cartItem?.items?.reduce(
-    (sum, item) => sum + (item.productId?.price || 0) * (item.quantity || 1),
-    0
-  ) || 0;
-
-
 
 
   return (

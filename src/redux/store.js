@@ -7,6 +7,7 @@ import productReducer from "../features/productSlice.js";
 import cartReducer from "../features/cartSlice.js";
 import addressReducer from "../features/addressSlice.js"
 import orderReducer from "../features/orderSlice.js"
+import paymentReducer from "../features/paymentSlice.js"
 
 // Separate persist configs for each reducer
 const userPersistConfig = {
@@ -34,7 +35,8 @@ export const store = configureStore({
     product: persistedProductReducer,
     cart: cartReducer,
     address:addressReducer,
-    order:orderReducer
+    order:orderReducer,
+    payment:paymentReducer
   },
 });
 
