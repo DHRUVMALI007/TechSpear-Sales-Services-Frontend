@@ -1,3 +1,4 @@
+import moment from "moment";
 import React from "react";
 import * as XLSX from "xlsx";
 
@@ -12,9 +13,9 @@ const PaymentReport = ({ payments }) => {
     const totalTransactions = payments.length;
 
     const summaryData = [
-      ["Total Earnings", `$${totalEarnings}`],
-      ["Total Refunded", `$${totalRefunded}`],
-      ["Total Canceled", `$${totalCanceled}`],
+      ["Total Earnings", `${totalEarnings}`],
+      ["Total Refunded", `${totalRefunded}`],
+      ["Total Canceled", `${totalCanceled}`],
       ["Total Transactions", totalTransactions],
     ];
 
@@ -24,10 +25,11 @@ const PaymentReport = ({ payments }) => {
     // 2️⃣ All Transactions Data
     const allTransactionsSheet = XLSX.utils.json_to_sheet(
       payments.map((p) => ({
-        "Order ID": p.orderId,
-        Customer: p.customer,
-        "Payment Method": p.paymentMethod,
+        "Order ID": p?.orderId,
+        Customer: p?.userId?.name,
+        "Payment Method": p?.paymentMethod,
         "Transaction ID": p.transactionId,
+        "Date": moment(p?.createdAt).format("DD-MM-YYYY"),
         Status: p.status,
         Amount: p.amount,
       }))

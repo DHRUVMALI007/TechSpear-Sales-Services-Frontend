@@ -3,6 +3,7 @@ import { FaSearch, FaEdit, FaTimes } from "react-icons/fa";
 import { useDispatch, useSelector } from "react-redux";
 import { getAllOrder, updateOrderStatus } from "../../features/orderSlice";
 import { toast } from "react-toastify";
+import moment from "moment";
 
 const OrderManagement = () => {
     const dispatch = useDispatch();
@@ -144,7 +145,7 @@ const OrderManagement = () => {
                                     <td className="p-3">{order._id}</td>
                                     <td className="p-3">{order.userId?.name || "N/A"}</td>
                                     <td className="p-3">
-                                        {new Date(order.createdAt).toLocaleDateString()}
+                                        {moment(order?.createdAt).format("DD-MM-YYYY")}
                                     </td>
                                     <td className="p-3">
                                         {editingOrder === order._id ? (

@@ -57,7 +57,7 @@ export const getAllOrder = createAsyncThunk("order/getAll", async (__,{ rejectWi
 })
 
 //get the loggedin user k Orders
-export const getMyOrdersLoggInUser = createAsyncThunk("order/loggedinUser", async ({ rejectWithValue }) => {
+export const getMyOrdersLoggInUser = createAsyncThunk("order/loggedinUser", async (_,{ rejectWithValue }) => {
     try {
         const token = localStorage.getItem("token")
         if (!token) {

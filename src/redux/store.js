@@ -2,8 +2,8 @@ import { configureStore } from "@reduxjs/toolkit";
 import { persistStore, persistReducer } from "redux-persist";
 import storage from "redux-persist/lib/storage";
 
-import userReducer from "../features/userSlice.js";
-import productReducer from "../features/productSlice.js";
+import userReducer from "../features/userSlice";
+import productReducer from "../features/productSlice";
 import cartReducer from "../features/cartSlice.js";
 import addressReducer from "../features/addressSlice.js"
 import orderReducer from "../features/orderSlice.js"
@@ -20,10 +20,10 @@ const productPersistConfig = {
   storage,
 };
 
-const cartPersistConfig = {
-  key: "cart",
-  storage,
-};
+// const cartPersistConfig = {
+//   key: "cart",
+//   storage,
+// };
 
 const persistedAuthReducer = persistReducer(userPersistConfig, userReducer);
 const persistedProductReducer = persistReducer(productPersistConfig, productReducer);

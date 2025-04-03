@@ -4,24 +4,42 @@ import Logo from "./Logo";
 import { SiSearxng } from "react-icons/si";
 import { FaBars, FaTimes, FaUserCircle, FaShoppingCart } from "react-icons/fa";
 import { Link, useNavigate } from "react-router-dom";
+<<<<<<< HEAD
 import axios from "axios";
 import { useSelector } from "react-redux";
+=======
+>>>>>>> 02630c0aab20ce5c200df09568b080f5dd75e1c7
 import { persistor } from "../redux/store";
+
+import { useDispatch, useSelector} from "react-redux";
+
 import { toast } from "react-toastify";
+import { logoutUser } from "../features/userSlice";
 
 const Header = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const [cartCount] = useState(3); // Example cart count
-  const [isLoggedIn, setIsLoggedIn] = useState(false); // Login state
-  const [user, setUser] = useState(null); // Store user details
+  // const [isLoggedIn, setIsLoggedIn] = useState(false); // Login state
+  // const [user, setUser] = useState(null); // Store user details
 
+<<<<<<< HEAD
   const { isAuthenticate } = useSelector((state) => state.auth)
   console.log("is auth ", isAuthenticate)
   const { isDarkMode, toggleTheme } = useContext(ThemeContext);
   const navigate = useNavigate();
 
   const { cartItems } = useSelector((state) => state.cart)
+=======
+  const {isAuthenticate,user} = useSelector((state)=>state.auth)
+  console.log("is auth ",isAuthenticate)
+  const { isDarkMode, toggleTheme } = useContext(ThemeContext);
+  const navigate = useNavigate();
+
+  const dispatch = useDispatch();
+
+  const {cartItems}= useSelector((state)=>state.cart)
+>>>>>>> 02630c0aab20ce5c200df09568b080f5dd75e1c7
   console.log(cartItems)
 
   const mycountlen = cartItems?.data?.cartItem?.items?.length || 0;
@@ -36,46 +54,50 @@ const Header = () => {
   }, []);
 
   // Fetch user on page load
-  useEffect(() => {
-    const fetchUser = async () => {
-      try {
-        const storedUser = localStorage.getItem("user");
-        if (storedUser) {
-          setUser(JSON.parse(storedUser));
-          setIsLoggedIn(true);
-          return;
-        }
+  // useEffect(() => {
+  //   const fetchUser = async () => {
+  //     try {
+  //       const storedUser = localStorage.getItem("user");
+  //       if (storedUser) {
+  //         setUser(JSON.parse(storedUser));
+  //         setIsLoggedIn(true);
+  //         return;
+  //       }
 
-        const response = await axios.get("http://localhost:5000/api/v1/users/getCurrentUser", {
-          withCredentials: true,
-        });
+  //       const response = await axios.get("http://localhost:5000/api/v1/users/getCurrentUser", {
+  //         withCredentials: true,
+  //       });
 
-        if (response.data?.data?.user) {
-          localStorage.setItem("user", JSON.stringify(response.data.data.user)); // Save user data
-          setUser(response.data.data.user);
-          setIsLoggedIn(true);
-        } else {
-          localStorage.removeItem("user");
-          setIsLoggedIn(false);
-        }
-      } catch (error) {
-        console.error("Error fetching user:", error.response?.data?.message || error.message);
-        localStorage.removeItem("user");
-        setIsLoggedIn(false);
-      }
-    };
+  //       if (response.data?.data?.user) {
+  //         localStorage.setItem("user", JSON.stringify(response.data.data.user)); // Save user data
+  //         setUser(response.data.data.user);
+  //         setIsLoggedIn(true);
+  //       } else {
+  //         localStorage.removeItem("user");
+  //         setIsLoggedIn(false);
+  //       }
+  //     } catch (error) {
+  //       console.error("Error fetching user:", error.response?.data?.message || error.message);
+  //       localStorage.removeItem("user");
+  //       setIsLoggedIn(false);
+  //     }
+  //   };
 
-    fetchUser();
-  }, []);
+  //   fetchUser();
+  // }, []);
 
   // Logout function
   const handleLogout = async () => {
-    try {
-      await axios.post("http://localhost:5000/api/v1/users/logout", {}, { withCredentials: true });
 
-      localStorage.removeItem("token");
-      localStorage.removeItem("user");
+    try{
+      const rs= await dispatch(logoutUser()).unwrap()
+     
+      console.log(rs)
+      toast.success(rs?.message)
+      persistor.purge()
+      window.location.reload();
 
+<<<<<<< HEAD
       persistor.purge();   // Persisted state bhi clear karega
       window.location.reload(); // Ensure fresh state load hota hai
 
@@ -86,13 +108,27 @@ const Header = () => {
       console.error("Logout failed", error);
       setUser(null)
       setIsLoggedIn(false)
+=======
+        
+    }catch(er){
+      console.log(er)
+      toast.error(er)
+>>>>>>> 02630c0aab20ce5c200df09568b080f5dd75e1c7
     }
+   
   };
   useEffect(() => {
+<<<<<<< HEAD
     console.log("User state:", user);
     console.log("Is Logged In:", isLoggedIn);
   }, [user, isLoggedIn]);
 
+=======
+    console.log("User state : ", user);
+    console.log("Is Logged In auth ka state:", isAuthenticate);
+  }, [user, isAuthenticate]);
+  
+>>>>>>> 02630c0aab20ce5c200df09568b080f5dd75e1c7
 
   return (
     <>
@@ -205,7 +241,7 @@ const Header = () => {
           <Link to="/contact-us" className="hover:text-blue-500" onClick={() => setIsMobileMenuOpen(false)}>Contact Us</Link>
 
           {/* Dynamic Login/Logout */}
-          {isLoggedIn ? (
+          {isAuthenticate ? (
             <>
               <button
                 onClick={handleLogout}
