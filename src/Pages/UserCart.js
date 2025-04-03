@@ -1,15 +1,18 @@
-import { useEffect } from "react";
+import { useEffect, useContext } from "react";
 import { CheckIcon, ClockIcon } from "@heroicons/react/20/solid";
 import { Link, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { getCart, delteCartItem, updateCartQuntity } from "../features/cartSlice";
 import { toast } from "react-toastify";
 import displayINRCurrency from "../Helpers/displayCurrency";
-import { findNonSerializableValue } from "@reduxjs/toolkit";
+// import { findNonSerializableValue } from "@reduxjs/toolkit";
+import { ThemeContext } from "../Helpers/ThemeContext"; // Adjust path as needed
+
 
 export default function ShoppingCart() {
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  const { isDarkMode } = useContext(ThemeContext);
 
   const { user } = useSelector((state) => state.auth);
   const { cartItems } = useSelector((state) => state.cart);
@@ -47,13 +50,13 @@ export default function ShoppingCart() {
     }
   };
 
-  const handlePayment = ()=>{
+  const handlePayment = () => {
     if (!cartItems?.data?.cartItem?.items || cartItems.data.cartItem.items.length === 0) {
       alert("Your cart is Empty. You can't Check it out.");
     } else {
       navigate("/payment-integration");
     }
-    
+
   }
 
   // Remove Item from Cart
@@ -80,68 +83,78 @@ export default function ShoppingCart() {
   ) || 0;
 
   return (
-    <div className="bg-white min-h-screen">
+    <div className={`min-h-screen ${isDarkMode ? "bg-gray-800 text-white" : "bg-white text-gray-900"}`}>
       <div className="mx-auto max-w-3xl px-4 py-16 sm:px-6 lg:px-8">
-        <h1 className="text-center text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">
+        <h1 className={`text-center text-3xl font-bold tracking-tight sm:text-4xl 
+                      ${isDarkMode ? "text-white" : "text-gray-900"}`}>
           Shopping Cart
         </h1>
 
+
         {!cartItems?.data?.cartItem?.items || cartItems?.data?.cartItem?.items?.length === 0 ? (
           <div className="text-center py-10">
-            <p className="text-lg text-gray-500">Your cart is empty.</p>
+            <p className={`text-lg ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>
+              Your cart is empty.
+            </p>
             <Link
-              to="/home"
-              className="mt-4 inline-block rounded-md bg-indigo-600 px-6 py-2 text-white hover:bg-indigo-700"
+              to="/"
+              className="mt-4 inline-block rounded-md bg-indigo-600 px-6 py-2 text-white 
+                       hover:bg-indigo-700 transition duration-300 ease-in-out transform hover:scale-105"
             >
               Continue Shopping
             </Link>
           </div>
+
         ) : (
           <form className="mt-12">
             <section aria-labelledby="cart-heading">
-              <ul className="divide-y divide-gray-200 border-b border-t border-gray-200">
+              <ul className={`divide-y border-b border-t ${isDarkMode ? "divide-gray-700 border-gray-700" : "divide-gray-200 border-gray-200"}`}>
                 {cartItems?.data?.cartItem?.items?.map((product) => (
-                  <li key={product.productId?._id} className="flex py-6">
-                    <div className="shrink-0">
+                  <li key={product.productId?._id} className="flex flex-col sm:flex-row py-6">
+
+                    {/* Product Image */}
+                    <div className="shrink-0 mx-auto sm:mx-0">
                       <img
                         alt={product.productId?.productName || "Product image"}
                         src={product.productId?.mainProductImg}
-                        className="size-24 rounded-md object-cover sm:size-32"
+                        className="size-24 sm:size-32 rounded-md object-cover"
                       />
                     </div>
 
-                    <div className="ml-4 flex flex-1 flex-col sm:ml-6">
+                    {/* Product Details */}
+                    <div className="ml-0 sm:ml-6 flex flex-1 flex-col">
                       <Link to={`/product/${product.productId?._id}`} className="block">
-                        <div className="flex justify-between">
-                          <h4 className="text-sm font-medium text-gray-700 hover:text-gray-800">
+                        <div className="flex justify-between items-center">
+                          <h4 className={`text-sm font-medium ${isDarkMode ? "text-gray-300 hover:text-white" : "text-gray-700 hover:text-gray-800"}`}>
                             {product.productId?.productName}
                           </h4>
-                          <p className="ml-4 text-sm font-medium text-gray-900">
+                          <p className={`ml-4 text-sm font-medium ${isDarkMode ? "text-gray-100" : "text-gray-900"}`}>
                             {displayINRCurrency(product.productId?.price?.toFixed(2))}
                           </p>
                         </div>
                       </Link>
 
+                      {/* Stock & Quantity Section */}
                       <div className="mt-4 flex items-center justify-between space-x-4">
-                        <p className="flex items-center text-sm text-gray-700">
+
+                        {/* Stock Status */}
+                        <p className="flex items-center text-sm">
                           {product.quantity <= product.productId?.stock ? (
                             <CheckIcon className="h-5 w-5 text-green-500" />
                           ) : (
-                            <ClockIcon className="h-5 w-5 text-gray-300" />
+                            <ClockIcon className="h-5 w-5 text-gray-400" />
                           )}
-                          <span className="ml-2">
+                          <span className={`ml-2 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}>
                             {product.quantity <= product.productId?.stock ? "In stock" : "Out of stock"}
                           </span>
                         </p>
 
                         {/* Quantity Selector */}
-                        <div className="flex items-center bg-gray-200 rounded-md">
+                        <div className={`flex items-center rounded-md ${isDarkMode ? "bg-gray-800 text-gray-300" : "bg-gray-200 text-gray-700"}`}>
                           <button
                             type="button"
-                            onClick={() =>
-                              updateQuantity(product?.productId?._id, product.quantity - 1)
-                            }
-                            className="px-3 py-1 text-gray-700"
+                            onClick={() => updateQuantity(product?.productId?._id, product.quantity - 1)}
+                            className="px-3 py-1 hover:bg-gray-400 rounded-l-md"
                           >
                             -
                           </button>
@@ -150,22 +163,22 @@ export default function ShoppingCart() {
                           </span>
                           <button
                             type="button"
-                            onClick={() =>
-                              updateQuantity(product?.productId?._id, product.quantity + 1)
-                            }
-                            className="px-3 py-1 text-gray-700"
+                            onClick={() => updateQuantity(product?.productId?._id, product.quantity + 1)}
+                            className="px-3 py-1 hover:bg-gray-400 rounded-r-md"
                           >
                             +
                           </button>
                         </div>
 
+                        {/* Remove Button */}
                         <button
                           type="button"
                           onClick={() => removeItem(product.productId?._id)}
-                          className="text-sm font-medium text-red-600 hover:text-red-500"
+                          className="text-sm font-medium text-red-500 hover:text-red-400"
                         >
                           Remove
                         </button>
+
                       </div>
                     </div>
                   </li>
@@ -173,43 +186,62 @@ export default function ShoppingCart() {
               </ul>
             </section>
 
+
             {/* Order Summary */}
-            <section aria-labelledby="summary-heading" className="mt-10">
+            <section
+              aria-labelledby="summary-heading"
+              className={`mt-10 p-6 rounded-lg shadow-md ${isDarkMode ? "bg-gray-800 text-gray-300" : "bg-gray-100 text-gray-800"
+                }`}
+            >
               <div>
                 <dl className="space-y-4">
+                  {/* Subtotal */}
                   <div className="flex items-center justify-between">
-                    <dt className="text-base font-medium text-gray-900">Subtotal</dt>
-                    <dd className="ml-4 text-base font-medium text-gray-900">
+                    <dt className={isDarkMode ? "text-gray-300" : "text-gray-800"}>
+                      Subtotal
+                    </dt>
+                    <dd className={isDarkMode ? "text-gray-200" : "text-gray-900"}>
                       {displayINRCurrency(subtotal.toFixed(2))}
                     </dd>
                   </div>
                 </dl>
-                <p className="mt-1 text-sm text-gray-500">
+
+                {/* Shipping Info */}
+                <p className={isDarkMode ? "text-gray-400" : "text-gray-600"}>
                   Shipping and taxes will be calculated at checkout.
                 </p>
               </div>
 
+              {/* Checkout Button */}
               <div className="mt-10">
                 <button
                   type="button"
                   onClick={() => handlePayment()}
-                  className="w-full rounded-md bg-indigo-600 px-4 py-3 text-white hover:bg-indigo-700"
+                  className={`w-full rounded-md px-5 py-3 font-medium transition active:scale-95 ${isDarkMode
+                      ? "bg-indigo-600 hover:bg-indigo-500 text-white"
+                      : "bg-indigo-500 hover:bg-indigo-600 text-white"
+                    }`}
                 >
                   Checkout
                 </button>
               </div>
 
+              {/* Continue Shopping */}
               <div className="mt-6 text-center text-sm">
                 <p>
                   <Link
                     to="/home"
-                    className="font-medium text-indigo-600 hover:text-indigo-500"
+                    className={`font-medium ${isDarkMode
+                        ? "text-indigo-400 hover:text-indigo-300"
+                        : "text-indigo-500 hover:text-indigo-400"
+                      }`}
                   >
                     Continue Shopping <span aria-hidden="true"> &rarr;</span>
                   </Link>
                 </p>
               </div>
             </section>
+
           </form>
         )}
       </div>

@@ -33,7 +33,7 @@ export default function OrderHistoryPage() {
   return (
     <div
       className={`md:p-12 mx-auto min-h-screen transition-all ${
-        isDarkMode ? "bg-gray-900 text-white" : "bg-gray-100 text-black"
+        isDarkMode ? "bg-gray-800 text-white" : "bg-slate-200 text-black"
       }`}
     >
       {/* Toggle Button */}

@@ -3,7 +3,7 @@ import { ThemeContext } from "../Helpers/ThemeContext";
 import CategoryList from "../Components/CategoryList";
 import BannerProduct from "../Components/BannerProduct";
 import HorizontalCardProduct from "../Components/HorizontalCardProduct";
-import VerticalCardProduct from "../Components/VerticalCardProduct";
+// import VerticalCardProduct from "../Components/VerticalCardProduct";
 import Footer from "../Components/Footer";
 import { useSelector ,useDispatch } from "react-redux";
 import { getAllProduct } from "../features/productSlice";
@@ -30,7 +30,7 @@ console.log("MYHOME PROUDUCT",product)
     <div
       className={`min-h-screen transition-colors duration-300 ${
         isDarkMode
-          ? "bg-gradient-to-b from-gray-900 via-gray-800 to-black text-white"
+          ? "bg-gradient-to-b from-gray-800 via-gray-800 to-black text-white"
           : "bg-gray-100 text-gray-900"
       }`}
     >

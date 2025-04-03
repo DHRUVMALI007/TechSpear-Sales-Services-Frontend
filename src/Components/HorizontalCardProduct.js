@@ -31,7 +31,7 @@ const HorizontalCardProduct = ({ category, heading, products =[], loading }) => 
     return (
         <div className={`w-full pb-8 relative ${isDarkMode ? "bg-gray-900 text-white" : "bg-gray-50 text-gray-900"}`}>
             {/* Section Heading */}
-            <div className="flex justify-between items-center px-6 md:px-10 lg:px-16">
+            <div className="flex justify-between items-center px-6 md:px-10 lg:px-16 pt-5">
                 <h2 className="text-2xl md:text-3xl font-bold">{heading || "Trending Products"}</h2>
             </div>
 

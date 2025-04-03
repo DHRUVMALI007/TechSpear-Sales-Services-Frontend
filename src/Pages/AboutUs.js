@@ -1,12 +1,12 @@
 
-import React, { useState, useEffect } from 'react';
 import Footer from "../Components/Footer";
-
+import { ThemeContext } from "../Helpers/ThemeContext";
 import dell from './Dell_Logo.png'
 import hp from './hp_logo.png'
 import asus from './Asus.png'
 import iball from './IBall_logo.svg.png'
 import lenovo from './Lenovo_logo_2015.svg.png'
+import React, { useState, useEffect, useContext } from "react";
 
 
 
@@ -76,6 +76,8 @@ const ImageWithLoader = ({ src, alt }) => {
 const AboutUs = () => {
 
     const [loading, setLoading] = useState(true);
+    const { isDarkMode } = useContext(ThemeContext);
+
     useEffect(() => {
         // Simulate page loading (e.g., network request or heavy assets loading)
         const timer = setTimeout(() => {
@@ -86,7 +88,8 @@ const AboutUs = () => {
     }, []);
 
     return (
-        <div className="bg-white">
+        <div className={`${isDarkMode ? "bg-gray-800 text-white" : "bg-white text-gray-800"}`}>
+
 
             {loading ? (
                 <div className="flex justify-center items-center h-screen">
@@ -96,30 +99,7 @@ const AboutUs = () => {
                 <main className="isolate">
                     {/* Hero section */}
                     <div className="relative isolate -z-10">
-                        <svg
-                            aria-hidden="true"
-                            className="absolute inset-x-0 top-0 -z-10 h-[64rem] w-full stroke-gray-200 [mask-image:radial-gradient(32rem_32rem_at_center,white,transparent)]"
-                        >
-                            <defs>
-                                <pattern
-                                    x="50%"
-                                    y={-1}
-                                    id="1f932ae7-37de-4c0a-a8b0-a6e3b4d44b84"
-                                    width={200}
-                                    height={200}
-                                    patternUnits="userSpaceOnUse"
-                                >
-                                    <path d="M.5 200V.5H200" fill="none" />
-                                </pattern>
-                            </defs>
-                            <svg x="50%" y={-1} className="overflow-visible fill-gray-50">
-                                <path
-                                    d="M-200 0h201v201h-201Z M600 0h201v201h-201Z M-400 600h201v201h-201Z M200 800h201v201h-201Z"
-                                    strokeWidth={0}
-                                />
-                            </svg>
-                            <rect fill="url(/1f932ae7-37de-4c0a-a8b0-a6e3b4d44b84)" width="100%" height="100%" strokeWidth={0} />
-                        </svg>
+
                         <div
                             aria-hidden="true"
                             className="absolute left-1/2 right-0 top-0 -z-10 -ml-24 transform-gpu overflow-hidden blur-3xl lg:ml-24 xl:ml-48"
@@ -136,11 +116,19 @@ const AboutUs = () => {
                             <div className="mx-auto max-w-7xl px-6 pb-32 pt-3 sm:pt-2 lg:px-83 lg:pt-3">
                                 <div className="mx-auto max-w-2xl gap-x-14 lg:mx-0 lg:flex lg:max-w-none lg:items-center">
                                     <div className="relative w-full lg:max-w-xl lg:shrink-0 xl:max-w-2xl">
-                                        <h1 className="text-5xl font-semibold tracking-tight sm:text-6xl bg-gradient-to-r from-gray-800 via-gray-700 to-gray-600 inline-block text-transparent bg-clip-text">                                    Transforming the Way You Shop for Tech
+                                        <h1 className={`text-5xl font-semibold tracking-tight sm:text-6xl 
+                                                        bg-gradient-to-r inline-block text-transparent bg-clip-text
+                                                        ${isDarkMode ? "from-gray-200 via-gray-400 to-gray-600" : "from-gray-800 via-gray-700 to-gray-600"}`}>
+                                            Transforming the Way You Shop for Tech
                                         </h1>
-                                        <p className="mt-8 text-pretty text-lg font-medium text-gray-500 sm:max-w-md sm:text-xl/8 lg:max-w-none">
-                                            <span className='font-extrabold text-gray-900'>Welcome to TechSphear Sales & Services</span> , your trusted partner for all things laptops and PCs. Whether you're looking for the latest gadgets or top-notch service, we're here to make technology work for you. We offer a wide selection of laptops and PCs from leading brands, as well as high-quality components for all your computing needs. You can easily book services online, from repairs to upgrades, or browse our extensive collection of accessories and parts. Our platform provides a seamless e-commerce experience, ensuring that you get the products and services you need with convenience and reliability.
+                                        <p className={`mt-8 text-pretty text-lg font-medium sm:max-w-md sm:text-xl/8 lg:max-w-none 
+                                            ${isDarkMode ? "text-gray-300" : "text-gray-500"}`}>
+                                            <span className={`${isDarkMode ? "text-white" : "text-gray-900"} font-extrabold`}>
+                                                Welcome to TechSphear Sales & Services
+                                            </span>
+                                            , your trusted partner for all things laptops and PCs. Whether you're looking for the latest gadgets or top-notch service, we're here to make technology work for you. We offer a wide selection of laptops and PCs from leading brands, as well as high-quality components for all your computing needs. You can easily book services online, from repairs to upgrades, or browse our extensive collection of accessories and parts. Our platform provides a seamless e-commerce experience, ensuring that you get the products and services you need with convenience and reliability.
                                         </p>
+
                                     </div>
                                     <div className="mt-14 flex justify-end gap-8 sm:-mt-44 sm:justify-start sm:pl-20 lg:mt-0 lg:pl-0">
                                         <div className="ml-auto w-44 flex-none space-y-8 pt-32 sm:ml-0 sm:pt-80 lg:order-last lg:pt-36 xl:order-none xl:pt-80">
@@ -178,32 +166,45 @@ const AboutUs = () => {
                     {/* Content section */}
                     <div className="mx-auto -mt-12 max-w-7xl px-6 sm:mt-0 lg:px-8 xl:-mt-8">
                         <div className="mx-auto max-w-2xl lg:mx-0 lg:max-w-none">
-                            <h2 className="text-pretty text-4xl font-semibold tracking-tight text-gray-900 sm:text-5xl">Our mission</h2>
+                            <h2 className={`text-pretty text-4xl font-semibold tracking-tight sm:text-5xl 
+    ${isDarkMode ? "text-white" : "text-gray-900"}`}>
+                                Our mission
+                            </h2>
+
                             <div className="mt-6 flex flex-col gap-x-8 gap-y-20 lg:flex-row">
                                 <div className="lg:w-full lg:max-w-2xl lg:flex-auto">
-                                    <p className="text-xl/8 text-gray-600">
+                                    <p className={`text-xl/8 ${isDarkMode ? "text-gray-300" : "text-gray-600"}`}>
                                         At TechSphear Sales & Services, our mission is simple: to provide a wide range of laptops, PCs,
                                         and components from different leading brands, ensuring that you have access to the best products
                                         for your needs. Whether you're looking for a new device or specific parts, we offer a comprehensive
                                         selection for every type of user.
                                     </p>
-                                    <p className="mt-10 max-w-xl text-base/7 text-gray-700">
+
+                                    <p className={`mt-10 max-w-xl text-base/7 ${isDarkMode ? "text-gray-400" : "text-gray-700"}`}>
                                         We also make it easy for you to book services online, from repairs to upgrades, and access a variety of
-                                        components for your PC or laptop. Our platform is designed to provide a seamless e-commerce experience, allowing you to purchase products and services with convenience and reliability, all in one place.
+                                        components for your PC or laptop. Our platform is designed to provide a seamless e-commerce experience, allowing
+                                        you to purchase products and services with convenience and reliability, all in one place.
                                     </p>
                                 </div>
+
                                 <div className="lg:flex lg:flex-auto lg:justify-center">
                                     <dl className="w-64 space-y-8 xl:w-80">
                                         {stats.map((stat) => (
                                             <div key={stat.label} className="flex flex-col-reverse gap-y-4">
-                                                <dt className="text-base/7 text-gray-600">{stat.label}</dt>
-                                                <dd className="text-5xl font-semibold tracking-tight text-gray-900">{stat.value}</dd>
+                                                <dt className={`${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>
+                                                    {stat.label}
+                                                </dt>
+                                                <dd className={`text-5xl font-semibold tracking-tight 
+              ${isDarkMode ? "text-white" : "text-gray-900"}`}>
+                                                    {stat.value}
+                                                </dd>
                                             </div>
                                         ))}
                                     </dl>
                                 </div>
                             </div>
                         </div>
+
                     </div>
 
                     {/* Image section */}
@@ -218,48 +219,40 @@ const AboutUs = () => {
                     {/* Values section */}
                     <div className="mx-auto mt-32 max-w-7xl px-6 sm:mt-40 lg:px-8">
                         <div className="mx-auto max-w-2xl lg:mx-0">
-                            <h2 className="text-pretty text-4xl font-semibold tracking-tight text-gray-900 sm:text-5xl">Our values</h2>
-                            <p className="mt-6 text-lg/8 text-gray-600">
+                            <h2 className={`text-pretty text-4xl font-semibold tracking-tight sm:text-5xl 
+                                         ${isDarkMode ? "text-white" : "text-gray-900"}`}>
+                                Our values
+                            </h2>
+
+                            <p className={`mt-6 text-lg/8 ${isDarkMode ? "text-gray-300" : "text-gray-600"}`}>
                                 At TechSphear Sales & Services, we operate with a set of core values that guide everything we do.
                             </p>
                         </div>
-                        <dl className="mx-auto mt-16 grid max-w-2xl grid-cols-1 gap-x-8 gap-y-16 text-base/7 sm:grid-cols-2 lg:mx-0 lg:max-w-none lg:grid-cols-3">
+
+                        <dl className="mx-auto mt-16 grid max-w-2xl grid-cols-1 gap-x-8 gap-y-16 text-base/7 
+                                        sm:grid-cols-2 lg:mx-0 lg:max-w-none lg:grid-cols-3">
                             {values.map((value) => (
                                 <div key={value.name}>
-                                    <dt className="font-semibold text-gray-900">{value.name}</dt>
-                                    <dd className="mt-1 text-gray-600">{value.description}</dd>
+                                    <dt className={`font-semibold ${isDarkMode ? "text-white" : "text-gray-900"}`}>
+                                        {value.name}
+                                    </dt>
+                                    <dd className={`mt-1 ${isDarkMode ? "text-gray-300" : "text-gray-600"}`}>
+                                        {value.description}
+                                    </dd>
                                 </div>
                             ))}
                         </dl>
+
                     </div>
 
                     {/* Logo cloud */}
                     <div className="relative isolate -z-10 mt-32 sm:mt-48">
-                        <div className="absolute inset-x-0 top-1/2 -z-10 flex -translate-y-1/2 justify-center overflow-hidden [mask-image:radial-gradient(50%_45%_at_50%_55%,white,transparent)]">
-                            <svg aria-hidden="true" className="h-[40rem] w-[80rem] flex-none stroke-gray-200">
-                                <defs>
-                                    <pattern
-                                        x="50%"
-                                        y="50%"
-                                        id="e9033f3e-f665-41a6-84ef-756f6778e6fe"
-                                        width={200}
-                                        height={200}
-                                        patternUnits="userSpaceOnUse"
-                                        patternTransform="translate(-100 0)"
-                                    >
-                                        <path d="M.5 200V.5H200" fill="none" />
-                                    </pattern>
-                                </defs>
-                                <svg x="50%" y="50%" className="overflow-visible fill-gray-50">
-                                    <path d="M-300 0h201v201h-201Z M300 200h201v201h-201Z" strokeWidth={0} />
-                                </svg>
-                                <rect fill="url(/e9033f3e-f665-41a6-84ef-756f6778e6fe)" width="100%" height="100%" strokeWidth={0} />
-                            </svg>
-                        </div>
-                        <div className="mx-auto max-w-3xl px-6 lg:px-8 mt-0 mb-44">
-                            <h2 className="text-center text-lg/8 font-semibold text-gray-900">
+                        <div className="mx-auto max-w-3xl px-6 lg:px-8 mt-0 mb-10">
+                            <h2 className={`text-center text-lg/8 font-semibold 
+                                            ${isDarkMode ? "text-white" : "text-gray-900"}`}>
                                 Trusted by Leading Brands and Innovators
                             </h2>
+
                             <div className="mx-auto  mt-10 grid max-w-lg grid-cols-4 items-center gap-x-12 gap-y-12 sm:max-w-xl sm:grid-cols-6 sm:gap-x-16 lg:mx-0 lg:max-w-none lg:grid-cols-5">
                                 <img
                                     alt="Dell"

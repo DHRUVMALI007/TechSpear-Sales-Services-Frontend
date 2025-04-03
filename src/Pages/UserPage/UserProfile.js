@@ -94,7 +94,7 @@ export default function ProfilePage() {
   };
 
   // Theme-based styles
-  const bgColor = isDarkMode ? "bg-[#1B1F3B]" : "bg-slate-200";
+  const bgColor = isDarkMode ? "bg-gray-800" : "bg-gray-300";
   const cardColor = isDarkMode ? "bg-[#252A4A] text-white" : "bg-white text-gray-700";
   const inputBg = isDarkMode ? "bg-[#2F365F] text-white" : "bg-white text-gray-900";
   const inputBorder = isDarkMode ? "border-[#4A4F7C]" : "border-gray-300";

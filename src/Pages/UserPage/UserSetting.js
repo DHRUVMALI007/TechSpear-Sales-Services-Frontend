@@ -73,7 +73,7 @@ export default function SettingsPage() {
 
 
   return (
-    <div className={`p-6 min-h-screen mb-32 transition-all ${isDarkMode ? "bg-gray-800 text-gray-300" : "bg-gray-50 text-gray-900"}`}>
+    <div className={`p-6 min-h-screen mb-32 transition-all ${isDarkMode ? "bg-gray-800 text-gray-300" : "bg-gray-200 text-gray-900"}`}>
       <ToastContainer position="top-right" autoClose={3000} theme={isDarkMode ? "dark" : "light"} />
 
       <h2 className="text-3xl font-semibold mb-6 flex items-center gap-2">
@@ -237,12 +237,6 @@ export default function SettingsPage() {
         ) : (
           <p>No address found.</p>
         )}
-      </SettingsSection>
-
-
-
-      <SettingsSection title="Notifications" icon={<FaBell />}>
-        <ToggleOption label="Email Notifications" value={emailNotifications} onChange={setEmailNotifications} />
       </SettingsSection>
 
       <SettingsSection title="System Preferences" icon={<FaCog />}>

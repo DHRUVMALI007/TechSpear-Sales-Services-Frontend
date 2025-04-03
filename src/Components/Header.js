@@ -5,7 +5,7 @@ import { SiSearxng } from "react-icons/si";
 import { FaBars, FaTimes, FaUserCircle, FaShoppingCart } from "react-icons/fa";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
-import { useSelector} from "react-redux";
+import { useSelector } from "react-redux";
 import { persistor } from "../redux/store";
 import { toast } from "react-toastify";
 
@@ -16,15 +16,15 @@ const Header = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false); // Login state
   const [user, setUser] = useState(null); // Store user details
 
-  const {isAuthenticate} = useSelector((state)=>state.auth)
-  console.log("is auth ",isAuthenticate)
+  const { isAuthenticate } = useSelector((state) => state.auth)
+  console.log("is auth ", isAuthenticate)
   const { isDarkMode, toggleTheme } = useContext(ThemeContext);
   const navigate = useNavigate();
 
-  const {cartItems}= useSelector((state)=>state.cart)
+  const { cartItems } = useSelector((state) => state.cart)
   console.log(cartItems)
 
-  const mycountlen= cartItems?.data?.cartItem?.items?.length || 0;
+  const mycountlen = cartItems?.data?.cartItem?.items?.length || 0;
   console.log(mycountlen)
   // Detect Scroll to add shadow effect
   useEffect(() => {
@@ -78,7 +78,7 @@ const Header = () => {
 
       persistor.purge();   // Persisted state bhi clear karega
       window.location.reload(); // Ensure fresh state load hota hai
-    
+
       setUser(null);
       setIsLoggedIn(false);
       navigate("/login");
@@ -92,7 +92,7 @@ const Header = () => {
     console.log("User state:", user);
     console.log("Is Logged In:", isLoggedIn);
   }, [user, isLoggedIn]);
-  
+
 
   return (
     <>
@@ -146,9 +146,14 @@ const Header = () => {
             {/* User Profile & Login/Logout */}
             {isAuthenticate ? (
               <>
-                <Link to="/User-panel" className="text-lg md:text-xl hover:text-blue-500">
-                  <FaUserCircle />
-                </Link>
+                {/* Show User Panel only if logged in */}
+                {user && (
+                  <Link to="/User-panel" className="text-lg md:text-xl hover:text-blue-500">
+                    <FaUserCircle />
+                  </Link>
+                )}
+
+                {/* Logout Button */}
                 <button
                   onClick={handleLogout}
                   className="px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600 transition hidden lg:inline"
@@ -157,6 +162,7 @@ const Header = () => {
                 </button>
               </>
             ) : (
+              /* Login Button */
               <Link
                 to="/login"
                 className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition hidden lg:inline"
@@ -164,6 +170,7 @@ const Header = () => {
                 Login
               </Link>
             )}
+
 
             {/* Mobile Menu Button */}
             <button className="text-2xl lg:hidden" onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}>
@@ -178,7 +185,7 @@ const Header = () => {
         className={`fixed left-0 top-28 w-64 h-[calc(100vh-7rem)] z-[90] shadow-md transition-transform duration-300
          ${isDarkMode ? "bg-gray-900 text-white" : "bg-white text-gray-800"} 
          ${isMobileMenuOpen ? "translate-x-0" : "-translate-x-full"}`}
-        >
+      >
         {/* Sidebar Header */}
         <div className="flex justify-between items-center p-4 border-b">
           <h2 className="text-xl font-semibold">Menu</h2>
@@ -200,7 +207,6 @@ const Header = () => {
           {/* Dynamic Login/Logout */}
           {isLoggedIn ? (
             <>
-              <Link to="/User-panel" className="hover:text-blue-500" onClick={() => setIsMobileMenuOpen(false)}>User Panel</Link>
               <button
                 onClick={handleLogout}
                 className="hover:text-red-500 transition font-medium text-left"
