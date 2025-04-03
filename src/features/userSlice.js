@@ -1,8 +1,9 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit"
 import axios from "axios"
+import { persistor } from "../redux/store.js";
 
 
-const baseURL="http://localhost:5000/api/v1/users"
+const baseURL = "http://localhost:5000/api/v1/users"
 
 export const registerUser = createAsyncThunk(
   "user/register",
@@ -41,25 +42,48 @@ export const loginUser = createAsyncThunk('user/login', async (data, { rejectWit
 
 })
 
-export const getCurrentUser = createAsyncThunk("user/getCurrUser", async({ rejectWithValue }) => {
-    try{
-      const response = await axios.get(`${baseURL}/getCurrentUser`, { withCredentials: true });
+export const getCurrentUser = createAsyncThunk("user/getCurrUser", async ({ rejectWithValue }) => {
+  try {
+    const response = await axios.get(`${baseURL}/getCurrentUser`, { withCredentials: true });
 
+    return response.data;
+  }
+  catch (er) {
+    return er
+  }
+})
+
+
+export const logoutUser = createAsyncThunk("user/logout", async (_,{ rejectWithValue }) => {
+    try{
+      const token = localStorage.getItem("token")
+      const response = await axios.post(`${baseURL}/logout`,{},{
+        withCredentials:true,
+        headers:{
+          "Content-Type":"application/json",
+          "Authorization":`Bearer ${token}`
+        }
+      })
+      localStorage.removeItem("token");
+      localStorage.removeItem("user");
+     
+
+      console.log(response.data)
       return response.data;
     }
     catch(er){
-        return er
+      return rejectWithValue(er?.response?.data?.message)
     }
 })
 
-export const updatePassword = createAsyncThunk("user/updatePass",async({oldPassword,newPassword},{rejectWithValue})=>{
+export const updatePassword = createAsyncThunk("user/updatePass", async ({ oldPassword, newPassword }, { rejectWithValue }) => {
 
   try {
-    console.log({oldPassword,newPassword})
-    const response= await axios.patch(`${baseURL}/updatePass`,{oldPassword,newPassword},{
-      withCredentials:true,
-      headers:{
-        "Content-Type":"application/json"
+    console.log({ oldPassword, newPassword })
+    const response = await axios.patch(`${baseURL}/updatePass`, { oldPassword, newPassword }, {
+      withCredentials: true,
+      headers: {
+        "Content-Type": "application/json"
       }
     })
 
@@ -77,19 +101,19 @@ const userSlice = createSlice({
     user: null,
     error: null,
     loading: false,
-    isAuthenticate:false
+    isAuthenticate: false
   },
   extraReducers: (builder) => {
     builder
       .addCase(registerUser.pending, (state) => {
         state.loading = true;
         state.error = null;
-        state.isAuthenticate=false;
+        state.isAuthenticate = false;
       })
       .addCase(registerUser.fulfilled, (state, action) => {
         console.log("User Registered Successfully:", action.payload);
         state.user = action.payload;
-        state.isAuthenticate=false
+        state.isAuthenticate = false
         state.loading = false;
         state.error = null;
       })
@@ -97,7 +121,7 @@ const userSlice = createSlice({
         //   console.error("Register Error:", action.payload);
         state.loading = false;
         state.error = action.payload;
-        state.isAuthenticate=false
+        state.isAuthenticate = false
       });
 
     builder
@@ -105,34 +129,34 @@ const userSlice = createSlice({
         state.loading = true;
         state.error = null;
         state.user = null;
-        state.isAuthenticate=false
+        state.isAuthenticate = false
 
       })
       .addCase(loginUser.fulfilled, (state, action) => {
         state.loading = false;
         state.user = action.payload;
         state.error = null;
-        state.isAuthenticate=true
+        state.isAuthenticate = true
       })
       .addCase(loginUser.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
         state.user = null;
-        state.isAuthenticate=false
+        state.isAuthenticate = false
 
       });
 
-      builder
+    builder
       .addCase(getCurrentUser.pending, (state) => {
         state.loading = true;
         state.error = null;
         state.user = null;
-        state.isAuthenticate=false
+        state.isAuthenticate = false
       })
       .addCase(getCurrentUser.fulfilled, (state, action) => {
         state.loading = false;
         state.user = action.payload;
-        state.isAuthenticate=true
+        state.isAuthenticate = true
         state.error = null;
       })
       .addCase(getCurrentUser.rejected, (state, action) => {
@@ -140,8 +164,29 @@ const userSlice = createSlice({
         state.error = action.payload;
         state.user = null;
       });
-      
-     
+
+
+      builder
+      .addCase(logoutUser.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+        state.user = null;
+        state.isAuthenticate = false
+      })
+      .addCase(logoutUser.fulfilled, (state, action) => {
+        state.loading = false;
+        state.user = null;
+        state.isAuthenticate = false
+        state.error = null;
+      })
+      .addCase(logoutUser.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+        state.user = null;
+      });
+
+
+
   },
 });
 

@@ -1,8 +1,9 @@
 import { Navigate, Outlet } from "react-router-dom";
 import { useSelector } from "react-redux";
+import { toast } from "react-toastify";
 
 const ProtectedRoute = () => {
-  const { isAuthenticate } = useSelector((state) => state.auth);
+  const { isAuthenticate ,user} = useSelector((state) => state.auth);
   const cartItems = useSelector((state) => state.cart);
 
 //   const hasItemsInCart = cartItems?.data?.cartItem?.items?.length  === 0;

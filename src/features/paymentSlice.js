@@ -42,7 +42,7 @@ export const verifyPayment= createAsyncThunk("payment/verify",async({razorpayOrd
 
 export const getAllPayment= createAsyncThunk("payment/getAll",async(_,{rejectWithValue})=>{
     try{
-        const response = await axios.get(`${baseUrl}/getAllPayment`,{
+        const response = await axios.get(`${baseUrl}/allPayments`,{
             headers:{
                 "Content-Type":"application/json"
             }

@@ -1,77 +1,18 @@
 import { Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/react';
 import { EllipsisVerticalIcon } from '@heroicons/react/24/outline';
 import { CheckCircleIcon } from '@heroicons/react/20/solid';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import Invoice from './Invoice';
+import { useDispatch, useSelector } from 'react-redux';
+import { toast } from 'react-toastify';
+import axios from 'axios';
+import { getMyOrdersLoggInUser } from '../../features/orderSlice';
+import moment from 'moment';
 
-// Sample order data
-const ordersData = [
-  {
-    number: 'WU88191111',
-    href: '#',
-    invoiceHref: '#',
-    createdDate: 'Jul 6, 2021',
-    createdDatetime: '2021-07-06',
-    deliveredDate: 'July 12, 2021',
-    deliveredDatetime: '2021-07-12',
-    total: '$160.00',
-    status: 'Delivered',
-    refunded: false,
-    products: [
-      {
-        id: 1,
-        name: 'Micro Backpack',
-        description:
-          'Are you a minimalist looking for a compact carry option? The Micro Backpack is the perfect size for your essential everyday carry items. Wear it like a backpack or carry it like a satchel for all-day use.',
-        href: '#',
-        price: '$70.00',
-        imageSrc: 'https://tailwindui.com/plus-assets/img/ecommerce-images/order-history-page-03-product-01.jpg',
-        imageAlt:
-          'Moss green canvas compact backpack with double top zipper, zipper front pouch, and matching carry handle and backpack straps.',
-      },
-    ],
-  },
-  {
-    number: 'WU88191111',
-    href: '#',
-    invoiceHref: '#',
-    createdDate: 'Jul 6, 2021',
-    createdDatetime: '2021-07-06',
-    deliveredDate: 'July 12, 2021',
-    deliveredDatetime: '2021-07-12',
-    total: '$160.00',
-    status: 'Delivered',
-    refunded: false,
-    products: [
-      {
-        id: 1,
-        name: 'Micro Backpack',
-        description:
-          'Are you a minimalist looking for a compact carry option? The Micro Backpack is the perfect size for your essential everyday carry items. Wear it like a backpack or carry it like a satchel for all-day use.',
-        href: '#',
-        price: '$70.00',
-        imageSrc: 'https://tailwindui.com/plus-assets/img/ecommerce-images/order-history-page-03-product-01.jpg',
-        imageAlt:
-          'Moss green canvas compact backpack with double top zipper, zipper front pouch, and matching carry handle and backpack straps.',
-      },
-      {
-        id: 2,
-        name: 'Micro Backpack',
-        description:
-          'Are you a minimalist looking for a compact carry option? The Micro Backpack is the perfect size for your essential everyday carry items. Wear it like a backpack or carry it like a satchel for all-day use.',
-        href: '#',
-        price: '$70.00',
-        imageSrc: 'https://tailwindui.com/plus-assets/img/ecommerce-images/order-history-page-03-product-01.jpg',
-        imageAlt:
-          'Moss green canvas compact backpack with double top zipper, zipper front pouch, and matching carry handle and backpack straps.',
-      },
-    ],
-  },
-  // More orders...
-];
+
 
 export default function OrderHistory() {
-  const [orders, setOrders] = useState(ordersData);
+  const [orders, setOrders] = useState([]);
   // const [statusIndex, setStatusIndex] = useState(null);
   const [selectedOrder, setSelectedOrder] = useState(null); // To store the order for refund
   // const [isRefundModalOpen, setIsRefundModalOpen] = useState(false);
@@ -95,6 +36,9 @@ export default function OrderHistory() {
     setSelectedOrder(order);
   };
 
+  const {isAuthenticate,user}= useSelector((state)=>state.auth)
+  const dispatch= useDispatch();
+
   const closeRefundModal = () => {
     setSelectedOrder(null);
   };
@@ -109,6 +53,24 @@ export default function OrderHistory() {
     closeRefundModal();
   };
 
+  const getuserOrders= async()=>{
+    try{
+      const rs= await dispatch(getMyOrdersLoggInUser()).unwrap()
+      console.log(rs);
+      toast.success(rs?.message);
+      setOrders(rs.data)
+    }
+    catch(er){
+      console.log(er)
+      toast.error(er)    
+    }
+  }
+
+  useEffect(()=>{
+    getuserOrders()
+  },[dispatch])
+
+  console.log(orders)
   return (
     <div className="bg-slate-200">
       <div className="py-16 sm:py-x24">
@@ -127,11 +89,11 @@ export default function OrderHistory() {
             <div className="mx-auto max-w-2xl space-y-8 sm:px-4 lg:max-w-4xl lg:px-0">
               {orders.map((order) => (
                 <div
-                  key={order.number}
+                  key={order?._id}
                   className="border-b border-t border-gray-200 bg-white shadow-sm sm:rounded-lg sm:border"
                 >
                   <h3 className="sr-only">
-                    Order placed on <time dateTime={order.createdDatetime}>{order.createdDate}</time>
+                    Order placed on {moment(order?.createdAt).format("DD-MM-YYYY")}
                   </h3>
 
                   <div className="flex items-center border-b border-gray-200 p-4 sm:grid sm:grid-cols-4 sm:gap-x-6 sm:p-6">
@@ -236,18 +198,18 @@ export default function OrderHistory() {
                   {/* Products */}
                   <h4 className="sr-only">Items</h4>
                   <ul className="divide-y divide-gray-200">
-                    {order.products.map((product) => (
-                      <li key={product.id} className="p-4 sm:p-6">
+                    {order?.cartItems[0]?.items?.map((product) => (
+                      <li key={product?._id} className="p-4 sm:p-6">
                         <div className="flex items-center sm:items-start">
                           <div className="w-20 shrink-0 overflow-hidden rounded-lg bg-gray-200 sm:w-40">
-                            <img alt={product.imageAlt} src={product.imageSrc} className="w-full object-cover" />
+                            <img alt={product.productId.productName} src={product?.productId.mainProductImg} className="w-full object-cover" />
                           </div>
                           <div className="ml-6 flex-1 text-sm">
                             <div className="font-medium text-gray-900 sm:flex sm:justify-between">
-                              <h5>{product.name}</h5>
-                              <p className="mt-2 sm:mt-0">{product.price}</p>
+                              <h5>{product.productId.name}</h5>
+                              <p className="mt-2 sm:mt-0">{product?.productId.price}</p>
                             </div>
-                            <p className="hidden text-gray-500 sm:mt-2 sm:block">{product.description}</p>
+                            <p className="hidden text-gray-500 sm:mt-2 sm:block">{product?.productId?.description}</p>
                           </div>
                         </div>
 
