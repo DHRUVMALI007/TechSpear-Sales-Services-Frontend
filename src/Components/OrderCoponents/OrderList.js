@@ -1,13 +1,11 @@
 import { Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/react';
 import { EllipsisVerticalIcon } from '@heroicons/react/24/outline';
 import { CheckCircleIcon } from '@heroicons/react/20/solid';
-<<<<<<< HEAD
-import { useState, useContext } from 'react';
+
+import { useContext } from 'react';
 import { ThemeContext } from "../../Helpers/ThemeContext";
 
-=======
 import { useEffect, useState } from 'react';
->>>>>>> 02630c0aab20ce5c200df09568b080f5dd75e1c7
 import Invoice from './Invoice';
 import { useDispatch, useSelector } from 'react-redux';
 import { toast } from 'react-toastify';
@@ -99,14 +97,8 @@ export default function OrderHistory() {
             <div className="mx-auto max-w-2xl space-y-8 sm:px-4 lg:max-w-4xl lg:px-0">
               {orders.map((order) => (
                 <div
-<<<<<<< HEAD
-                  key={order.number}
-                  className={`border-b border-t shadow-sm sm:rounded-lg sm:border transition ${isDarkMode ? "bg-gray-700 border-gray-700 text-white" : "bg-white border-gray-200 text-gray-900"
-                    }`}
-=======
                   key={order?._id}
                   className="border-b border-t border-gray-200 bg-white shadow-sm sm:rounded-lg sm:border"
->>>>>>> 02630c0aab20ce5c200df09568b080f5dd75e1c7
                 >
                   <h3 className="sr-only">
                     Order placed on {moment(order?.createdAt).format("DD-MM-YYYY")}
@@ -191,23 +183,6 @@ export default function OrderHistory() {
                   </div>
 
                   {/* Products */}
-<<<<<<< HEAD
-                  <ul className={`divide-y ${isDarkMode ? "divide-gray-700" : "divide-gray-200"
-                    }`}>
-                    {order.products.map((product) => (
-                      <li key={product.id} className="p-4 sm:p-6">
-                        <div className="flex items-center sm:items-start">
-                          <div className="w-20 shrink-0 overflow-hidden rounded-lg sm:w-40">
-                            <img alt={product.imageAlt} src={product.imageSrc} className="w-full object-cover" />
-                          </div>
-                          <div className="ml-6 flex-1 text-sm">
-                            <div className="font-medium sm:flex sm:justify-between">
-                              <h5>{product.name}</h5>
-                              <p className="mt-2 sm:mt-0">{product.price}</p>
-                            </div>
-                            <p className={`hidden sm:mt-2 sm:block ${isDarkMode ? "text-gray-400" : "text-gray-500"
-                              }`}>{product.description}</p>
-=======
                   <h4 className="sr-only">Items</h4>
                   <ul className="divide-y divide-gray-200">
                     {order?.cartItems[0]?.items?.map((product) => (
@@ -222,7 +197,6 @@ export default function OrderHistory() {
                               <p className="mt-2 sm:mt-0">{product?.productId.price}</p>
                             </div>
                             <p className="hidden text-gray-500 sm:mt-2 sm:block">{product?.productId?.description}</p>
->>>>>>> 02630c0aab20ce5c200df09568b080f5dd75e1c7
                           </div>
                         </div>
 

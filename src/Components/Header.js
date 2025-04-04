@@ -4,11 +4,8 @@ import Logo from "./Logo";
 import { SiSearxng } from "react-icons/si";
 import { FaBars, FaTimes, FaUserCircle, FaShoppingCart } from "react-icons/fa";
 import { Link, useNavigate } from "react-router-dom";
-<<<<<<< HEAD
 import axios from "axios";
-import { useSelector } from "react-redux";
-=======
->>>>>>> 02630c0aab20ce5c200df09568b080f5dd75e1c7
+
 import { persistor } from "../redux/store";
 
 import { useDispatch, useSelector} from "react-redux";
@@ -23,14 +20,6 @@ const Header = () => {
   // const [isLoggedIn, setIsLoggedIn] = useState(false); // Login state
   // const [user, setUser] = useState(null); // Store user details
 
-<<<<<<< HEAD
-  const { isAuthenticate } = useSelector((state) => state.auth)
-  console.log("is auth ", isAuthenticate)
-  const { isDarkMode, toggleTheme } = useContext(ThemeContext);
-  const navigate = useNavigate();
-
-  const { cartItems } = useSelector((state) => state.cart)
-=======
   const {isAuthenticate,user} = useSelector((state)=>state.auth)
   console.log("is auth ",isAuthenticate)
   const { isDarkMode, toggleTheme } = useContext(ThemeContext);
@@ -39,7 +28,7 @@ const Header = () => {
   const dispatch = useDispatch();
 
   const {cartItems}= useSelector((state)=>state.cart)
->>>>>>> 02630c0aab20ce5c200df09568b080f5dd75e1c7
+
   console.log(cartItems)
 
   const mycountlen = cartItems?.data?.cartItem?.items?.length || 0;
@@ -96,39 +85,18 @@ const Header = () => {
       toast.success(rs?.message)
       persistor.purge()
       window.location.reload();
-
-<<<<<<< HEAD
-      persistor.purge();   // Persisted state bhi clear karega
-      window.location.reload(); // Ensure fresh state load hota hai
-
-      setUser(null);
-      setIsLoggedIn(false);
-      navigate("/login");
-    } catch (error) {
-      console.error("Logout failed", error);
-      setUser(null)
-      setIsLoggedIn(false)
-=======
         
     }catch(er){
       console.log(er)
       toast.error(er)
->>>>>>> 02630c0aab20ce5c200df09568b080f5dd75e1c7
     }
    
   };
   useEffect(() => {
-<<<<<<< HEAD
-    console.log("User state:", user);
-    console.log("Is Logged In:", isLoggedIn);
-  }, [user, isLoggedIn]);
-
-=======
     console.log("User state : ", user);
     console.log("Is Logged In auth ka state:", isAuthenticate);
   }, [user, isAuthenticate]);
   
->>>>>>> 02630c0aab20ce5c200df09568b080f5dd75e1c7
 
   return (
     <>
