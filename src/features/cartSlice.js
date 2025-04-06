@@ -46,6 +46,24 @@ export const getCart = createAsyncThunk("cart/getCart",async (userId,{rejectWith
     }
 }) 
 
+export const clearCart = createAsyncThunk("cart/clearCart",async ({userId},{rejectWithValue})=>{
+    try{
+        const token=localStorage.getItem("token")
+        console.log(userId)
+        ///clearCart
+        const response = await axios.patch(`http://localhost:5000/api/v1/cart/clearCart/${userId}`,{},
+            {withCredentials:true,headers:{
+            "Content-Type":"application/json",
+             "Authorization": `Bearer ${token}`
+        }})
+
+        return response.data;
+    }catch(er){
+        return rejectWithValue(er?.response?.data?.message);
+    }
+}) 
+
+
 export const updateCartQuntity = createAsyncThunk("cart/updateCartQuntity",async ({userId,productId,quantity},{rejectWithValue})=>{
     try{
         const token= localStorage.getItem("token")
@@ -124,6 +142,20 @@ const cartSlice = createSlice({
             state.error=null;
         })
         builder.addCase(getCart.rejected,(state,action)=>{
+            state.loading=false;
+            state.error=action.payload;
+        })
+
+        builder.addCase(clearCart.pending,(state)=>{
+            state.loading=true;
+            state.error=null;
+        })
+        builder.addCase(clearCart.fulfilled,(state,action)=>{
+            state.loading=false;
+            state.cartItems=[];
+            state.error=null;
+        })
+        builder.addCase(clearCart.rejected,(state,action)=>{
             state.loading=false;
             state.error=action.payload;
         })
