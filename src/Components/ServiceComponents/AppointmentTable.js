@@ -31,9 +31,9 @@ const AppointmentTable = ({ appointments, handleRescheduleClick, handleCancel, h
   return (
     <div className="bg-white rounded-lg p-6 shadow-md">
       <h2 className="text-2xl font-semibold mb-6 text-center">Scheduled & Pending Appointments</h2>
-      <table className="w-full table-auto text-left border-separate border-spacing-2">
+      <table className="w-full table-auto text-left border-separate ">
         <thead className="border-b">
-          <tr>
+          <tr className='bg-slate-900 text-white'>
             <th className="px-4 py-2">Appointment ID</th>
             <th className="px-4 py-2">Customer</th>
             <th className="px-4 py-2">Date</th>

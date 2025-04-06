@@ -246,19 +246,19 @@ const AllProducts = () => {
             <tr key={prod._id} className="hover:bg-gray-100">
               {/* Images Column with Scroll */}
               <td className="p-2 border text-center">
-                <div className="relative w-20 h-20 overflow-hidden">
-                  <div className="flex w-full h-full overflow-x-auto scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-gray-200 snap-x snap-mandatory">
-                    {prod.otherProductImg?.map((img, index) => (
-                      <img
-                        key={index}
-                        src={img}
-                        alt="product"
-                        className="w-20 h-20 object-cover rounded snap-center"
-                      />
-                    ))}
-                  </div>
+                <div className="flex overflow-x-auto space-x-2 w-full h-20">
+                  {prod.otherProductImg?.slice(0, 5).map((img, index) => (
+                    <img
+                      key={index}
+                      src={img}
+                      alt="product"
+                      className="w-16 h-16 object-cover rounded"
+                    />
+                  ))}
                 </div>
               </td>
+
+
 
 
               {/* Other Details */}

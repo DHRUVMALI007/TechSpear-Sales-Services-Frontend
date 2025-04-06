@@ -108,7 +108,7 @@ const StockManagement = () => {
             <div className="overflow-x-auto">
                 <table className="min-w-full border bg-white shadow-md rounded-lg text-sm">
                     <thead>
-                        <tr className="bg-blue-600 text-white">
+                        <tr className="bg-slate-900 text-white">
                             <th className="p-3 text-left">ID</th>
                             <th className="p-3 text-left">Product</th>
                             <th className="p-3 text-left">Stock</th>
