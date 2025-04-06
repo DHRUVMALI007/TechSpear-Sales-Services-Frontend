@@ -9,6 +9,7 @@ import { createOrder } from "../features/orderSlice";
 import { createPayment, verifyPayment } from "../features/paymentSlice";
 import loadScript from "../Helpers/loadScript";
 import { ThemeContext } from "../Helpers/ThemeContext"; // Adjust path as needed
+import { clearCart } from "../features/cartSlice";
 
 
 export default function Example() {
@@ -34,6 +35,7 @@ export default function Example() {
   const { user } = useSelector((state) => state.auth)
   console.log(user)
   const userId = user?.data?.user?._id;
+  console.log("USERID ",userId)
 
   const { address } = useSelector((state) => state.address)
   console.log("user add", address)
@@ -135,13 +137,16 @@ export default function Example() {
             ).unwrap()
             console.log("Payment Verification Response:", verifyRes);
             toast.success(verifyRes.message);
+
+            navigate("/payment-success");
+
           },
           prefill: {
             name: user?.data?.user?.name,
             email: user?.data?.user?.email
           },
           theme: {
-            color: "#3399cc",
+            color: "dark",
           },
         };
 

@@ -2,9 +2,13 @@ import React, { useRef } from "react";
 import jsPDF from "jspdf";
 import html2canvas from "html2canvas";
 import Logo from "../Logo";
+import moment from "moment";
+import displayINRCurrency from "../../Helpers/displayCurrency";
 
 export default function Invoice({ order, onClose, isDarkMode }) {
   const invoiceRef = useRef();
+// console the order
+  console.log(order)
 
   if (!order) {
     return <p className="text-center text-gray-600">No order details available.</p>;
@@ -36,7 +40,7 @@ export default function Invoice({ order, onClose, isDarkMode }) {
     const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
 
     pdf.addImage(imgData, "PNG", 0, 0, pdfWidth, pdfHeight);
-    pdf.save(`Invoice-${order.number}.pdf`);
+    pdf.save(`Invoice-${order?.userId?.name}.pdf`);
   };
 
   return (
@@ -57,17 +61,17 @@ export default function Invoice({ order, onClose, isDarkMode }) {
           </div>
           <div className="text-right">
             <h2 className="text-2xl font-bold">Invoice</h2>
-            <p>Order #: {order.number}</p>
-            <p>Date: {formatDate(order.createdDate)}</p>
+            <p>Order Id : { order?._id}</p>
+            <p>Date: {moment(order?.createdAt).format("DD-MM-YYYY")}</p>
           </div>
         </div>
 
         {/* Customer Info */}
         <div className="mb-6">
           <h3 className="text-lg font-medium">Billing To:</h3>
-          <p className="text-sm">{order.customerName}</p>
-          <p className="text-sm">{order.customerEmail}</p>
-          <p className="text-sm">{order.customerAddress}</p>
+          <p className="text-sm">{order?.userId?.name}</p>
+          <p className="text-sm">{order?.userId?.email}</p>
+          <p className="text-sm">{order?.addressInfo?.fullAddress}</p>
         </div>
 
         {/* Order Details */}
@@ -87,14 +91,14 @@ export default function Invoice({ order, onClose, isDarkMode }) {
               </tr>
             </thead>
             <tbody>
-              {order.products.map((product) => (
-                <tr key={product.id} className={`border ${
+              {order?.orderItems?.map((product) => (
+                <tr key={product?._id} className={`border ${
                   isDarkMode ? "border-gray-700" : "border-gray-300"
                 }`}>
-                  <td className="p-2">{product.name}</td>
+                  <td className="p-2">{product?.product?.productName}</td>
                   <td className="p-2 text-center">{product.quantity}</td>
-                  <td className="p-2">{formatPrice(product.price)}</td>
-                  <td className="p-2 font-medium">{formatPrice(product.price * product.quantity)}</td>
+                  <td className="p-2">{displayINRCurrency(product?.product?.price)}</td>
+                  <td className="p-2 font-medium">{displayINRCurrency(product?.product?.price * product.quantity )}</td>
                 </tr>
               ))}
             </tbody>
@@ -103,9 +107,7 @@ export default function Invoice({ order, onClose, isDarkMode }) {
 
         {/* Payment Details */}
         <div className="text-right text-lg font-medium border-t pt-4">
-          <p>Subtotal: {formatPrice(order.total)}</p>
-          <p>Tax (10%): {formatPrice(taxAmount)}</p>
-          <p className="text-xl font-bold">Grand Total: {formatPrice(grandTotal)}</p>
+          <p>Subtotal: {displayINRCurrency(order?.totalAmount)}</p>
         </div>
 
         {/* Footer */}
