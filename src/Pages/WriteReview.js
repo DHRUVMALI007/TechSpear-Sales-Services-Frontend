@@ -1,27 +1,53 @@
 import { useState } from "react";
 import { FaStar } from "react-icons/fa";
-import { useNavigate } from "react-router-dom";
+import { useDispatch } from "react-redux";
+import {  useLocation, useNavigate, useOutletContext } from "react-router-dom";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { createReview } from "../features/reviewSlice";
 
 export default function ReviewPage() {
     const [rating, setRating] = useState(0);
     const [hover, setHover] = useState(0);
-    const [review, setReview] = useState("");
+    const [comment, setReview] = useState("");
     const navigate = useNavigate();
+    const dispatch = useDispatch();
 
-    const handleSubmit = () => {
+
+    const location = useLocation();
+    
+    const userId= location.state?.userId;
+    const productId = location.state?.productId;
+
+    // const {userId,productId}= useOutletContext();
+    console.log("user id from comment page",userId);
+    console.log("product id from comment page",productId);
+
+    const handleSubmit = async() => {
         if (!rating) {
             toast.error("Please select a rating.");
             return;
         }
-        if (review.trim().length < 10) {
+        if (comment.trim().length < 10) {
             toast.error("Review must be at least 10 characters.");
             return;
         }
 
-        toast.success("Review submitted successfully!");
-        setTimeout(() => navigate("/"), 2000); // Redirect after 2 seconds
+        try{
+            
+            const response =await dispatch(createReview({userId,productId,rating,comment})).unwrap();
+
+            console.log(response?.data);
+
+            toast.success(response?.message)
+
+        }
+        catch(er){
+            console.log(er)
+            toast.error(er);
+        }
+        // toast.success("Review submitted successfully!");
+        // setTimeout(() => navigate("/"), 2000); // Redirect after 2 seconds
     };
 
     return (
@@ -56,8 +82,8 @@ export default function ReviewPage() {
 
             {/* Review Text Area */}
             <textarea
-                placeholder="Write your review..."
-                value={review}
+                placeholder="Write your comment..."
+                value={comment}
                 onChange={(e) => setReview(e.target.value)}
                 className="w-full p-3 border rounded-lg mb-4"
                 rows="5"

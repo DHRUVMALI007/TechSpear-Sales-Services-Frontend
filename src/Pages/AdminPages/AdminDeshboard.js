@@ -5,6 +5,11 @@ import RevenueChart from "../../Components/Dashboard/RevenueChart";
 import OrdersOverview from "../../Components/Dashboard/OrdersOverview";
 import MostSoldProducts from "../../Components/Dashboard/MostSoldProduct";
 import UserReviews from "../../Components/Dashboard/UserReviews";
+import { useDispatch } from "react-redux";
+import { toast } from "react-toastify";
+import { getAllReview } from "../../features/reviewSlice";
+import { useEffect } from "react";
+
 
 const salesData = {
     labels: ["Jan", "Feb", "Mar", "Apr", "May"],
@@ -21,23 +26,46 @@ const mostSoldProducts = [
     { name: "Gaming PC", description: "Powerful gaming PC.", price: "$1800", stock: 30 },
 ];
 
-const reviews = [
-    { reviewer: "John Doe", rating: 5, comment: "Great product!", productName: "Gaming Laptop", productId: "12345" },
-    { reviewer: "Jane Smith", rating: 4, comment: "Good performance!", productName: "Gaming Laptop", productId: "12345" },
-    { reviewer: "Mike Johnson", rating: 2, comment: "Average experience.", productName: "Gaming Laptop", productId: "12345" },
-];
+// const reviews = [
+//     { reviewer: "John Doe", rating: 5, comment: "Great product!", productName: "Gaming Laptop", productId: "12345" },
+//     { reviewer: "Jane Smith", rating: 4, comment: "Good performance!", productName: "Gaming Laptop", productId: "12345" },
+//     { reviewer: "Mike Johnson", rating: 2, comment: "Average experience.", productName: "Gaming Laptop", productId: "12345" },
+// ];
 
 
-const tabs = [
-    { name: "📊 Sales", component: <SalesChart data={salesData} /> },
-    { name: "💰 Revenue", component: <RevenueChart data={revenueData} /> },
-    { name: "🛍️ Orders", component: <OrdersOverview totalOrders={150} pendingOrders={30} completedOrders={120} /> },
-    { name: "🔥 Most Sold Product", component: <MostSoldProducts products={mostSoldProducts} /> },
-    { name: "⭐ Reviews", component: <UserReviews reviews={reviews} /> },
-];
 
 const Dashboard = () => {
     const [activeTab, setActiveTab] = useState("📊 Sales");
+
+    const dispatch = useDispatch();
+
+    const [rev, setRev] = useState([])
+
+    const tabs = [
+        { name: "📊 Sales", component: <SalesChart data={salesData} /> },
+        { name: "💰 Revenue", component: <RevenueChart data={revenueData} /> },
+        { name: "🛍️ Orders", component: <OrdersOverview totalOrders={150} pendingOrders={30} completedOrders={120} /> },
+        { name: "🔥 Most Sold Product", component: <MostSoldProducts products={mostSoldProducts} /> },
+        { name: "⭐ Reviews", component: <UserReviews reviews={rev} /> },
+    ];
+
+    const getAllTheReviews = async () => {
+        try {
+            const response = await dispatch(getAllReview()).unwrap();
+            // console.log("all reviews", response?.data);
+            setRev(response?.data)
+            toast.success(response?.message)
+        }
+        catch (er) {
+            toast.error(er)
+            console.log(er)
+        }
+    }
+
+    useEffect(() => {
+        getAllTheReviews();
+    }, [dispatch])
+
 
     return (
         <div className="p-6">
@@ -49,8 +77,8 @@ const Dashboard = () => {
                             key={tab.name}
                             onClick={() => setActiveTab(tab.name)}
                             className={`relative px-6 py-3 text-lg font-semibold transition duration-300 rounded-lg shadow-md focus:outline-none ${activeTab === tab.name
-                                    ? "bg-gradient-to-r from-blue-500 to-purple-500 text-white"
-                                    : "bg-gray-200 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-700"
+                                ? "bg-gradient-to-r from-blue-500 to-purple-500 text-white"
+                                : "bg-gray-200 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-700"
                                 }`}
                         >
 
@@ -89,7 +117,7 @@ const Dashboard = () => {
                 <OrdersOverview totalOrders={150} pendingOrders={30} completedOrders={120} />
                 <MostSoldProducts products={mostSoldProducts} />
                 <div className="col-span-1 xl:col-span-2">
-                    <UserReviews reviews={reviews} />
+                    <UserReviews reviews={rev} />
                 </div>
             </div>
         </div>

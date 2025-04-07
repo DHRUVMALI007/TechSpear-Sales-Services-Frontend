@@ -9,8 +9,6 @@ import { createOrder } from "../features/orderSlice";
 import { createPayment, verifyPayment } from "../features/paymentSlice";
 import loadScript from "../Helpers/loadScript";
 import { ThemeContext } from "../Helpers/ThemeContext"; // Adjust path as needed
-import { clearCart } from "../features/cartSlice";
-
 
 export default function Example() {
 
@@ -98,6 +96,9 @@ export default function Example() {
         console.log(ordr)
 
         const orderId = ordr?.data?._id;
+
+        const ordrProductId= ordr?.data?.orderItems.map((itm)=>itm.product._id)
+
         if (!orderId) {
           toast.error("Failed To create Order")
           return;
@@ -138,7 +139,12 @@ export default function Example() {
             console.log("Payment Verification Response:", verifyRes);
             toast.success(verifyRes.message);
 
-            navigate("/payment-success");
+            navigate("/payment-success",{
+              state:{
+                userId:userId,
+                productId:ordrProductId
+              }
+            });
 
           },
           prefill: {

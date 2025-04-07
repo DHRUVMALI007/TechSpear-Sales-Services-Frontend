@@ -3,9 +3,18 @@ import { motion } from "framer-motion";
 import { FaCheckCircle } from "react-icons/fa";
 import { useNavigate, Outlet } from "react-router-dom";
 import successSound from "./success.mp3"; // ✅ import sound
+import { useLocation } from "react-router-dom";
 
 export default function PaymentSuccess() {
     const navigate = useNavigate();
+    const location = useLocation();
+
+    const userId= location.state?.userId;
+    const productId = location.state?.productId;
+
+
+console.log("paymet success user id ",userId);
+console.log("paymet success product id ",productId);
     const [showReviewModal, setShowReviewModal] = useState(false);
 
     useEffect(() => {
@@ -15,7 +24,12 @@ export default function PaymentSuccess() {
 
     const handleWriteReview = () => {
         setShowReviewModal(true);
-        navigate("write-review");
+        navigate("write-review",{
+            state:{
+                userId:userId,
+                productId:productId
+            }
+        });
     };
 
     return (
@@ -62,7 +76,7 @@ export default function PaymentSuccess() {
                         >
                             ✖
                         </button>
-                        <Outlet />
+                        <Outlet context={{ userId, productId }} />
                     </div>
                 </motion.div>
             )}
