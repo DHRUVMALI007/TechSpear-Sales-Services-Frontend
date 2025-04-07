@@ -95,123 +95,138 @@ const OrderManagement = () => {
     );
 
     return (
-        <div className="p-5 bg-gray-100 rounded-lg shadow-sm">
-            <h2 className="text-xl font-semibold mb-4">Order Management</h2>
+        <div className="p-5 bg-slate-50 rounded-lg shadow-md">
+  <h2 className="text-xl font-semibold mb-4 text-slate-700">Order Management</h2>
 
-            {/* Search and Filter */}
-            <div className="flex flex-col md:flex-row gap-4 mb-4">
-                <div className="flex items-center border rounded-md px-3 py-2 w-full md:max-w-md">
-                    <FaSearch className="text-gray-600" />
-                    <input
-                        type="text"
-                        placeholder="Search Order..."
-                        value={searchQuery}
-                        onChange={handleSearch}
-                        className="w-full ml-2 bg-transparent outline-none"
-                    />
-                </div>
-                <select
-                    className="border rounded-md px-3 py-2"
-                    value={filterStatus}
-                    onChange={handleFilterChange}
-                >
-                    <option>Select Status</option>
-                    <option value="All">All</option>
+  {/* Search and Filter */}
+  <div className="flex flex-col md:flex-row gap-4 mb-4">
+    <div className="flex items-center border border-slate-300 bg-white rounded-md px-3 py-2 w-full md:max-w-md shadow-sm">
+      <FaSearch className="text-slate-500" />
+      <input
+        type="text"
+        placeholder="Search Order..."
+        value={searchQuery}
+        onChange={handleSearch}
+        className="w-full ml-2 bg-transparent outline-none text-slate-700"
+      />
+    </div>
+    <select
+      className="border border-slate-300 bg-white rounded-md px-3 py-2 shadow-sm text-slate-700"
+      
+      value={filterStatus}
+      onChange={handleFilterChange}
+    >
+      <option>Select Status</option>
+      <option value="All">All</option>
+      <option value="Pending">Pending</option>
+      <option value="Shipped">Shipped</option>
+      <option value="Delivered">Delivered</option>
+      <option value="Cancel">Cancel</option>
+    </select>
+  </div>
+
+  {/* Orders Table */}
+  {filteredOrders.length === 0 ? (
+    <p className="text-center text-slate-500">No orders found.</p>
+  ) : (
+    <div className="overflow-x-auto">
+      <table className="w-full border border-slate-300 bg-white rounded-md">
+        <thead>
+          <tr className="bg-slate-900 text-white">
+            <th className="p-3 text-left border border-slate-300">Order ID</th>
+            <th className="p-3 text-left border border-slate-300">Customer</th>
+            <th className="p-3 text-left border border-slate-300">Date</th>
+            <th className="p-3 text-left border border-slate-300">Status</th>
+            <th className="p-3 text-center border border-slate-300">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {filteredOrders.map((order) => (
+            <tr key={order._id} className="hover:bg-slate-50">
+              <td className="p-3 border border-slate-300 text-slate-700">{order._id}</td>
+              <td className="p-3 border border-slate-300 text-slate-700">
+                {order.userId?.name || "N/A"}
+              </td>
+              <td className="p-3 border border-slate-300 text-slate-600">
+                {moment(order?.createdAt).format("DD-MM-YYYY")}
+              </td>
+              <td className="p-3 border border-slate-300">
+                {editingOrder === order._id ? (
+                  <select
+                    value={order.orderStatus}
+                    onChange={(e) => updateTheStatus(order._id, e.target.value)}
+                    className="border border-slate-300 p-1 rounded-md text-slate-700"
+                  >
+                    <option value="">Select Status</option>
                     <option value="Pending">Pending</option>
                     <option value="Shipped">Shipped</option>
                     <option value="Delivered">Delivered</option>
                     <option value="Cancel">Cancel</option>
-                </select>
-            </div>
+                  </select>
+                ) : (
+                  <span
+                    className={`px-2 py-1 rounded-full text-sm font-medium 
+                      ${
+                        order.orderStatus === "Pending"
+                          ? "bg-yellow-100 text-yellow-700"
+                          : order.orderStatus === "Shipped"
+                          ? "bg-blue-100 text-blue-700"
+                          : order.orderStatus === "Delivered"
+                          ? "bg-green-100 text-green-700"
+                          : "bg-red-100 text-red-700"
+                      }`}
+                  >
+                    {order.orderStatus}
+                  </span>
+                )}
+              </td>
+              <td className="p-3 flex justify-center gap-2 border border-slate-300">
+                <button
+                  className="border border-slate-300 px-2 py-1 rounded-md hover:bg-blue-100 transition text-blue-600"
+                  onClick={() => setEditingOrder(order._id)}
+                >
+                  <FaEdit />
+                </button>
+                <button
+                  className="border border-slate-300 px-2 py-1 rounded-md hover:bg-red-100 transition text-red-600"
+                  onClick={() => handleCancelOrder(order._id)}
+                >
+                  <FaTimes />
+                </button>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  )}
 
-            {/* Orders Table */}
-            {filteredOrders.length === 0 ? (
-                <p className="text-center text-gray-500">No orders found.</p>
-            ) : (
-                <div className="overflow-x-auto">
-                    <table className="w-full border border-gray-300 rounded-md bg-white">
-                        <thead>
-                            <tr className="bg-gray-200">
-                                <th className="p-3 text-left">Order ID</th>
-                                <th className="p-3 text-left">Customer</th>
-                                <th className="p-3 text-left">Date</th>
-                                <th className="p-3 text-left">Status</th>
-                                <th className="p-3 text-center">Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {filteredOrders.map((order) => (
-                                <tr key={order._id} className="border-t">
-                                    <td className="p-3">{order._id}</td>
-                                    <td className="p-3">{order.userId?.name || "N/A"}</td>
-                                    <td className="p-3">
-                                        {moment(order?.createdAt).format("DD-MM-YYYY")}
-                                    </td>
-                                    <td className="p-3">
-                                        {editingOrder === order._id ? (
-                                            <select
-                                                value={order.orderStatus}
-                                                onChange={(e) => updateTheStatus(order._id, e.target.value)}
-                                                className="border p-1 rounded-md"
-                                            >
-                                                <option value="">Select Status</option>
-                                                <option value="Pending">Pending</option>
-                                                <option value="Shipped">Shipped</option>
-                                                <option value="Delivered">Delivered</option>
-                                                <option value="Cancel">Cancel</option>
-                                                {/* "Processing", "Shipped", "Delivered", "Cancelled" */}
-                                            </select>
-                                        ) : (
-                                            <span className="px-2 py-1 rounded-md text-sm border border-gray-400">
-                                                {order.orderStatus}
-                                            </span>
-                                        )}
-                                    </td>
-                                    <td className="p-3 flex justify-center gap-2">
-                                        <button
-                                            className="border border-gray-400 px-2 py-1 rounded-md hover:bg-gray-200 transition"
-                                            onClick={() => setEditingOrder(order._id)}
-                                        >
-                                            <FaEdit />
-                                        </button>
-                                        <button
-                                            className="border border-gray-400 px-2 py-1 rounded-md hover:bg-gray-200 transition"
-                                            onClick={() => handleCancelOrder(order._id)}
-                                        >
-                                            <FaTimes />
-                                        </button>
-                                    </td>
-                                </tr>
-                            ))}
-                        </tbody>
-                    </table>
-                </div>
-            )}
-
-            {/* Cancel Order Modal */}
-            {showCancelModal && (
-                <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-30">
-                    <div className="bg-white p-5 rounded-md shadow-md w-80">
-                        <h3 className="text-lg font-semibold mb-3">Confirm Cancellation</h3>
-                        <p className="text-gray-600">Are you sure you want to cancel this order?</p>
-                        <div className="mt-4 flex justify-end gap-2">
-                            <button
-                                className="px-4 py-2 border border-gray-400 rounded-md hover:bg-gray-200 transition"
-                                onClick={() => setShowCancelModal(false)}
-                            >
-                                No
-                            </button>
-                            <button
-                                className="px-4 py-2 border border-gray-400 rounded-md hover:bg-gray-200 transition bg-red-500"
-                                onClick={confirmCancelOrder}
-                            >
-                                Yes, Cancel
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            )}
+  {/* Cancel Order Modal */}
+  {showCancelModal && (
+    <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-40 z-50">
+      <div className="bg-white p-6 rounded-md shadow-lg w-80">
+        <h3 className="text-lg font-semibold mb-3 text-slate-700">Confirm Cancellation</h3>
+        <p className="text-slate-600">Are you sure you want to cancel this order?</p>
+        <div className="mt-4 flex justify-end gap-2">
+          <button
+            className="px-4 py-2 border border-slate-300 rounded-md hover:bg-slate-100 transition text-slate-700"
+            onClick={() => setShowCancelModal(false)}
+          >
+            No
+          </button>
+          <button
+            className="px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600 transition"
+            onClick={confirmCancelOrder}
+          >
+            Yes, Cancel
+          </button>
         </div>
+      </div>
+    </div>
+  )}
+</div>
+
+
     );
 };
 

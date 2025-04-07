@@ -119,12 +119,12 @@ const AdminPage = () => {
           >
             Appointments
           </button>
-          <button
+          {/* <button
             onClick={() => setActiveTab('localAppointments')}
             className={`px-4 py-2 rounded-md ${activeTab === 'localAppointments' ? 'bg-blue-500 text-white' : 'bg-gray-200'}`}
           >
             Local Appointments
-          </button>
+          </button> */}
           <button
             onClick={() => setActiveTab('categories')}
             className={`px-4 py-2 rounded-md ${activeTab === 'categories' ? 'bg-blue-500 text-white' : 'bg-gray-200'}`}
@@ -151,7 +151,7 @@ const AdminPage = () => {
           </div>
         )}
 
-        {activeTab === 'localAppointments' && (
+        {/* {activeTab === 'localAppointments' && (
           <div className="mt-8">
             <h2 className="text-xl font-semibold text-gray-800 mb-4">Local Appointments</h2>
             <LocalAppointmentTable
@@ -161,7 +161,7 @@ const AdminPage = () => {
               handleComplete={handleComplete} // Pass the same handlers to local appointments
             />
           </div>
-        )}
+        )} */}
 
         {activeTab === 'categories' && (
           <div className="bg-white shadow-md rounded-lg p-6 mb-8">

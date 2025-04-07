@@ -16,15 +16,16 @@ export default function ProductGrid({ data, className }) {
     <div className={`${isDarkMode ? "bg-gray-900 text-white" : "bg-gray-100 text-gray-900"} py-16 w-full h-full ${className}`}>
       <div className="max-w-7xl mx-auto px-4 lg:px-8 w-full">
         {/* Product Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
           {data.length === 0 ? (
             <p className="text-center text-lg font-semibold">No products found.</p>
           ) : (
             data.map((product) => (
               <div
                 key={product._id}
-                className="flex flex-col bg-white shadow-lg rounded-lg overflow-hidden transform hover:scale-105 transition cursor-pointer"
-                onClick={() => navigate(`/product/${product._id}`)} // Navigate to product details
+                className={`flex flex-col rounded-lg overflow-hidden transform hover:scale-105 transition cursor-pointer shadow-lg 
+              ${isDarkMode ? "bg-gray-800 text-white hover:shadow-gray-700" : "bg-white text-gray-900 hover:shadow-md"}`}
+                onClick={() => navigate(`/product/${product._id}`)}
               >
                 {/* Image */}
                 <div className="relative w-full h-64 overflow-hidden">
@@ -38,16 +39,19 @@ export default function ProductGrid({ data, className }) {
                 {/* Product Details */}
                 <div className="p-5 flex-grow flex flex-col">
                   <h3 className="text-lg font-semibold">{product.productName}</h3>
-                  <p className="text-sm text-gray-500">{product.category}</p>
+                  <p className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>
+                    {product.category}
+                  </p>
                   <p className="text-lg font-bold mt-2">{product.price}</p>
                 </div>
 
                 {/* Button */}
                 <div className="p-5">
                   <button
-                    className="w-full py-2 text-lg font-medium rounded-lg bg-blue-600 text-white hover:bg-blue-700"
+                    className={`w-full py-2 text-lg font-medium rounded-lg transition 
+                  ${isDarkMode ? "bg-blue-500 hover:bg-blue-600 text-white" : "bg-blue-600 hover:bg-blue-700 text-white"}`}
                     onClick={(e) => {
-                      e.stopPropagation(); // Prevent parent click event from triggering
+                      e.stopPropagation();
                       handleAddToCart(e, product._id);
                     }}
                   >
@@ -60,5 +64,6 @@ export default function ProductGrid({ data, className }) {
         </div>
       </div>
     </div>
+
   );
 }

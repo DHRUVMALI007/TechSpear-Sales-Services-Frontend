@@ -1,15 +1,16 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { FaRegCircleUser } from "react-icons/fa6";
 import { Link, useNavigate } from 'react-router-dom';
 
 const AdminSideBar = () => {
     const navigate = useNavigate();
+    const [showLogoutModal, setShowLogoutModal] = useState(false);
 
     const handleLogout = () => {
-        const confirmLogout = window.confirm("Are you sure you want to log out?");
-        if (confirmLogout) {
-            navigate("/"); // Redirect to home after logout
-        }
+        console.log("User logged out");
+        setShowLogoutModal(false);
+        // Add your logout logic here, like clearing tokens, navigating to login, etc.
+        navigate('/login');
     };
 
     return (
@@ -37,14 +38,38 @@ const AdminSideBar = () => {
 
                 {/* Logout section */}
                 <div className="p-4">
-                    <button 
-                        onClick={handleLogout}
-                        className="px-2 py-1 text-white hover:bg-blue-700 hover:text-yellow-300 transition-colors duration-200 rounded-md mt-auto w-full"
+                    <button
+                        onClick={() => setShowLogoutModal(true)}
+                        className="px-2 py-1 bg-blue-600 text-white hover:bg-blue-700 hover:text-yellow-300 transition-colors duration-200 rounded-md w-full"
                     >
                         Log Out
                     </button>
                 </div>
             </aside>
+
+            {/* Logout Confirmation Modal */}
+            {showLogoutModal && (
+                <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
+                    <div className="bg-white p-6 rounded-lg shadow-lg w-80">
+                        <h3 className="text-lg font-semibold text-slate-700 mb-3">Confirm Logout</h3>
+                        <p className="text-slate-600 mb-4">Are you sure you want to log out?</p>
+                        <div className="flex justify-end gap-2">
+                            <button
+                                className="px-4 py-2 border border-gray-300 rounded-md hover:bg-gray-100 text-slate-700"
+                                onClick={() => setShowLogoutModal(false)}
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700"
+                                onClick={handleLogout}
+                            >
+                                Yes, Logout
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };
