@@ -1,6 +1,9 @@
 import { useState, useEffect, useContext } from "react";
 import { FaCalendarCheck, FaSearch, FaEnvelope, FaTimes,FaChevronDown  } from "react-icons/fa";
 import { ThemeContext } from "../../Helpers/ThemeContext"; // Ensure correct import
+import { toast } from "react-toastify";
+import { useDispatch } from "react-redux";
+import { getMyService } from "../../features/serviceSlice";
 
 export default function AppointmentHistory() {
   const [appointments, setAppointments] = useState([]);
@@ -9,6 +12,22 @@ export default function AppointmentHistory() {
   const [selectedAppointment, setSelectedAppointment] = useState(null);
   const [showModal, setShowModal] = useState(false);
   const [selectedMessages, setSelectedMessages] = useState([]);
+  const dispatch = useDispatch()
+
+  const getMyAppoinment= async()=>{
+    try{
+      const res = await dispatch(getMyService()).unwrap();
+      console.log(res?.data)
+      toast.success(res?.message)
+    }
+    catch(er){
+      toast.error(er)
+    }
+  }
+  
+  useEffect(()=>{
+    getMyAppoinment()
+  },[dispatch])
 
   useEffect(() => {
     const dummyAppointments = [

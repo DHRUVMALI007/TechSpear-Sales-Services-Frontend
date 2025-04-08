@@ -4,40 +4,79 @@ import { FaLaptop, FaDesktop, FaWrench } from 'react-icons/fa'; // Using react-i
 import serviceImage from './ServiceBg.png'; // Background image
 import { AiOutlineCheckCircle } from 'react-icons/ai'; // Success icon
 import { ThemeContext } from "../Helpers/ThemeContext";
+import { useDispatch, useSelector } from 'react-redux';
+import { createUserService } from '../features/serviceSlice';
+import { toast } from 'react-toastify';
+import { getServiceByCategory } from '../features/serviceSlice';
 
 function UserBooking() {
+  const {isAuthenticate,user}= useSelector((state)=>state.auth)
+
+  let userName= user?.data?.user?.name;
+  let userEmail= user?.data?.user?.email;
+  // console.log(userName)
+  // console.log(userEmail)
+
   const [selectedService, setSelectedService] = useState(null);
   const [selectedCategory, setSelectedCategory] = useState('');
-  const [name, setName] = useState('John Doe'); // Default logged-in user name
-  const [email, setEmail] = useState('john@example.com'); // Default logged-in user email
+  const [name, setName] = useState(''); // Default logged-in user name
+  const [email, setEmail] = useState(''); // Default logged-in user email
   const [bookingDate, setBookingDate] = useState('');
   const [timeSlot, setTimeSlot] = useState('');
   const [additionalDetails, setAdditionalDetails] = useState('');
   const [bookingSuccess, setBookingSuccess] = useState(false);
 
-  // Automatically set name and email if the user is logged in
-  useEffect(() => {
-    // Replace with real user data from login context or state
-    const userData = {
-      name: 'John Doe',
-      email: 'john@example.com',
-    };
+  const [allSub, setAllSub] = useState([])
 
-    if (userData) {
-      setName(userData.name);
-      setEmail(userData.email);
+  const dispatch = useDispatch();
+
+
+  useEffect(()=>{
+    setName(userName)
+    setEmail(userEmail)
+  })
+
+  const showServiceByCategory = async (categoryName) => {
+    try {
+      console.log("Selcted Category ", categoryName)
+      const rs = await dispatch(getServiceByCategory({ name: categoryName })).unwrap();
+      console.log(rs?.data);
+      setAllSub(rs?.data);
+      toast.success(rs?.message)
     }
-  }, []);
+    catch (er) {
+      console.log(er);
+      toast.error(er)
+    }
+  }
 
   const handleServiceSelection = (service) => {
     setSelectedService(service);
+    showServiceByCategory(service)
+    console.log(allSub)
     setSelectedCategory(''); // Reset category when a new service is selected
     setBookingSuccess(false); // Reset success message when selecting a new service
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    setBookingSuccess(true); // Set booking as successful
+    try {
+      const rs = await dispatch(createUserService({ 
+        categoryName: selectedService,
+        name: userName,
+        email: userEmail,
+        addressInfo: additionalDetails,
+        scheduleTime: timeSlot,
+        date: bookingDate,
+        subCategories:selectedCategory
+      })).unwrap()
+      setBookingSuccess(true); // Set booking as successful
+      toast.success(rs?.message)
+    } catch (er) {
+      console.log('er')
+      toast.error(er)
+    }
+
   };
 
   const handleBackToSelection = () => {
@@ -60,47 +99,45 @@ function UserBooking() {
         }}
       >
         <div className="max-w-3xl mx-auto space-y-8">
-        {bookingSuccess ? (
-  <div
-    className={`${
-      isDarkMode ? "bg-gray-900 text-white" : "bg-white text-black"
-    } bg-opacity-80 shadow-2xl rounded-lg p-6 mt-8 text-center`}
-  >
-    <AiOutlineCheckCircle className="mx-auto text-green-500 text-6xl mb-4" />
-    <h3 className="text-2xl font-semibold">Booking Confirmed!</h3>
-    <p className="mt-4 text-lg">
-      Your {selectedService} booking has been successfully confirmed. The admin
-      will notify you with the final date and time for your appointment.
-    </p>
-    <div className="mt-6">
-      <h4 className="font-medium">Service Details:</h4>
-      <p>
-        <strong>Category:</strong> {selectedCategory || "N/A"}
-      </p>
-      <p>
-        <strong>Booking Date:</strong> {bookingDate || "N/A"}
-      </p>
-      <p>
-        <strong>Time Slot:</strong> {timeSlot || "N/A"}
-      </p>
-    </div>
-    <div className="mt-6">
-      <button
-        onClick={handleBackToSelection}
-        className={`py-2 px-6 rounded-full transition font-semibold ${
-          isDarkMode
-            ? "bg-blue-600 text-white hover:bg-blue-700"
-            : "bg-blue-500 text-white hover:bg-blue-600"
-        }`}
-      >
-        Go Back to Service Selection
-      </button>
-    </div>
-    <div className={`mt-4 text-sm ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>
-      You will be notified by the admin with further details soon.
-    </div>
-  </div>
-) : selectedService === null ? (
+          {bookingSuccess ? (
+            <div
+              className={`${isDarkMode ? "bg-gray-900 text-white" : "bg-white text-black"
+                } bg-opacity-80 shadow-2xl rounded-lg p-6 mt-8 text-center`}
+            >
+              <AiOutlineCheckCircle className="mx-auto text-green-500 text-6xl mb-4" />
+              <h3 className="text-2xl font-semibold">Booking Confirmed!</h3>
+              <p className="mt-4 text-lg">
+                Your {selectedService} booking has been successfully confirmed. The admin
+                will notify you with the final date and time for your appointment.
+              </p>
+              <div className="mt-6">
+                <h4 className="font-medium">Service Details:</h4>
+                <p>
+                  <strong>Category:</strong> {selectedCategory || "N/A"}
+                </p>
+                <p>
+                  <strong>Booking Date:</strong> {bookingDate || "N/A"}
+                </p>
+                <p>
+                  <strong>Time Slot:</strong> {timeSlot || "N/A"}
+                </p>
+              </div>
+              <div className="mt-6">
+                <button
+                  onClick={handleBackToSelection}
+                  className={`py-2 px-6 rounded-full transition font-semibold ${isDarkMode
+                    ? "bg-blue-600 text-white hover:bg-blue-700"
+                    : "bg-blue-500 text-white hover:bg-blue-600"
+                    }`}
+                >
+                  Go Back to Service Selection
+                </button>
+              </div>
+              <div className={`mt-4 text-sm ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>
+                You will be notified by the admin with further details soon.
+              </div>
+            </div>
+          ) : selectedService === null ? (
             <>
               <h2 className="text-3xl font-semibold text-center text-black">Select a Service</h2>
               <div className={`grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mt-8 
@@ -110,7 +147,7 @@ function UserBooking() {
                 <div
                   className={`shadow-lg rounded-lg p-6 text-center cursor-pointer hover:shadow-xl sm:w-full lg:w-64 transition 
       ${isDarkMode ? "bg-gray-800 text-white" : "bg-white bg-opacity-70 text-black"}`}
-                  onClick={() => handleServiceSelection('Laptop Services')}
+                  onClick={() => handleServiceSelection('Laptop')}
                 >
                   <FaLaptop className="mx-auto h-16 w-16 mb-4" />
                   <h3 className="text-xl font-semibold">Laptop Services</h3>
@@ -120,7 +157,7 @@ function UserBooking() {
                 <div
                   className={`shadow-lg rounded-lg p-6 text-center cursor-pointer hover:shadow-xl sm:w-full lg:w-64 transition 
       ${isDarkMode ? "bg-gray-800 text-white" : "bg-white bg-opacity-70 text-black"}`}
-                  onClick={() => handleServiceSelection('PC Services')}
+                  onClick={() => handleServiceSelection('PC')}
                 >
                   <FaDesktop className="mx-auto h-16 w-16 mb-4" />
                   <h3 className="text-xl font-semibold">PC Services</h3>
@@ -130,7 +167,7 @@ function UserBooking() {
                 <div
                   className={`shadow-lg rounded-lg p-6 text-center cursor-pointer hover:shadow-xl sm:w-full lg:w-64 transition 
       ${isDarkMode ? "bg-gray-800 text-white" : "bg-white bg-opacity-70 text-black"}`}
-                  onClick={() => handleServiceSelection('Other Services')}
+                  onClick={() => handleServiceSelection('Other')}
                 >
                   <FaWrench className="mx-auto h-16 w-16 mb-4" />
                   <h3 className="text-xl font-semibold">Other Services</h3>
@@ -220,28 +257,16 @@ function UserBooking() {
                       required
                     >
                       <option value="">Select Category</option>
-                      {selectedService === 'Laptop Services' && (
-                        <>
-                          <option value="repair">Repair</option>
-                          <option value="upgrade">Upgrade</option>
-                          <option value="setup">Setup</option>
-                        </>
-                      )}
-                      {selectedService === 'PC Services' && (
-                        <>
-                          <option value="troubleshoot">Troubleshoot</option>
-                          <option value="upgrade">Upgrade</option>
-                          <option value="software_installation">Software Installation</option>
-                        </>
-                      )}
-                      {selectedService === 'Other Services' && (
-                        <>
-                          <option value="custom_builds">Custom PC Builds</option>
-                          <option value="data_recovery">Data Recovery</option>
-                          <option value="virus_removal">Virus Removal</option>
-                          <option value="other">Other</option>
-                        </>
-                      )}
+                      {
+                        allSub
+                          ?.find((item) => item.name === selectedService)
+                          ?.subCategories
+                          ?.map((subCat, index) => (
+                            <option key={index} value={subCat}>
+                              {subCat}
+                            </option>
+                          ))
+                      }
                     </select>
                   </div>
 

@@ -1,37 +1,37 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import AppointmentTable from '../../Components/ServiceComponents/AppointmentTable';
 import RescheduleModal from '../../Components/ServiceComponents/RescheduleModal';
 import LocalAppointmentTable from '../../Components/ServiceComponents/LocalAppointmentTable';
 import CategorySubcategoryManager from '../../Components/ServiceComponents/CategorySubcategoryManager';
+import { useDispatch } from 'react-redux';
+import { getAllUserService } from '../../features/serviceSlice';
+import { toast } from 'react-toastify';
+
 
 const AdminPage = () => {
   const [activeTab, setActiveTab] = useState('appointments'); // Default to appointments view
-  const [appointments, setAppointments] = useState([
-    {
-      id: 1,
-      customerName: 'John Doe',
-      email: 'johndoe@example.com',
-      date: '2025-02-20',
-      time: '10:00 AM',
-      serviceType: 'Laptop Repair',
-      status: 'Scheduled',
-      customerDetails: 'John Doe, a regular customer.',
-      serviceRequested: 'Repair laptop screen',
-      notes: 'Customer needs urgent service.'
-    },
-    {
-      id: 2,
-      customerName: 'Jane Smith',
-      email: 'janesmith@example.com',
-      date: '2025-02-21',
-      time: '02:00 PM',
-      serviceType: 'PC Service',
-      status: 'Pending',
-      customerDetails: 'Jane Smith, first-time visitor.',
-      serviceRequested: 'General PC service and cleaning',
-      notes: 'No special requirements, just regular service.'
+  const [appointments, setAppointments] = useState([]);
+
+  
+  const dispatch = useDispatch()
+
+  const getUserAppoinment = async()=>{
+    try{
+      const rs= await dispatch(getAllUserService()).unwrap();
+      console.log(rs?.data)
+      setAppointments(rs?.data);
+      toast.success(rs?.message)
     }
-  ]);
+    catch(er){
+      console.log(er)
+      toast.error(er)
+    }
+  }
+
+  useEffect(()=>{
+    getUserAppoinment();
+  },[dispatch])
+
 
   const [localAppointments, setLocalAppointments] = useState([
     {

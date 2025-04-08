@@ -1,6 +1,10 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import moment from "moment"
 
 const AppointmentTable = ({ appointments, handleRescheduleClick, handleCancel, handleComplete }) => {
+
+  console.log("from appoointbl", appointments)
+
   const [selectedAppointment, setSelectedAppointment] = useState(null);
 
   const handleRowClick = (appointment) => {
@@ -45,15 +49,15 @@ const AppointmentTable = ({ appointments, handleRescheduleClick, handleCancel, h
         </thead>
         <tbody>
           {appointments.map((appointment) => (
-            <React.Fragment key={appointment.id}>
+            <React.Fragment key={appointment._id}>
               <tr
                 className="border-b cursor-pointer hover:bg-gray-50"
                 onClick={() => handleRowClick(appointment)}
               >
-                <td className="px-4 py-2">{appointment.id}</td>
+                <td className="px-4 py-2">{appointment._id}</td>
                 <td className="px-4 py-2">
                   <div className="md:flex md:justify-between">
-                    <span>{appointment.customerName}</span>
+                    <span>{appointment.name}</span>
                   </div>
                   <div className="md:hidden">
                     <button
@@ -64,77 +68,79 @@ const AppointmentTable = ({ appointments, handleRescheduleClick, handleCancel, h
                     </button>
                   </div>
                 </td>
-                <td className="px-4 py-2">{appointment.date}</td>
-                <td className="px-4 py-2">{appointment.time}</td>
-                <td className="px-4 py-2">{appointment.serviceType}</td>
+                <td className="px-4 py-2">{moment(appointment?.createdAt).format("DD-MM-YYYY")}</td>
+                <td className="px-4 py-2">{appointment.scheduleTime} Pm</td>
+                <td className="px-4 py-2">{appointment.subCategories}</td>
                 <td className="px-4 py-2">
                   <span
-                    className={`px-2 py-1 rounded-full ${
-                      appointment.status === 'Pending'
-                        ? 'bg-yellow-200 text-yellow-800'
-                        : appointment.status === 'Scheduled'
+                    className={`px-2 py-1 rounded-full ${appointment.status === 'Pending'
+                      ? 'bg-yellow-200 text-yellow-800'
+                      : appointment.status === 'Scheduled'
                         ? 'bg-blue-200 text-blue-800'
                         : appointment.status === 'Completed'
-                        ? 'bg-green-200 text-green-800'
-                        : 'bg-red-200 text-red-800'
-                    }`}
+                          ? 'bg-green-200 text-green-800'
+                          : 'bg-red-200 text-red-800'
+                      }`}
                   >
                     {appointment.status}
                   </span>
                 </td>
                 <td className="px-4 py-2">
-                  {appointment.status === 'Pending' && (
+                  {appointment.status === 'Schedule' && (
                     <>
                       <button
                         onClick={() => handleActionClick(appointment, 'reschedule')}
-                        className="bg-blue-500 text-white px-3 py-1 rounded mr-2 hover:bg-blue-600"
-                      >
-                        Schedule
-                      </button>
-                      <button
-                        onClick={() => handleActionClick(appointment, 'cancel')}
-                        className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600"
-                      >
-                        Cancel
-                      </button>
-                    </>
-                  )}
-                  {appointment.status === 'Scheduled' && (
-                    <>
-                      <button
-                        onClick={() => handleActionClick(appointment, 'reschedule')}
-                        className="bg-blue-500 text-white px-3 py-1 rounded mr-2 hover:bg-blue-600"
+                        className="bg-blue-500 text-white px-3 py-1 rounded mr-2 hover:bg-blue-600 m-2"
                       >
                         Reschedule
                       </button>
                       <button
                         onClick={() => handleActionClick(appointment, 'complete')}
-                        className="bg-green-500 text-white px-3 py-1 rounded hover:bg-green-600"
+                        className="bg-green-500 text-white px-3 py-1 rounded hover:bg-green-600 m-2"
                       >
                         Complete
                       </button>
                     </>
                   )}
-                  {(appointment.status === 'Completed' || appointment.status === 'Canceled') && (
+                  {appointment.status === 'ReSchedule' && (
+                    <>
+                      <button
+                        onClick={() => handleActionClick(appointment, 'reschedule')}
+                        className="bg-blue-500 text-white px-3 py-1 rounded mr-2 hover:bg-blue-600 m-2"
+                      >
+                        Reschedule
+                      </button>
+                      <button
+                        onClick={() => handleActionClick(appointment, 'complete')}
+                        className="bg-green-500 text-white px-3 py-1 rounded hover:bg-green-600 m-2"
+                      >
+                        Complete
+                      </button>
+                    </>
+                  )}
+                  {(appointment.status === 'Cancel' || appointment.status === 'Complete') && (
                     <span className="text-gray-500">No action available</span>
                   )}
+
                 </td>
               </tr>
 
               {/* Details Row */}
-              {selectedAppointment && selectedAppointment.id === appointment.id && (
+              {selectedAppointment && selectedAppointment._id === appointment._id && (
                 <tr className="border-b bg-gray-100">
                   <td colSpan="7" className="px-4 py-4">
                     <div className="space-y-4">
                       <div className="p-4 bg-white shadow-md rounded-lg">
+                        <div>
                         <p>
-                          <strong>Customer Details:</strong> {appointment.customerDetails}
+                          <strong>userId:</strong> {appointment?.userId?._id}
                         </p>
                         <p>
-                          <strong>Service Requested:</strong> {appointment.serviceRequested}
+                          <strong>emailId:</strong> {appointment?.userId?.email}
                         </p>
+                        </div>
                         <p>
-                          <strong>Notes:</strong> {appointment.notes}
+                          <strong>Service Requested:</strong> {appointment?.addressInfo}
                         </p>
                       </div>
                     </div>
