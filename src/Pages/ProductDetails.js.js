@@ -9,6 +9,8 @@ import { useDispatch, useSelector } from "react-redux";
 import { getSingleProductDetails } from '../features/productSlice';
 import { toast } from 'react-toastify';
 import useAddToCart from '../Helpers/addToCart';
+import { getReviewByProductId } from '../features/reviewSlice';
+import moment from 'moment';
 
 const ProductDetails = () => {
     const [data, setData] = useState(null);
@@ -16,14 +18,36 @@ const ProductDetails = () => {
     const [expanded, setExpanded] = useState(false);
     const addToCart = useAddToCart();
 
+    const [productRev,setProductRev]= useState([]);
     const navigate = useNavigate();
     const { id } = useParams();
     const dispatch = useDispatch();
 
-    
-  const handleAddToCart = async (e, id) => {
-    await addToCart(e, id);
-  };
+
+    const getProductRev= async ()=>{
+        try{
+
+            const response = await dispatch(getReviewByProductId({productId:id})).unwrap();
+
+            console.log(response?.data);
+            setProductRev(response?.data)
+            toast.success(response?.message);
+
+        }
+        catch(er){
+            toast.error(er)
+            console.log(er)
+        }
+    }
+
+    useEffect(()=>{
+        getProductRev();
+    },[dispatch])
+
+    const handleAddToCart = async (e, id) => {
+        await addToCart(e, id);
+    };
+
 
 
     useEffect(() => {
@@ -89,8 +113,19 @@ const ProductDetails = () => {
 
                         {/* Rating */}
                         <div className="flex items-center gap-1 text-red-500 mt-2">
-                            <FaStar /><FaStar /><FaStar /><FaStar /><FaStarHalf />
-                            <span className="ml-2 text-sm text-gray-400">(4.5/5)</span>
+                            Average Rating : 
+                            {Array.from({ length: 5 }, (_, i) => (
+                                <FaStar
+                                    key={i}
+                                    className={i < Math.floor(data?.averageRating) ? "text-yellow-400" : "text-gray-300"}
+                                />
+                            ))}
+                            <span className="ml-2 text-sm text-gray-400">({data?.averageRating}/5)</span>
+                        </div>
+
+                        {/* Total rev */}
+                        <div className="flex items-center gap-1 text-red-500 mt-2">
+                            <span className="ml-2 text-sm text-gray-400">{data?.numOfReviews === 0  ? "No Review Yet. " : `Total Reviews : ${data?.numOfReviews}`} </span>
                         </div>
 
                         {/* Price */}
@@ -101,7 +136,7 @@ const ProductDetails = () => {
 
                         {/* Buttons */}
                         <div className="flex gap-4 mt-4">
-                            <button className="bg-red-600 text-white px-5 py-2 rounded-lg font-medium hover:bg-red-700 transition" onClick={(e)=>handleAddToCart(e,data._id)}>
+                            <button className="bg-red-600 text-white px-5 py-2 rounded-lg font-medium hover:bg-red-700 transition" onClick={(e) => handleAddToCart(e, data._id)}>
                                 Add to Cart
                             </button>
                             <button
@@ -118,17 +153,25 @@ const ProductDetails = () => {
                                 className="flex justify-between items-center w-full text-lg font-medium"
                                 onClick={() => setExpanded(!expanded)}
                             >
-                                Product Features
+                                Product Review
                                 {expanded ? <IoMdRemove size={20} /> : <IoMdAdd size={20} />}
                             </button>
                             {expanded && (
-                                <ul className="mt-2 space-y-1">
-                                    {data.features?.map((feature, index) => (
-                                        <li key={index} className="flex items-center gap-2">
-                                            ✅ {feature}
-                                        </li>
-                                    ))}
-                                </ul>
+                                 <ul className="mt-2 space-y-2">
+                                 {productRev?.map((rev, index) => (
+                                   <li key={index}>
+                                     <div className={`${isDarkMode ? "bg-gray-800 text-white" : "bg-white text-gray-900"} p-4 rounded-lg shadow-2xl space-y-2`}>
+                                       <p className="flex items-center gap-2 font-medium">
+                                         User : {rev?.userId?.name}
+                                       </p>
+                                       <p className="flex items-center gap-2">Review : {rev?.comment}</p>
+                                       <p className="text-sm text-gray-500">
+                                         Date: {moment(rev?.createdAt).format("DD-MM-YYYY")}
+                                       </p>
+                                     </div>
+                                   </li>
+                                 ))}
+                               </ul>
                             )}
                         </div>
 

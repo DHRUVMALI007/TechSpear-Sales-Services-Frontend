@@ -84,16 +84,11 @@ export const deleteReview= createAsyncThunk("review/delete",async({reviewId},{re
 export const getReviewByProductId= createAsyncThunk("review/getByProductId",async({productId},{rejectedWithValue})=>{
     try{
 
-        const token= localStorage.getItem("token");
-        if(!token){
-            throw new Error("User not Authenticated")
-        }
         console.log(productId)
         const response = await axios.get(`${baseUrl}/getUserReview/${productId}`,{
             withCredentials:true,
             headers:{
                 "Content-Type":"application/json",
-                "Authorization":`Bearer ${token}`
             }
         })
 

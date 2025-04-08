@@ -1,16 +1,37 @@
 import React, { useState } from 'react';
 import { FaRegCircleUser } from "react-icons/fa6";
 import { Link, useNavigate } from 'react-router-dom';
+import { toast } from 'react-toastify';
+import { logoutUser } from '../features/userSlice';
+import { persistor } from '../redux/store';
+import { useDispatch } from 'react-redux';
 
 const AdminSideBar = () => {
     const navigate = useNavigate();
     const [showLogoutModal, setShowLogoutModal] = useState(false);
 
-    const handleLogout = () => {
+    const dispatch = useDispatch();
+    const handleLogout =async () => {
         console.log("User logged out");
         setShowLogoutModal(false);
-        // Add your logout logic here, like clearing tokens, navigating to login, etc.
+        // Add your logout logic here, like clearing tokens, navigating to login, etc
+    try{
+      const rs= await dispatch(logoutUser()).unwrap()
+     
+      console.log(rs)
+      toast.success(rs?.message)
+      persistor.purge()
+      window.location.reload();
+        
+    }catch(er){
+      console.log(er)
+      toast.error(er)
+    }
+   
+        
+
         navigate('/login');
+
     };
 
     return (
