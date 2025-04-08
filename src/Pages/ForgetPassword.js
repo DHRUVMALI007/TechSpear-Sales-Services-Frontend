@@ -1,7 +1,8 @@
-import { useState } from "react";
-import {useNavigate, Link } from "react-router-dom";
+import { useState, useContext } from "react";
+import { useNavigate, Link } from "react-router-dom";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { ThemeContext } from "../Helpers/ThemeContext";
 
 // Initialize Toasts
 
@@ -9,10 +10,13 @@ export default function ForgotPassword() {
   const navigate = useNavigate(); // ✅ Initialize navigate function
   const [step, setStep] = useState(1); // 1: Email, 2: OTP, 3: New Password
   const [email, setEmail] = useState("");
-  const [otp, setOtp] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [generatedOtp, setGeneratedOtp] = useState("");
+  const { isDarkMode } = useContext(ThemeContext);
+  const [otp, setOtp] = useState(new Array(6).fill(""));
+  const [timer, setTimer] = useState(30);
+  const [isResendDisabled, setIsResendDisabled] = useState(true);
 
   // Function to simulate OTP sending
   const handleSendOTP = (e) => {
@@ -27,14 +31,42 @@ export default function ForgotPassword() {
     setGeneratedOtp(mockOtp);
     console.log("OTP sent to:", email, "OTP:", mockOtp);
     toast.success("OTP sent to your email!", { position: "top-center" });
+
     setStep(2);
+    startResendCountdown();
   };
 
+  const handleOTPChange = (e, index) => {
+    const value = e.target.value.replace(/\D/, "");
+    if (!value) return;
+
+    const newOtp = [...otp];
+    newOtp[index] = value;
+    setOtp(newOtp);
+
+    // Move to next input
+    if (index < 5 && e.target.nextSibling) {
+      e.target.nextSibling.focus();
+    }
+  };
+  const handleOTPKeyDown = (e, index) => {
+    if (e.key === "Backspace") {
+      if (otp[index] === "") {
+        if (index > 0 && e.target.previousSibling) {
+          e.target.previousSibling.focus();
+        }
+      }
+      const newOtp = [...otp];
+      newOtp[index] = "";
+      setOtp(newOtp);
+    }
+  };
   // Function to verify OTP
   const handleVerifyOTP = (e) => {
     e.preventDefault();
-
-    if (otp !== generatedOtp) {
+    const fullOtp = otp.join("");
+    console.log("Verifying OTP:", fullOtp);
+    if (otp.join('') !== generatedOtp) {
       toast.error("Invalid OTP. Please try again.", { position: "top-center" });
       return;
     }
@@ -68,22 +100,59 @@ export default function ForgotPassword() {
     setNewPassword("");
     setConfirmPassword("");
   };
+  const startResendCountdown = () => {
+    setIsResendDisabled(true);
+    setTimer(30);
+    const countdown = setInterval(() => {
+      setTimer((prev) => {
+        if (prev === 1) {
+          clearInterval(countdown);
+          setIsResendDisabled(false);
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+  };
+  const handleResendOTP = () => {
+    const newOtp = "654321"; // Replace with backend-generated OTP
+    setGeneratedOtp(newOtp);
+    console.log("Resent OTP to:", email, "OTP:", newOtp);
+    toast.info("A new OTP has been sent to your email.", { position: "top-center" });
+    setOtp(new Array(6).fill(""));
+    startResendCountdown();
+  };
 
   return (
-    <div className="min-h-screen flex items-top justify-center mt-8">
-      <div className="bg-white p-8 rounded-2xl shadow-md w-96">
+    <div
+      className={`min-h-screen flex items-center justify-center px-4 ${isDarkMode ? 'bg-gray-800' : 'bg-gray-100'
+        }`}
+    >
+      <div
+        className={`w-full max-w-md p-6 sm:p-8 rounded-2xl shadow-md ${isDarkMode ? 'bg-gray-900 text-white' : 'bg-white text-gray-700'
+          }`}
+      >
         {step === 1 && (
           <form onSubmit={handleSendOTP}>
-            <h2 className="text-2xl font-semibold text-gray-700 mb-4 text-center">
+            <h2 className="text-2xl font-semibold mb-4 text-center">
               Forgot Password
             </h2>
-            <p className="text-gray-500 text-sm text-center mb-6">
+            <p
+              className={`text-sm text-center mb-6 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
+            >
               Enter your email to receive an OTP.
             </p>
-            <label className="block text-gray-600 text-sm mb-1">Email</label>
+            <label
+              className={`block text-sm mb-1 ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}
+            >
+              Email
+            </label>
             <input
               type="email"
-              className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className={`w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 ${isDarkMode
+                ? 'bg-gray-700 text-white border-gray-600 focus:ring-blue-400'
+                : 'bg-white text-black border-gray-300 focus:ring-blue-500'
+                }`}
               placeholder="Enter your email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
@@ -100,24 +169,48 @@ export default function ForgotPassword() {
 
         {step === 2 && (
           <form onSubmit={handleVerifyOTP}>
-            <h2 className="text-2xl font-semibold text-gray-700 mb-4 text-center">
-              Enter OTP
-            </h2>
-            <p className="text-gray-500 text-sm text-center mb-6">
+            <h2 className="text-2xl font-semibold mb-4 text-center">Enter OTP</h2>
+            <p className={`text-sm text-center mb-6 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
               An OTP has been sent to your email.
             </p>
-            <label className="block text-gray-600 text-sm mb-1">OTP</label>
-            <input
-              type="text"
-              className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="Enter OTP"
-              value={otp}
-              onChange={(e) => setOtp(e.target.value)}
-              required
-            />
+            <label className={`block text-sm mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
+              OTP
+            </label>
+            <div className="flex justify-between gap-2 mb-4">
+              {otp.map((digit, index) => (
+                <input
+                  key={index}
+                  type="text"
+                  inputMode="numeric"
+                  maxLength="1"
+                  className={`w-10 h-12 text-center text-xl border rounded-md focus:outline-none focus:ring-2 ${isDarkMode
+                    ? 'bg-gray-700 text-white border-gray-600 focus:ring-blue-400'
+                    : 'bg-white text-black border-gray-300 focus:ring-blue-500'
+                    }`}
+                  value={digit}
+                  onChange={(e) => handleOTPChange(e, index)}
+                  onKeyDown={(e) => handleOTPKeyDown(e, index)}
+                />
+              ))}
+            </div>
+            <div className="text-end text-sm mb-4">
+              {isResendDisabled ? (
+                <span className={`${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                  Resend OTP in <strong>{timer}s</strong>
+                </span>
+              ) : (
+                <button
+                  type="button"
+                  onClick={handleResendOTP}
+                  className="text-blue-500 hover:underline"
+                >
+                  Resend OTP
+                </button>
+              )}
+            </div>
             <button
               type="submit"
-              className="w-full bg-green-500 text-white py-2 mt-4 rounded-lg hover:bg-green-600 transition"
+              className="w-full bg-green-500 text-white py-2 rounded-lg hover:bg-green-600 transition"
             >
               Verify OTP
             </button>
@@ -126,29 +219,41 @@ export default function ForgotPassword() {
 
         {step === 3 && (
           <form onSubmit={handleResetPassword}>
-            <h2 className="text-2xl font-semibold text-gray-700 mb-4 text-center">
+            <h2 className="text-2xl font-semibold mb-4 text-center">
               Reset Password
             </h2>
-            <p className="text-gray-500 text-sm text-center mb-6">
+            <p
+              className={`text-sm text-center mb-6 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
+            >
               Enter a new password for your account.
             </p>
-            <label className="block text-gray-600 text-sm mb-1">
+            <label
+              className={`block text-sm mb-1 ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}
+            >
               New Password
             </label>
             <input
               type="password"
-              className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className={`w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 ${isDarkMode
+                ? 'bg-gray-700 text-white border-gray-600 focus:ring-blue-400'
+                : 'bg-white text-black border-gray-300 focus:ring-blue-500'
+                }`}
               placeholder="Enter new password"
               value={newPassword}
               onChange={(e) => setNewPassword(e.target.value)}
               required
             />
-            <label className="block text-gray-600 text-sm mb-1 mt-3">
+            <label
+              className={`block text-sm mb-1 mt-3 ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}
+            >
               Confirm Password
             </label>
             <input
               type="password"
-              className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className={`w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 ${isDarkMode
+                ? 'bg-gray-700 text-white border-gray-600 focus:ring-blue-400'
+                : 'bg-white text-black border-gray-300 focus:ring-blue-500'
+                }`}
               placeholder="Confirm new password"
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
@@ -164,11 +269,15 @@ export default function ForgotPassword() {
         )}
 
         <div className="mt-4 text-center">
-          <Link to="/login" className="text-blue-500 text-sm hover:underline">
+          <Link
+            to="/login"
+            className="text-blue-500 text-sm hover:underline"
+          >
             Back to Login
           </Link>
         </div>
       </div>
     </div>
+
   );
 }
