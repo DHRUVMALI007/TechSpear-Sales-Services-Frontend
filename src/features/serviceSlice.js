@@ -170,6 +170,139 @@ export const getMyService = createAsyncThunk("service/myservice",async(_,{reject
     }
 })
 
+export const reScheduleUserService = createAsyncThunk("service/reSchedule",async({time,date,apppoinmentId},{rejectWithValue})=>{
+    const token= localStorage.getItem("token");
+    if(!token){
+        throw new Error("User not Authenticated")
+    }
+    try{
+        const response= await axios.post(`${baseUrl}/reScheduleService`,{time,date,apppoinmentId},{
+            withCredentials:true,
+            headers:{
+                "Content-Type":"application/json",
+                "Authorization":`Bearer ${token}`
+            }
+        })
+
+        console.log(response?.data)
+        return response?.data
+    }
+    catch(er){
+        return rejectWithValue(er?.response?.data.message)
+    }
+}) 
+
+export const cancelService = createAsyncThunk("service/cancel",async({userId},{rejectWithValue})=>{
+    const token= localStorage.getItem("token");
+    if(!token){
+        throw new Error("User not Authenticated")
+    }
+    try{
+        const response= await axios.post(`${baseUrl}/cancleService/${userId}`,{},{
+            withCredentials:true,
+            headers:{
+                "Content-Type":"application/json",
+                "Authorization":`Bearer ${token}`
+            }
+        })
+
+        console.log(response?.data)
+        return response?.data
+    }
+    catch(er){
+        return rejectWithValue(er?.response?.data.message)
+    }
+})
+
+export const completeServiceUser = createAsyncThunk("service/complete",async({userId},{rejectWithValue})=>{
+    const token= localStorage.getItem("token");
+    if(!token){
+        throw new Error("User not Authenticated")
+    }
+    try{
+        const response= await axios.post(`${baseUrl}/completeService/${userId}`,{},{
+            withCredentials:true,
+            headers:{
+                "Content-Type":"application/json",
+                "Authorization":`Bearer ${token}`
+            }
+        })
+
+        console.log(response?.data)
+        return response?.data
+    }
+    catch(er){
+        return rejectWithValue(er?.response?.data.message)
+    }
+}) 
+
+
+// User Notifications -----> for service RESchedul, Schedule , and Complete ,Cancel service
+export const getScheduleNotify = createAsyncThunk("service/scheduleNotify",async({userId},{rejectWithValue})=>{
+    const token= localStorage.getItem("token");
+    if(!token){
+        throw new Error("User not Authenticated")
+    }
+    try{
+        const response= await axios.get(`${baseUrl}/getScheduleNotification/${userId}`,{
+            withCredentials:true,
+            headers:{
+                "Content-Type":"application/json",
+                "Authorization":`Bearer ${token}`
+            }
+        })
+
+        console.log(response?.data)
+        return response?.data
+    }
+    catch(er){
+        return rejectWithValue(er?.response?.data.message)
+    }
+}) 
+
+export const getCancelNotify = createAsyncThunk("service/cancelNotify",async({userId},{rejectWithValue})=>{
+    const token= localStorage.getItem("token");
+    if(!token){
+        throw new Error("User not Authenticated")
+    }
+    try{
+        const response= await axios.get(`${baseUrl}/getcancleNotification/${userId}`,{
+            withCredentials:true,
+            headers:{
+                "Content-Type":"application/json",
+                "Authorization":`Bearer ${token}`
+            }
+        })
+
+        console.log(response?.data)
+        return response?.data
+    }
+    catch(er){
+        return rejectWithValue(er?.response?.data.message)
+    }
+}) 
+
+export const getAllNotify = createAsyncThunk("service/allNotify",async({userId},{rejectWithValue})=>{
+    const token= localStorage.getItem("token");
+    if(!token){
+        throw new Error("User not Authenticated")
+    }
+    console.log(userId)
+    try{
+        const response= await axios.get(`${baseUrl}/getAllNotification/${userId}`,{
+            withCredentials:true,
+            headers:{
+                "Content-Type":"application/json",
+                "Authorization":`Bearer ${token}`
+            }
+        })
+        console.log(response?.data)
+        return response?.data
+    }
+    catch(er){
+        return rejectWithValue(er?.response?.data.message)
+    }
+}) 
 
 
 const serviceSlice = createSlice({

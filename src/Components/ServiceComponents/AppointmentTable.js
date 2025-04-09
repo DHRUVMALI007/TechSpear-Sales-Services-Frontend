@@ -1,148 +1,131 @@
-import React, { useEffect, useState } from 'react';
-import moment from "moment"
+import React, { useState } from 'react';
+import moment from 'moment';
+import { FaCalendarAlt, FaCheckCircle, FaTimesCircle } from 'react-icons/fa';
 
 const AppointmentTable = ({ appointments, handleRescheduleClick, handleCancel, handleComplete }) => {
-
-  console.log("from appoointbl", appointments)
-
   const [selectedAppointment, setSelectedAppointment] = useState(null);
 
   const handleRowClick = (appointment) => {
     if (selectedAppointment && selectedAppointment.id === appointment.id) {
-      setSelectedAppointment(null); // Collapse if the same row is clicked again
+      setSelectedAppointment(null);
     } else {
-      setSelectedAppointment(appointment); // Expand the row to show details
+      setSelectedAppointment(appointment);
     }
   };
 
   const handleActionClick = (appointment, action) => {
-    // Hide the details row when any action button is clicked
     setSelectedAppointment(null);
-    // Handle the specific action (reschedule, cancel, complete)
     if (action === 'reschedule') {
       handleRescheduleClick(appointment);
     } else if (action === 'cancel') {
-      // Update the status to 'Canceled' when the cancel button is clicked
       appointment.status = 'Canceled';
-      handleCancel(appointment.id); // Call the external cancel function if needed
+      handleCancel(appointment._id);
     } else if (action === 'complete') {
-      // Update the status to 'Completed' when the complete button is clicked
       appointment.status = 'Completed';
-      handleComplete(appointment.id); // Call the external complete function if needed
+      handleComplete(appointment._id);
     }
   };
 
   return (
-    <div className="bg-white rounded-lg p-6 shadow-md">
-      <h2 className="text-2xl font-semibold mb-6 text-center">Scheduled & Pending Appointments</h2>
-      <table className="w-full table-auto text-left border-separate ">
-        <thead className="border-b">
-          <tr className='bg-slate-900 text-white'>
-            <th className="px-4 py-2">Appointment ID</th>
-            <th className="px-4 py-2">Customer</th>
-            <th className="px-4 py-2">Date</th>
-            <th className="px-4 py-2">Time</th>
-            <th className="px-4 py-2">Service Type</th>
-            <th className="px-4 py-2">Status</th>
-            <th className="px-4 py-2">Actions</th>
+    <div className="bg-white rounded-lg p-6 shadow-lg overflow-x-auto">
+      <h2 className="text-2xl font-semibold mb-6 text-center text-slate-800">Scheduled & Pending Appointments</h2>
+
+      <table className="w-full border border-gray-300">
+        <thead className="bg-slate-900 text-white">
+          <tr>
+            <th className="border border-gray-300 px-4 py-2">Appointment ID</th>
+            <th className="border border-gray-300 px-4 py-2">Customer</th>
+            <th className="border border-gray-300 px-4 py-2">Date</th>
+            <th className="border border-gray-300 px-4 py-2">Time</th>
+            <th className="border border-gray-300 px-4 py-2">Service Type</th>
+            <th className="border border-gray-300 px-4 py-2">Status</th>
+            <th className="border border-gray-300 px-4 py-2">Actions</th>
           </tr>
         </thead>
+
         <tbody>
           {appointments.map((appointment) => (
             <React.Fragment key={appointment._id}>
-              <tr
-                className="border-b cursor-pointer hover:bg-gray-50"
-                onClick={() => handleRowClick(appointment)}
-              >
-                <td className="px-4 py-2">{appointment._id}</td>
-                <td className="px-4 py-2">
-                  <div className="md:flex md:justify-between">
-                    <span>{appointment.name}</span>
-                  </div>
-                  <div className="md:hidden">
-                    <button
-                      onClick={() => handleRowClick(appointment)}
-                      className="text-blue-500 hover:underline"
-                    >
-                      View Details
-                    </button>
-                  </div>
-                </td>
-                <td className="px-4 py-2">{moment(appointment?.createdAt).format("DD-MM-YYYY")}</td>
-                <td className="px-4 py-2">{appointment.scheduleTime} Pm</td>
-                <td className="px-4 py-2">{appointment.subCategories}</td>
-                <td className="px-4 py-2">
+              <tr className="hover:bg-gray-100 cursor-pointer">
+                <td className="border border-gray-300 px-4 py-2">{appointment._id}</td>
+                <td className="border border-gray-300 px-4 py-2">{appointment.name}</td>
+                <td className="border border-gray-300 px-4 py-2">{moment(appointment?.date).format('DD-MM-YYYY')}</td>
+                <td className="border border-gray-300 px-4 py-2">{appointment.scheduleTime} PM</td>
+                <td className="border border-gray-300 px-4 py-2">{appointment.subCategories}</td>
+                <td className="border border-gray-300 px-4 py-2">
                   <span
-                    className={`px-2 py-1 rounded-full ${appointment.status === 'Pending'
-                      ? 'bg-yellow-200 text-yellow-800'
-                      : appointment.status === 'Scheduled'
-                        ? 'bg-blue-200 text-blue-800'
-                        : appointment.status === 'Completed'
-                          ? 'bg-green-200 text-green-800'
-                          : 'bg-red-200 text-red-800'
+                    className={`px-2 py-1 rounded-full text-sm font-medium
+                    ${appointment.status === 'Pending'
+                        ? 'bg-yellow-200 text-yellow-800'
+                        : appointment.status === 'Schedule'
+                          ? 'bg-blue-200 text-blue-800'
+                          : appointment.status === 'Complete'
+                            ? 'bg-green-200 text-green-800'
+                            : appointment.status === 'ReSchedule'
+                              ? 'bg-purple-200 text-purple-800'
+                              : 'bg-red-200 text-red-800'
                       }`}
                   >
                     {appointment.status}
                   </span>
                 </td>
-                <td className="px-4 py-2">
-                  {appointment.status === 'Schedule' && (
-                    <>
-                      <button
-                        onClick={() => handleActionClick(appointment, 'reschedule')}
-                        className="bg-blue-500 text-white px-3 py-1 rounded mr-2 hover:bg-blue-600 m-2"
-                      >
-                        Reschedule
-                      </button>
-                      <button
-                        onClick={() => handleActionClick(appointment, 'complete')}
-                        className="bg-green-500 text-white px-3 py-1 rounded hover:bg-green-600 m-2"
-                      >
-                        Complete
-                      </button>
-                    </>
-                  )}
-                  {appointment.status === 'ReSchedule' && (
-                    <>
-                      <button
-                        onClick={() => handleActionClick(appointment, 'reschedule')}
-                        className="bg-blue-500 text-white px-3 py-1 rounded mr-2 hover:bg-blue-600 m-2"
-                      >
-                        Reschedule
-                      </button>
-                      <button
-                        onClick={() => handleActionClick(appointment, 'complete')}
-                        className="bg-green-500 text-white px-3 py-1 rounded hover:bg-green-600 m-2"
-                      >
-                        Complete
-                      </button>
-                    </>
-                  )}
-                  {(appointment.status === 'Cancel' || appointment.status === 'Complete') && (
-                    <span className="text-gray-500">No action available</span>
-                  )}
 
+                <td className="border border-gray-300 px-4 py-2">
+                  {['Schedule', 'ReSchedule'].includes(appointment.status) ? (
+                    <div className="flex items-center space-x-4 justify-center">
+                      {/* Reschedule */}
+                      <div className="relative group">
+                        <button
+                          onClick={() => handleActionClick(appointment, 'reschedule')}
+                          className="flex items-center gap-1 bg-blue-500 text-white px-3 py-2 rounded hover:bg-blue-600"
+                        >
+                          <FaCalendarAlt />
+                        </button>
+                        <span className="absolute bottom-full mb-1 left-1/2 -translate-x-1/2 scale-0 group-hover:scale-100 transition bg-gray-800 text-white text-xs rounded py-1 px-2 z-10">
+                          Reschedule
+                        </span>
+                      </div>
+
+                      {/* Complete */}
+                      <div className="relative group">
+                        <button
+                          onClick={() => handleActionClick(appointment, 'complete')}
+                          className="flex items-center gap-1 bg-green-500 text-white px-3 py-2 rounded hover:bg-green-600"
+                        >
+                          <FaCheckCircle />
+                        </button>
+                        <span className="absolute bottom-full mb-1 left-1/2 -translate-x-1/2 scale-0 group-hover:scale-100 transition bg-gray-800 text-white text-xs rounded py-1 px-2 z-10">
+                          Complete
+                        </span>
+                      </div>
+
+                      {/* Cancel */}
+                      <div className="relative group">
+                        <button
+                          onClick={() => handleActionClick(appointment, 'cancel')}
+                          className="flex items-center gap-1 bg-red-500 text-white px-3 py-2 rounded hover:bg-red-600"
+                        >
+                          <FaTimesCircle />
+                        </button>
+                        <span className="absolute bottom-full mb-1 left-1/2 -translate-x-1/2 scale-0 group-hover:scale-100 transition bg-gray-800 text-white text-xs rounded py-1 px-2 z-10">
+                          Cancel
+                        </span>
+                      </div>
+                    </div>
+                  ) : (
+                    <span className="text-gray-500 text-sm">No action available</span>
+                  )}
                 </td>
               </tr>
 
-              {/* Details Row */}
+              {/* Expand Row */}
               {selectedAppointment && selectedAppointment._id === appointment._id && (
-                <tr className="border-b bg-gray-100">
-                  <td colSpan="7" className="px-4 py-4">
-                    <div className="space-y-4">
-                      <div className="p-4 bg-white shadow-md rounded-lg">
-                        <div>
-                        <p>
-                          <strong>userId:</strong> {appointment?.userId?._id}
-                        </p>
-                        <p>
-                          <strong>emailId:</strong> {appointment?.userId?.email}
-                        </p>
-                        </div>
-                        <p>
-                          <strong>Service Requested:</strong> {appointment?.addressInfo}
-                        </p>
-                      </div>
+                <tr className="bg-gray-50">
+                  <td colSpan="7" className="px-6 py-4 border border-gray-300">
+                    <div className="bg-white p-4 rounded shadow">
+                      <p><strong>User ID:</strong> {appointment?.userId?._id}</p>
+                      <p><strong>Email:</strong> {appointment?.userId?.email}</p>
+                      <p><strong>Service Info:</strong> {appointment?.addressInfo}</p>
                     </div>
                   </td>
                 </tr>

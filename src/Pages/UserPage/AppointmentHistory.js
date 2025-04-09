@@ -1,9 +1,11 @@
 import { useState, useEffect, useContext } from "react";
-import { FaCalendarCheck, FaSearch, FaEnvelope, FaTimes,FaChevronDown  } from "react-icons/fa";
+import { FaCalendarCheck, FaSearch, FaEnvelope, FaTimes, FaChevronDown } from "react-icons/fa";
 import { ThemeContext } from "../../Helpers/ThemeContext"; // Ensure correct import
 import { toast } from "react-toastify";
 import { useDispatch } from "react-redux";
-import { getMyService } from "../../features/serviceSlice";
+import { getAllNotify, getMyService } from "../../features/serviceSlice";
+import moment from "moment";
+import React from "react";
 
 export default function AppointmentHistory() {
   const [appointments, setAppointments] = useState([]);
@@ -12,70 +14,71 @@ export default function AppointmentHistory() {
   const [selectedAppointment, setSelectedAppointment] = useState(null);
   const [showModal, setShowModal] = useState(false);
   const [selectedMessages, setSelectedMessages] = useState([]);
+  const [allNotifications, setAllNotifications] = useState([]);
+
   const dispatch = useDispatch()
 
-  const getMyAppoinment= async()=>{
-    try{
+  const [myAppoinment, setMyAppoinment] = useState([])
+
+  const getMyAppoinment = async () => {
+    try {
       const res = await dispatch(getMyService()).unwrap();
-      console.log(res?.data)
+      console.log("My Appoinmet History ", res?.data)
+      setMyAppoinment(res?.data)
+      setAppointments(res?.data)
       toast.success(res?.message)
     }
-    catch(er){
+    catch (er) {
       toast.error(er)
     }
   }
-  
-  useEffect(()=>{
-    getMyAppoinment()
-  },[dispatch])
+
+
 
   useEffect(() => {
-    const dummyAppointments = [
-      {
-        id: 1,
-        service: "Laptop Repair",
-        date: "2025-02-10",
-        time: "10:00 AM",
-        status: "Completed",
-        description: "Full laptop diagnostics and hardware repair.",
-        messages: [
-          { message: "Your appointment is confirmed for 10 AM.", date: "2025-02-10 09:00 AM" },
-          { message: "Your service has been completed.", date: "2025-02-10 11:00 AM" }
-        ],
-      },
-      {
-        id: 2,
-        service: "PC Cleaning",
-        date: "2025-02-12",
-        time: "2:00 PM",
-        status: "Pending",
-        description: "Full internal cleaning and thermal paste replacement.",
-        messages: [{ message: "Please arrive 10 minutes early.", date: "2025-02-12 01:00 PM" }],
-      },
-      {
-        id: 3,
-        service: "Software Installation",
-        date: "2025-02-15",
-        time: "4:00 PM",
-        status: "Upcoming",
-        description: "Installing and configuring essential software.",
-        messages: [],
-      },
-    ];
-    setAppointments(dummyAppointments);
-  }, []);
+    getMyAppoinment()
+
+  }, [dispatch])
 
   const filteredAppointments = appointments.filter(
     (appointment) =>
       (filterStatus === "all" || appointment.status === filterStatus) &&
-      appointment.service.toLowerCase().includes(searchQuery.toLowerCase())
+      appointment?.subCategories?.toLowerCase().includes(searchQuery.toLowerCase())
   );
+  console.log('filtered appoinmt ', filteredAppointments)
+  console.log('filter len ', filteredAppointments.length)
 
-  const openMessageModal = (messages) => {
-    setSelectedMessages(messages);
-    setShowModal(true);
+  const openMessageModal = async (appoinment) => {
+    try {
+    console.log(appoinment?._id)
+      const res = await dispatch(getAllNotify({ userId: appoinment?._id })).unwrap();
+      console.log("My Appoinmet Notification ", res?.data)
+      setAllNotifications(res?.data)
+      toast.success(res?.message)
+
+
+      const allMessages = res?.data || [];
+
+      // Filter messages for the selected appointment
+      const filteredMessages = allMessages.filter(
+        (msg) => msg.user === appoinment?._id
+      );
+
+      setSelectedMessages(filteredMessages);
+
+      setShowModal(true);
+    }
+    catch (er) {
+      toast.error(er)
+    }
+
   };
   const { isDarkMode } = useContext(ThemeContext);
+
+  const getNotificationCount = (id) => {
+    return allNotifications.filter((msg) => msg.user === id).length;
+  };
+  
 
 
   return (
@@ -114,83 +117,100 @@ export default function AppointmentHistory() {
             onChange={(e) => setFilterStatus(e.target.value)}
           >
             <option value="all">All</option>
-            <option value="Completed">Completed</option>
-            <option value="Pending">Pending</option>
-            <option value="Upcoming">Upcoming</option>
+            <option value="Schedule">Schedule</option>
+            <option value="ReSchedule">ReSchedule</option>
+            <option value="Complete">Complete</option>
+            <option value="Cancel">Cancel</option>
           </select>
           <FaChevronDown className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 pointer-events-none" />
         </div>
       </div>
 
-
       {/* Mobile View */}
       <div className="grid grid-cols-1 gap-4 md:hidden">
-        {filteredAppointments.map((appointment) => (
-          <div
-            key={appointment.id}
-            className={`p-5 rounded-lg shadow-lg border transition-transform transform hover:scale-[1.02] ${isDarkMode ? "bg-gray-800 border-gray-700 text-white" : "bg-white border-gray-200 text-gray-900"
-              }`}
-          >
-            {/* Service Title */}
-            <h3 className="text-xl font-semibold">{appointment.service}</h3>
+        {Array.isArray(filteredAppointments) && filteredAppointments.length > 0 ? (
+          filteredAppointments.map((appointment) => (
+            <div
+              key={appointment._id}
+              className={`p-5 rounded-lg shadow-lg border transition-transform transform hover:scale-[1.02] ${isDarkMode
+                ? "bg-gray-800 border-gray-700 text-white"
+                : "bg-white border-gray-200 text-gray-900"
+                }`}
+            >
+              {/* Service Title */}
+              <h3 className="text-xl font-semibold">{appointment?.subCategories}</h3>
 
-            {/* Date & Time */}
-            <p className={`mt-1 flex items-center gap-2 ${isDarkMode ? "text-gray-300" : "text-gray-600"}`}>
-              📅 {appointment.date} | ⏰ {appointment.time}
-            </p>
+              {/* Date & Time */}
+              <p
+                className={`mt-1 flex items-center gap-2 ${isDarkMode ? "text-gray-300" : "text-gray-600"
+                  }`}
+              >
+                📅 {moment(appointment?.date).format("DD-MM-YYYY")} | ⏰{" "}
+                {appointment?.scheduleTime}
+              </p>
 
-            {/* Description */}
-            <p className={`text-sm mt-2 ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>
-              {appointment.description}
-            </p>
+              {/* Description */}
+              <p
+                className={`text-sm mt-2 ${isDarkMode ? "text-gray-400" : "text-gray-500"
+                  }`}
+              >
+                {appointment?.addressInfo}
+              </p>
 
-            {/* Status Badge */}
-            <span
-              className={`px-3 py-1 mt-3 inline-block rounded-full text-sm font-medium shadow-sm ${appointment.status === "Completed"
+              {/* Status Badge */}
+              <span
+                className={`px-3 py-1 mt-3 inline-block rounded-full text-sm font-medium shadow-sm ${appointment.status === "Complete"
                   ? isDarkMode
                     ? "bg-green-900 text-green-300"
-                    : "bg-green-100 text-green-800"
-                  : appointment.status === "Pending"
+                    : "bg-green-200 text-green-800"
+                  : appointment.status === "ReSchedule"
                     ? isDarkMode
                       ? "bg-yellow-900 text-yellow-300"
-                      : "bg-yellow-100 text-yellow-800"
-                    : isDarkMode
-                      ? "bg-blue-900 text-blue-300"
-                      : "bg-blue-100 text-blue-800"
-                }`}
-            >
-              {appointment.status}
-            </span>
+                      : "bg-yellow-200 text-yellow-800"
+                    : appointment.status === "Cancel"
+                      ? isDarkMode
+                        ? "bg-red-900 text-red-300"
+                        : "bg-red-200 text-red-800"
+                      : isDarkMode
+                        ? "bg-blue-900 text-blue-300" // for "Schedule" and fallback
+                        : "bg-blue-200 text-blue-800"
+                  }`}
+              >
+                {appointment.status}
+              </span>
 
-            {/* View Messages Button */}
-            <button
-              className={`mt-3 w-full px-4 py-2 rounded-lg flex items-center justify-center gap-2 font-medium transition active:scale-95 ${isDarkMode
+
+              {/* View Messages Button */}
+              <button
+                className={`mt-3 w-full px-4 py-2 rounded-lg flex items-center justify-center gap-2 font-medium transition active:scale-95 ${isDarkMode
                   ? "bg-blue-500 text-white hover:bg-blue-400"
                   : "bg-blue-600 text-white hover:bg-blue-700"
-                }`}
-              onClick={() => openMessageModal(appointment.messages)}
-            >
-              <FaEnvelope />
-              View Messages
-              {appointment.messages.length > 0 && (
-                <span className="ml-2 bg-red-600 text-white text-xs font-bold px-2 py-1 rounded-full">
-                  {appointment.messages.length}
-                </span>
-              )}
-            </button>
-          </div>
-        ))}
+                  }`}
+                onClick={() => openMessageModal(appointment)}
+              >
+                <FaEnvelope />
+                View Messages
+                {appointment.messages?.length > 0 && (
+                  <span className="ml-2 bg-red-600 text-white text-xs font-bold px-2 py-1 rounded-full">
+                    {appointment?.length}
+                  </span>
+                )}
+              </button>
+            </div>
+          ))
+        ) : (
+          <p className="text-center text-gray-500">No appointments found.</p>
+        )}
       </div>
 
 
 
       {/* Desktop Table */}
-      {/* Desktop Table */}
       <div
         className={`hidden md:block shadow-lg rounded-lg overflow-x-auto transition ${isDarkMode ? "bg-gray-800 text-white" : "bg-white text-gray-900"
           }`}
       >
-        {filteredAppointments.length === 0 ? (
+        {!Array.isArray(filteredAppointments) || filteredAppointments.length === 0 ? (
           <p className={`py-4 text-center ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>
             No appointments found.
           </p>
@@ -210,34 +230,35 @@ export default function AppointmentHistory() {
             {/* Table Body */}
             <tbody>
               {filteredAppointments.map((appointment) => (
-                <>
+                <React.Fragment key={appointment._id}>
                   {/* Main Row */}
                   <tr
-                    key={appointment.id}
                     className={`cursor-pointer transition ${isDarkMode ? "hover:bg-gray-700" : "hover:bg-gray-100"
                       }`}
                     onClick={() =>
-                      setSelectedAppointment(selectedAppointment?.id === appointment.id ? null : appointment)
+                      setSelectedAppointment(
+                        selectedAppointment?._id === appointment._id ? null : appointment
+                      )
                     }
                   >
-                    <td className="py-3 px-4">{appointment.service}</td>
-                    <td className="py-3 px-4">{appointment.date}</td>
-                    <td className="py-3 px-4">{appointment.time}</td>
+                    <td className="py-3 px-4">{appointment?.subCategories}</td>
+                    <td className="py-3 px-4">{moment(appointment.date).format("DD-MM-YYYY")}</td>
+                    <td className="py-3 px-4">{appointment?.scheduleTime}</td>
 
-                    {/* Status with Colored Badges */}
+                    {/* Status Badge */}
                     <td className="py-3 px-4">
                       <span
-                        className={`px-3 py-1 rounded-full text-xs font-semibold shadow-sm ${appointment.status === "Completed"
+                        className={`px-3 py-1 rounded-full text-xs font-semibold shadow-sm ${appointment.status === "Complete"
+                          ? isDarkMode
+                            ? "bg-green-900 text-green-300"
+                            : "bg-green-200 text-green-800"
+                          : appointment.status === "Pending"
                             ? isDarkMode
-                              ? "bg-green-900 text-green-300"
-                              : "bg-green-200 text-green-800"
-                            : appointment.status === "Pending"
-                              ? isDarkMode
-                                ? "bg-yellow-900 text-yellow-300"
-                                : "bg-yellow-200 text-yellow-800"
-                              : isDarkMode
-                                ? "bg-blue-900 text-blue-300"
-                                : "bg-blue-200 text-blue-800"
+                              ? "bg-yellow-900 text-yellow-300"
+                              : "bg-yellow-200 text-yellow-800"
+                            : isDarkMode
+                              ? "bg-blue-900 text-blue-300"
+                              : "bg-blue-200 text-blue-800"
                           }`}
                       >
                         {appointment.status}
@@ -248,41 +269,40 @@ export default function AppointmentHistory() {
                     <td className="py-3 px-4 text-center">
                       <button
                         className={`relative flex items-center gap-2 px-3 py-1 rounded-md transition ${isDarkMode
-                            ? "bg-blue-500 text-white hover:bg-blue-400"
-                            : "bg-blue-500 text-white hover:bg-blue-600"
+                          ? "bg-blue-500 text-white hover:bg-blue-400"
+                          : "bg-blue-500 text-white hover:bg-blue-600"
                           }`}
                         onClick={(e) => {
                           e.stopPropagation();
-                          openMessageModal(appointment.messages);
+                          openMessageModal(appointment);
                         }}
                       >
                         <FaEnvelope />
                         View Messages
-                        {appointment.messages.length > 0 && (
-                          <span
-                            className="absolute -top-2 -right-2 bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-full"
-                          >
-                            {appointment.messages.length}
+                        {getNotificationCount(appointment?._id)?.length > 0 && (
+                          <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-full">
+                            {getNotificationCount(appointment?._id)}
                           </span>
                         )}
                       </button>
                     </td>
                   </tr>
 
-                  {/* Description Row (Only shows when row is clicked) */}
-                  {selectedAppointment?.id === appointment.id && (
+                  {/* Expandable Description Row */}
+                  {selectedAppointment?._id === appointment._id && (
                     <tr className={isDarkMode ? "bg-gray-700" : "bg-gray-50"}>
                       <td colSpan="5" className={`p-4 border-t ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}>
-                        <strong>Description:</strong> {appointment.description}
+                        <strong>Description:</strong> {appointment?.addressInfo}
                       </td>
                     </tr>
                   )}
-                </>
+                </React.Fragment>
               ))}
             </tbody>
           </table>
         )}
       </div>
+
 
 
 

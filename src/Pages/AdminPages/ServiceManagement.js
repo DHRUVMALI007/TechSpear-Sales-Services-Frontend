@@ -4,7 +4,7 @@ import RescheduleModal from '../../Components/ServiceComponents/RescheduleModal'
 import LocalAppointmentTable from '../../Components/ServiceComponents/LocalAppointmentTable';
 import CategorySubcategoryManager from '../../Components/ServiceComponents/CategorySubcategoryManager';
 import { useDispatch } from 'react-redux';
-import { getAllUserService } from '../../features/serviceSlice';
+import { cancelService, completeServiceUser, getAllUserService, reScheduleUserService } from '../../features/serviceSlice';
 import { toast } from 'react-toastify';
 
 
@@ -53,59 +53,120 @@ const AdminPage = () => {
 
   // Handle Rescheduling
   const handleRescheduleClick = (appointment, isLocal = false) => {
-    setRescheduleData(appointment);
+    // setRescheduleData(appointment);
+    console.log("Clicked appointment:", appointment); // Debug
+    setRescheduleData({
+      id: appointment?._id, // appointment id (optional if needed)
+
+    });
     setShowRescheduleForm(true);
   };
   
 
-  const handleRescheduleSubmit = () => {
-    const updatedAppointments = appointments.map((appointment) =>
-      appointment.id === rescheduleData.id
-        ? { ...appointment, date: rescheduleData.date, time: rescheduleData.time, status: 'Scheduled' }
-        : appointment
-    );
-    setAppointments(updatedAppointments);
+  const handleRescheduleSubmit =async () => {
+    // const updatedAppointments = appointments.map((appointment) =>
+    //   appointment.id === rescheduleData.id
+    //     ? { ...appointment, date: rescheduleData.date, time: rescheduleData.time, status: 'Scheduled' }
+    //     : appointment
+    // );
+    // setAppointments(updatedAppointments);
 
-    const updatedLocalAppointments = localAppointments.map((appointment) =>
-      appointment.id === rescheduleData.id
-        ? { ...appointment, date: rescheduleData.date, time: rescheduleData.time, status: 'Scheduled' }
-        : appointment
-    );
-    setLocalAppointments(updatedLocalAppointments);
+    // const updatedLocalAppointments = localAppointments.map((appointment) =>
+    //   appointment.id === rescheduleData.id
+    //     ? { ...appointment, date: rescheduleData.date, time: rescheduleData.time, status: 'Scheduled' }
+    //     : appointment
+    // );
+    // setLocalAppointments(updatedLocalAppointments);
+
+    try{
+      console.log(rescheduleData)
+      const res= await dispatch(reScheduleUserService({time:rescheduleData.time ,date: rescheduleData.date, apppoinmentId : rescheduleData.id})).unwrap();
+      console.log(res?.data?.updateUserService);
+
+      const updatedService = res?.data?.updatedUserService;
+
+      setAppointments((prev) =>
+        prev.map((appointment) =>
+          appointment._id === updatedService._id ? updatedService : appointment
+        )
+      );
+
+      toast.success(res?.message);
+    }catch(er){
+      toast.error(er);
+    }
 
     setShowRescheduleForm(false);
   };
 
-  const handleCancel = (id) => {
-    const updatedAppointments = appointments.map((appointment) =>
-      appointment.id === id
-        ? { ...appointment, status: 'Canceled' }
-        : appointment
-    );
-    setAppointments(updatedAppointments);
+  const handleCancel = async(id) => {
+    // const updatedAppointments = appointments.map((appointment) =>
+    //   appointment.id === id
+    //     ? { ...appointment, status: 'Canceled' }
+    //     : appointment
+    // );
+    // setAppointments(updatedAppointments);
 
-    const updatedLocalAppointments = localAppointments.map((appointment) =>
-      appointment.id === id
-        ? { ...appointment, status: 'Canceled' }
-        : appointment
-    );
-    setLocalAppointments(updatedLocalAppointments);
+    // const updatedLocalAppointments = localAppointments.map((appointment) =>
+    //   appointment.id === id
+    //     ? { ...appointment, status: 'Canceled' }
+    //     : appointment
+    // );
+    // setLocalAppointments(updatedLocalAppointments);
+
+    try{
+      const rs =await dispatch(cancelService({userId:id})).unwrap();
+      console.log(rs?.data)
+      toast.success(rs?.message)
+
+      let updatedService= rs?.data?.user;
+      
+      setAppointments((prev) =>
+        prev.map((appointment) =>
+          appointment._id === updatedService._id ? updatedService : appointment
+        )
+      );
+
+    }
+    catch(er){
+      toast.error(er)
+    }
+
   };
 
-  const handleComplete = (id) => {
-    const updatedAppointments = appointments.map((appointment) =>
-      appointment.id === id
-        ? { ...appointment, status: 'Completed' }
-        : appointment
-    );
-    setAppointments(updatedAppointments);
+  const handleComplete = async(id) => {
+    // const updatedAppointments = appointments.map((appointment) =>
+    //   appointment.id === id
+    //     ? { ...appointment, status: 'Completed' }
+    //     : appointment
+    // );
+    // setAppointments(updatedAppointments);
 
-    const updatedLocalAppointments = localAppointments.map((appointment) =>
-      appointment.id === id
-        ? { ...appointment, status: 'Completed' }
-        : appointment
-    );
-    setLocalAppointments(updatedLocalAppointments);
+    // const updatedLocalAppointments = localAppointments.map((appointment) =>
+    //   appointment.id === id
+    //     ? { ...appointment, status: 'Completed' }
+    //     : appointment
+    // );
+    // setLocalAppointments(updatedLocalAppointments);
+
+    try{
+      const rs =await dispatch(completeServiceUser({userId:id})).unwrap();
+      console.log(rs?.data)
+      toast.success(rs?.message)
+
+      let updatedService= rs?.data?.user;
+      
+      setAppointments((prev) =>
+        prev.map((appointment) =>
+          appointment._id === updatedService._id ? updatedService : appointment
+        )
+      );
+
+    }
+    catch(er){
+      toast.error(er)
+    }
+
   };
 
   return (
