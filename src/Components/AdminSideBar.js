@@ -54,6 +54,7 @@ const AdminSideBar = () => {
                         <Link to="Order-management" className="px-2 py-1 text-white hover:bg-blue-700 hover:text-yellow-300 transition-colors duration-200 rounded-md mt-3">Order Management</Link>
                         <Link to="payment-management" className="px-2 py-1 text-white hover:bg-blue-700 hover:text-yellow-300 transition-colors duration-200 rounded-md mt-3">Payment Management</Link>
                         <Link to="Service-management" className="px-2 py-1 text-white hover:bg-blue-700 hover:text-yellow-300 transition-colors duration-200 rounded-md mt-3">Service Management</Link>
+                        <Link to="banner-management" className="px-2 py-1 text-white hover:bg-blue-700 hover:text-yellow-300 transition-colors duration-200 rounded-md mt-3">Banner Management</Link>
                     </nav>
                 </div>
 

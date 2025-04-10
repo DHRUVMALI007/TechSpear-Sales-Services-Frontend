@@ -9,6 +9,9 @@ import addressReducer from "../features/addressSlice.js"
 import orderReducer from "../features/orderSlice.js"
 import paymentReducer from "../features/paymentSlice.js"
 import reviewReducer from "../features/reviewSlice.js"
+import serviceReducer from "../features/serviceSlice.js"
+import bannerReducer from "../features/bannerSlice.js"
+import dashboardReducer from "../features/dashboardSlice.js"
 // Separate persist configs for each reducer
 const userPersistConfig = {
   key: "auth",
@@ -37,7 +40,10 @@ export const store = configureStore({
     address:addressReducer,
     order:orderReducer,
     payment:paymentReducer,
-    review:reviewReducer
+    review:reviewReducer,
+    service:serviceReducer,
+    banner:bannerReducer,
+    dashboard:dashboardReducer
   },
 });
 

@@ -27,6 +27,7 @@ import Payment from "../Pages/Payment.js"
 import PaymentSuccess from "../Components/PaymentSuccess.js"
 import WriteReview from "../Pages/WriteReview.js"
 import ProtectedRoute from "./ProtectedRoute.js";
+import BannerManager from "../Pages/AdminPages/BannerManager.js";
 
 const router = createBrowserRouter([
   {
@@ -129,6 +130,7 @@ const router = createBrowserRouter([
               { path: "order-management", element: <OrderManagement /> },
               { path: "payment-management", element: <PaymentManagement /> },
               { path: "service-management", element: <ServiceManagement /> },
+              { path: "banner-management", element:<BannerManager/>}
             ],
           },
         ],

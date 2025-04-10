@@ -1,47 +1,64 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
+import { useDispatch } from "react-redux";
+import { getAllProduct, stockManagement } from "../../features/productSlice";
+import { toast } from "react-toastify";
 
 const StockManagement = () => {
-    const [products, setProducts] = useState([
-        { id: "P1001", name: "Laptop", stock: 10 },
-        { id: "P1002", name: "Mouse", stock: 50 },
-        { id: "P1003", name: "Keyboard", stock: 5 },
-        { id: "P1004", name: "Monitor", stock: 20 },
-        { id: "P1005", name: "CPU", stock: 100 },
-        { id: "P1006", name: "Graphic Card", stock: 200 },
-    ]);
+    const [products, setProducts] = useState([]);
+    const dispatch = useDispatch();
+
+    const showProduct = async () => {
+        try {
+            const res = await dispatch(getAllProduct()).unwrap();
+            toast.success(res?.message);
+            setProducts(res?.data);
+        } catch (er) {
+            toast.error(er);
+        }
+    };
+
+    useEffect(() => {
+        showProduct();
+    }, []);
+
     const [newProduct, setNewProduct] = useState({ id: "", name: "", stock: "" });
     const [stockFilter, setStockFilter] = useState("All");
 
-    // Handle input changes
     const handleChange = (e) => {
         const { name, value } = e.target;
         let updatedProduct = { ...newProduct, [name]: value };
 
         if (name === "id") {
-            const existingProduct = products.find((p) => p.id === value);
-            updatedProduct.name = existingProduct ? existingProduct.name : "";
+            const existingProduct = products.find((p) => p._id === value);
+            updatedProduct.name = existingProduct ? existingProduct.productName : "";
         }
 
         setNewProduct(updatedProduct);
     };
 
-    // Add or update product stock
-    const addOrUpdateProduct = () => {
-        if (!newProduct.id || !newProduct.stock || isNaN(newProduct.stock)) return;
+    const addOrUpdateProduct = async () => {
+        if (!newProduct.id || !newProduct.stock || isNaN(newProduct.stock)) {
+            toast.error("Please provide valid product ID and stock value.");
+            return;
+        }
 
-        setProducts((prevProducts) => {
-            const existingProduct = prevProducts.find((p) => p.id === newProduct.id);
-            return existingProduct
-                ? prevProducts.map((p) =>
-                    p.id === newProduct.id ? { ...p, stock: p.stock + Number(newProduct.stock) } : p
-                )
-                : [...prevProducts, { ...newProduct, stock: Number(newProduct.stock) }];
-        });
+        try {
+            const res = await dispatch(
+                stockManagement({
+                    productId: newProduct.id,
+                    stock: Number(newProduct.stock),
+                })
+            ).unwrap();
+
+            toast.success(res?.message || "Stock updated successfully");
+            showProduct(); // Refresh the list
+        } catch (er) {
+            toast.error(er?.message || "Something went wrong while updating stock");
+        }
 
         setNewProduct({ id: "", name: "", stock: "" });
     };
 
-    // Filter products based on stock
     const filteredProducts = products.filter((p) => {
         if (stockFilter === "All") return true;
         if (stockFilter === "Less than 15") return p.stock < 15;
@@ -57,32 +74,32 @@ const StockManagement = () => {
 
             {/* Input Fields */}
             <div className="mb-4 flex flex-wrap gap-2">
-                <input 
-                    type="text" 
-                    name="id" 
-                    value={newProduct.id} 
-                    placeholder="Product ID" 
-                    onChange={handleChange} 
+                <input
+                    type="text"
+                    name="id"
+                    value={newProduct.id}
+                    placeholder="Product ID"
+                    onChange={handleChange}
                     className="border p-2 rounded-md flex-1 min-w-[150px]"
                 />
-                <input 
-                    type="text" 
-                    name="name" 
-                    value={newProduct.name} 
-                    placeholder="Product Name (Auto-fill if exists)" 
-                    className="border p-2 rounded-md flex-1 min-w-[150px] bg-gray-200 text-gray-700" 
-                    disabled 
+                <input
+                    type="text"
+                    name="name"
+                    value={newProduct.name}
+                    placeholder="Product Name (Auto-fill if exists)"
+                    className="border p-2 rounded-md flex-1 min-w-[150px] bg-gray-200 text-gray-700"
+                    disabled
                 />
-                <input 
-                    type="number" 
-                    name="stock" 
-                    value={newProduct.stock} 
-                    placeholder="Stock" 
-                    onChange={handleChange} 
+                <input
+                    type="number"
+                    name="stock"
+                    value={newProduct.stock}
+                    placeholder="Stock"
+                    onChange={handleChange}
                     className="border p-2 rounded-md flex-1 min-w-[150px]"
                 />
-                <button 
-                    onClick={addOrUpdateProduct} 
+                <button
+                    onClick={addOrUpdateProduct}
                     className="border px-4 py-2 rounded-md bg-blue-500 text-white hover:bg-blue-600 transition min-w-[120px]"
                 >
                     Add/Update
@@ -117,17 +134,22 @@ const StockManagement = () => {
                     <tbody>
                         {filteredProducts.length > 0 ? (
                             filteredProducts.map((product, index) => (
-                                <tr key={product.id} className={`border-t ${index % 2 === 0 ? "bg-gray-100" : "bg-white"}`}>
-                                    <td className="p-3 whitespace-nowrap">{product.id}</td>
-                                    <td className="p-3 whitespace-nowrap">{product.name}</td>
-                                    <td 
-                                        className={`p-3 whitespace-nowrap ${
-                                            product.stock < 15 ? "text-red-600 font-bold" :
-                                            product.stock > 100 ? "text-green-600 font-bold" : ""
-                                        }`}
+                                <tr key={product._id} className={`border-t ${index % 2 === 0 ? "bg-gray-100" : "bg-white"}`}>
+                                    <td className="p-3 whitespace-nowrap">{product._id}</td>
+                                    <td className="p-3 whitespace-nowrap">{product.productName}</td>
+                                    <td
+                                        className={`p-3 whitespace-nowrap ${product.stock < 15
+                                                ? "text-red-600 font-bold"         // Low stock (danger)
+                                                : product.stock <= 50
+                                                    ? "text-yellow-500 font-medium"    // Moderate-low stock (warning)
+                                                    : product.stock <= 100
+                                                        ? "text-orange-500 font-medium"    // Moderate-high stock
+                                                        : "text-green-600 font-bold"       // High stock (success)
+                                            }`}
                                     >
                                         {product.stock}
                                     </td>
+
                                 </tr>
                             ))
                         ) : (

@@ -29,14 +29,14 @@ export const uploadProduct = createAsyncThunk("product/upload", async (formData,
 
 export const getAllProduct = createAsyncThunk("product/getall", async () => {
     const token = localStorage.getItem("token");
-    
+
     if (!token) {
         throw new Error("User is Not Authenticated.");
     }
 
     try {
         console.log("Token:", token);
-        
+
         const response = await axios.get(`${baseUrl}/getAllProducts`, {
             withCredentials: true,
             headers: { "Authorization": `Bearer ${token}` }
@@ -64,18 +64,18 @@ export const updateProduct = createAsyncThunk("product/update", async ({ editId,
         //     }
         // });
 
-        const response =await fetch(`${baseUrl}/updateProductDetails/${editId}`,{
-            method:"PUT",
-            credentials:"include",
-            body:formData
+        const response = await fetch(`${baseUrl}/updateProductDetails/${editId}`, {
+            method: "PUT",
+            credentials: "include",
+            body: formData
         })
 
         console.log(`${baseUrl}/updateProductDetails/${editId}`)
         for (let pair of formData.entries()) {
             console.log(pair[0], pair[1]);
-          }
+        }
 
-        const data= await response.json();
+        const data = await response.json();
         console.log(data)
         return data
     }
@@ -100,9 +100,30 @@ export const deleteProduct = createAsyncThunk("product/delete", async (productId
     }
 })
 
-export const getSingleProductDetails = createAsyncThunk("product/detailed",async (productId)=>{
+export const getSingleProductDetails = createAsyncThunk("product/detailed", async (productId) => {
     try {
         const response = await axios.get(`${baseUrl}/getSingleProduct/${productId}`)
+        console.log(response.data)
+        return response.data
+    }
+    catch (er) {
+        return er?.response?.data?.message;
+    }
+})
+
+export const stockManagement = createAsyncThunk("product/stockMange", async ({ productId, stock }) => {
+    let token= localStorage.getItem("token");
+    if(!token){
+        throw new Error("User not Authenticated")
+    }
+    try {
+        const response = await axios.patch(`${baseUrl}/stockManage`,{productId,stock},{
+            withCredentials:true,
+            headers:{
+                "Content-Type":"application/json",
+                "Authorization":`Bearer ${token}`
+            }
+        })
         console.log(response.data)
         return response.data
     }
@@ -164,7 +185,7 @@ const productSlice = createSlice({
             state.loading = false;
             state.product = action.payload;
             state.error = null;
-          
+
 
         })
         builder.addCase(uploadProduct.rejected, (state, action) => {
