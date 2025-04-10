@@ -50,7 +50,7 @@ export default function AppointmentHistory() {
 
   const openMessageModal = async (appoinment) => {
     try {
-    console.log(appoinment?._id)
+      console.log(appoinment?._id)
       const res = await dispatch(getAllNotify({ userId: appoinment?._id })).unwrap();
       console.log("My Appoinmet Notification ", res?.data)
       setAllNotifications(res?.data)
@@ -78,7 +78,7 @@ export default function AppointmentHistory() {
   const getNotificationCount = (id) => {
     return allNotifications.filter((msg) => msg.user === id).length;
   };
-  
+
 
 
   return (
@@ -248,17 +248,21 @@ export default function AppointmentHistory() {
                     {/* Status Badge */}
                     <td className="py-3 px-4">
                       <span
-                        className={`px-3 py-1 rounded-full text-xs font-semibold shadow-sm ${appointment.status === "Complete"
+                        className={`px-3 py-1 mt-3 inline-block rounded-full text-sm font-medium shadow-sm ${appointment.status === "Complete"
                           ? isDarkMode
                             ? "bg-green-900 text-green-300"
                             : "bg-green-200 text-green-800"
-                          : appointment.status === "Pending"
+                          : appointment.status === "ReSchedule"
                             ? isDarkMode
                               ? "bg-yellow-900 text-yellow-300"
                               : "bg-yellow-200 text-yellow-800"
-                            : isDarkMode
-                              ? "bg-blue-900 text-blue-300"
-                              : "bg-blue-200 text-blue-800"
+                            : appointment.status === "Cancel"
+                              ? isDarkMode
+                                ? "bg-red-900 text-red-300"
+                                : "bg-red-200 text-red-800"
+                              : isDarkMode
+                                ? "bg-blue-900 text-blue-300" // for "Schedule" and fallback
+                                : "bg-blue-200 text-blue-800"
                           }`}
                       >
                         {appointment.status}

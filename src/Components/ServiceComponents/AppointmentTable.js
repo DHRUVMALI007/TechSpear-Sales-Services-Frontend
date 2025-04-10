@@ -6,7 +6,7 @@ const AppointmentTable = ({ appointments, handleRescheduleClick, handleCancel, h
   const [selectedAppointment, setSelectedAppointment] = useState(null);
 
   const handleRowClick = (appointment) => {
-    if (selectedAppointment && selectedAppointment.id === appointment.id) {
+    if (selectedAppointment && selectedAppointment._id === appointment._id) {
       setSelectedAppointment(null);
     } else {
       setSelectedAppointment(appointment);
@@ -46,7 +46,10 @@ const AppointmentTable = ({ appointments, handleRescheduleClick, handleCancel, h
         <tbody>
           {appointments.map((appointment) => (
             <React.Fragment key={appointment._id}>
-              <tr className="hover:bg-gray-100 cursor-pointer">
+              <tr
+                className="hover:bg-gray-100 cursor-pointer"
+                onClick={() => handleRowClick(appointment)}
+              >
                 <td className="border border-gray-300 px-4 py-2">{appointment._id}</td>
                 <td className="border border-gray-300 px-4 py-2">{appointment.name}</td>
                 <td className="border border-gray-300 px-4 py-2">{moment(appointment?.date).format('DD-MM-YYYY')}</td>
@@ -120,16 +123,31 @@ const AppointmentTable = ({ appointments, handleRescheduleClick, handleCancel, h
 
               {/* Expand Row */}
               {selectedAppointment && selectedAppointment._id === appointment._id && (
-                <tr className="bg-gray-50">
-                  <td colSpan="7" className="px-6 py-4 border border-gray-300">
-                    <div className="bg-white p-4 rounded shadow">
-                      <p><strong>User ID:</strong> {appointment?.userId?._id}</p>
-                      <p><strong>Email:</strong> {appointment?.userId?.email}</p>
-                      <p><strong>Service Info:</strong> {appointment?.addressInfo}</p>
+                <tr className="bg-slate-100 dark:text-slate-800 transition-colors duration-300">
+                  <td colSpan="7" className="px-6 py-4 border-t border-slate-300 dark:border-slate-700">
+                    <div className="bg-white dark:text-slate-900 rounded-md p-5 text-sm space-y-4 shadow-md">
+                      <div className="flex flex-col sm:flex-row sm:items-center gap-2">
+                        <span className="font-semibold w-32 text-slate-700 dark:text-slate-900">User ID : </span>
+                        <span>{appointment?.userId?._id}</span>
+                      </div>
+                      <div className="flex flex-col sm:flex-row sm:items-center gap-2">
+                        <span className="font-semibold w-32 text-slate-700 dark:text-slate-900">Name : </span>
+                        <span>{appointment?.userId?.name}</span>
+                      </div>
+                      <div className="flex flex-col sm:flex-row sm:items-center gap-2">
+                        <span className="font-semibold w-32 text-slate-700 dark:text-slate-900">Email : </span>
+                        <span>{appointment?.userId?.email}</span>
+                      </div>
+                      <div className="flex flex-col sm:flex-row sm:items-center gap-2">
+                        <span className="font-semibold w-32 text-slate-700 dark:text-slate-900">Service Requested : </span>
+                        <span>{appointment?.addressInfo}</span>
+                      </div>
                     </div>
                   </td>
                 </tr>
+
               )}
+
             </React.Fragment>
           ))}
         </tbody>
