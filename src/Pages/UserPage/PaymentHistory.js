@@ -55,7 +55,7 @@ const TransactionHistory = () => {
   }, [dispatch]);
 
   return (
-    <div className={`p-4 sm:p-6 md:p-8 ${isDarkMode ? 'bg-gray-900 text-white' : 'bg-gray-100 text-gray-800'}`}>
+    <div className={`p-4 sm:p-6 md:p-8 ${isDarkMode ? 'bg-gray-800 text-white' : 'bg-gray-100 text-gray-800'}`}>
   <h2 className="text-2xl font-bold mb-6 text-center sm:text-left">Transaction History</h2>
 
   {/* Transactions Grid */}
@@ -65,7 +65,7 @@ const TransactionHistory = () => {
         key={txn._id}
         className={`border rounded-xl shadow-lg p-4 sm:p-5 flex flex-col cursor-pointer transition duration-300
           ${isDarkMode
-            ? 'bg-gray-800 border-gray-700 hover:shadow-2xl hover:-translate-y-1'
+            ? 'bg-gray-900 border-gray-700 hover:shadow-2xl hover:-translate-y-1'
             : 'bg-white border-gray-200 hover:shadow-2xl hover:-translate-y-1'
           }`}
         onClick={() => setSelectedTransaction(txn)}
@@ -114,7 +114,7 @@ const TransactionHistory = () => {
     <div className="fixed inset-0 z-50 bg-black bg-opacity-50 backdrop-blur-sm flex justify-center items-center p-4">
       <div className={`relative w-full max-w-md sm:max-w-lg md:max-w-xl lg:max-w-2xl mt-10 sm:mt-16 max-h-[90vh] overflow-y-auto 
         p-4 sm:p-6 rounded-lg shadow-xl
-        ${isDarkMode ? 'bg-gray-800 text-white' : 'bg-white text-gray-800'}`}
+        ${isDarkMode ? 'bg-gray-900 text-white' : 'bg-white text-gray-800'}`}
       >
         <button
           className={`absolute top-3 right-3 transition ${isDarkMode ? 'text-gray-300 hover:text-red-400' : 'text-gray-600 hover:text-red-500'}`}

@@ -247,19 +247,26 @@ const AllProducts = () => {
               {/* Images Column with Scroll */}
               <td className="p-2 border text-center">
                 <div className="flex overflow-x-auto space-x-2 w-full h-20">
+                  {/* Main Image */}
+                  {prod.mainProductImg && (
+                    <img
+                      src={prod.mainProductImg}
+                      alt="Main"
+                      className="w-16 h-16 object-cover rounded border-2 border-blue-400"
+                    />
+                  )}
+
+                  {/* Other Images */}
                   {prod.otherProductImg?.slice(0, 5).map((img, index) => (
                     <img
                       key={index}
                       src={img}
-                      alt="product"
+                      alt={`Other ${index + 1}`}
                       className="w-16 h-16 object-cover rounded"
                     />
                   ))}
                 </div>
               </td>
-
-
-
 
               {/* Other Details */}
               <td className="p-2 border">{prod.productName}</td>
