@@ -23,23 +23,18 @@ export const uploadProduct = createAsyncThunk("product/upload", async (formData,
         return response.data
     }
     catch (er) {
-        return er?.response?.data?.message;
+        return rejectWithValue(er?.response?.data?.message);
     }
 })
 
 export const getAllProduct = createAsyncThunk("product/getall", async () => {
-    const token = localStorage.getItem("token");
-
-    if (!token) {
-        throw new Error("User is Not Authenticated.");
-    }
-
     try {
-        console.log("Token:", token);
 
         const response = await axios.get(`${baseUrl}/getAllProducts`, {
             withCredentials: true,
-            headers: { "Authorization": `Bearer ${token}` }
+            headers:{
+                "Content-Type":"application/json"
+            }
         });
 
         console.log("API Response:", response.data);
@@ -51,37 +46,25 @@ export const getAllProduct = createAsyncThunk("product/getall", async () => {
     }
 });
 
-export const updateProduct = createAsyncThunk("product/update", async ({ editId, formData }) => {
+export const updateProduct = createAsyncThunk("product/update", async ({ editId, formData },{rejectWithValue}) => {
 
     try {
-        // console.log('test dt',tdata)
+        console.log(editId)
+        console.log(formData)
         const token = localStorage.getItem("token");
-        // const response = await axios.put(`${baseUrl}/updateProductDetails/${editId}`, formData,   {
-        //     withCredentials: true,
-        //     headers: {
-        //         "Content-Type": "multipart/form-data",
-        //         "Authorization":`Bearer ${token}` 
-        //     }
-        // });
+        const response = await axios.patch(`${baseUrl}/updateProductDetails/${editId}`, formData,   {
+            withCredentials: true,
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization":`Bearer ${token}` 
+            }
+        });
 
-        const response = await fetch(`${baseUrl}/updateProductDetails/${editId}`, {
-            method: "PUT",
-            credentials: "include",
-            body: formData
-        })
-
-        console.log(`${baseUrl}/updateProductDetails/${editId}`)
-        for (let pair of formData.entries()) {
-            console.log(pair[0], pair[1]);
-        }
-
-        const data = await response.json();
-        console.log(data)
-        return data
+        return response?.data
     }
     catch (er) {
         // return er?.response?.data?.message;
-        return er.message
+        return rejectWithValue(er?.response?.data?.message)
     }
 })
 
@@ -129,6 +112,26 @@ export const stockManagement = createAsyncThunk("product/stockMange", async ({ p
     }
     catch (er) {
         return er?.response?.data?.message;
+    }
+})
+
+export const fileterProduct= createAsyncThunk("product/filter",async({sortOption},{rejectWithValue})=>{
+    try{
+
+        console.log(sortOption)
+        const res= await axios.post(`${baseUrl}/filterProduct`,{sortOption},{
+            withCredentials:true,
+            headers:{
+                "Content-Type":"application/json"
+            }
+        })
+
+        console.log(res?.data)
+        return res?.data;
+
+
+    }catch(er){
+        return rejectWithValue(er?.response?.data?.message)
     }
 })
 

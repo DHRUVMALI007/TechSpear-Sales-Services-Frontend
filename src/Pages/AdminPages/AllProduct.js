@@ -38,16 +38,24 @@ const AllProducts = () => {
   });
 
 
+  const fetchData = () => {
+    dispatch(getAllProduct())
+      .unwrap()
+      .then((data) => {
+        setProducts(data.data);
+        toast.success(data?.message)
+        // toast.success("Products refreshed");
+      })
+      .catch((error) => {
+        console.error("Error fetching products:", error);
+        toast.error(error || "Failed to fetch products");
+      });
+  };
+  
+
   useEffect(() => {
-    dispatch(getAllProduct()).unwrap().then((data) => {
-      setProducts(data.data);
-      toast.info("Getting all products")
-    }).catch((error) => {
-      console.error("Error fetching products:", error);
-      console.log(error.message)
-      toast.error(error?.message || error);
-    });
-  }, [dispatch]);
+    fetchData();
+  }, []);
 
   console.log('products ary stateuse', products)
 
@@ -109,6 +117,7 @@ const AllProducts = () => {
     }
 
     const formData = new FormData();
+    
     formData.append("productName", data.productName);
     formData.append("description", data.description);
     formData.append("price", data.price);
@@ -116,16 +125,9 @@ const AllProducts = () => {
     formData.append("stock", data.stock);
     formData.append("underlinePrice", data.underlinePrice);
     formData.append("isTrending", data.isTrending);
-    if (data.mainProductImg) {
-      formData.append("mainProductImg", data.mainProductImg);
-    }
 
-    // ✅ Append Other Product Images
-    if (data.otherProductImg.length > 0) {
-      data.otherProductImg.forEach((img, index) => {
-        formData.append("otherProductImg", img);
-      });
-    }
+    console.log("UPDted product name ",data.productName)
+
     console.log("Dispatching Redux action with FormData...");
     for (let pair of formData.entries()) {
       console.log(pair[0], pair[1]);
@@ -143,7 +145,7 @@ const AllProducts = () => {
       dispatch(getAllProduct()); // Refresh the product list
     } catch (error) {
       console.error("Update product error:", error);
-      toast.error(error?.message || "Failed to update product.");
+      toast.error(error || "Failed to update product.");
     }
   };
 
@@ -222,7 +224,7 @@ const AllProducts = () => {
           </button>
 
           {showUploadProduct && (
-            <UploadProduct onClose={() => setShowUploadProduct(false)} />
+            <UploadProduct onClose={() => setShowUploadProduct(false)} fetchData={fetchData} />
           )}
         </div>
 
@@ -361,53 +363,6 @@ const AllProducts = () => {
                 ))}
               </select>
 
-              {/* ✅ Main Product Image Upload */}
-              <label className="mt-3">Main Product Image:</label>
-              <label htmlFor="uploadMainImageInput">
-                <div className="p-2 bg-slate-100 border rounded h-32 w-full flex justify-center items-center cursor-pointer">
-                  <div className="text-slate-500 flex justify-center items-center flex-col gap-2">
-                    <span className="text-4xl"><FaCloudUploadAlt /></span>
-                    <p className="text-sm">Upload Main Product Image</p>
-                    <input type="file" id="uploadMainImageInput" className="hidden" onChange={handleMainImageUpload} />
-                  </div>
-                </div>
-              </label>
-              {data.mainProductImg && (
-                <div className="relative group mt-2">
-                  <img src={data.mainProductImg} alt="Main Product" width={100} className="bg-slate-100 border cursor-pointer" />
-                  <div
-                    className="absolute top-0 right-0 p-1 text-white bg-red-600 rounded-full cursor-pointer"
-                    onClick={handleDeleteMainImage}
-                  >
-                    <CgClose className="text-lg" />
-                  </div>
-                </div>
-              )}
-
-              {/* ✅ Other Product Images Upload */}
-              <label className="mt-3">Other Product Images:</label>
-              <label htmlFor="uploadOtherImagesInput">
-                <div className="p-2 bg-slate-100 border rounded h-32 w-full flex justify-center items-center cursor-pointer">
-                  <div className="text-slate-500 flex justify-center items-center flex-col gap-2">
-                    <span className="text-4xl"><FaCloudUploadAlt /></span>
-                    <p className="text-sm">Upload Other Product Images</p>
-                    <input type="file" id="uploadOtherImagesInput" className="hidden" onChange={handleOtherImagesUpload} multiple />
-                  </div>
-                </div>
-              </label>
-              <div className="flex gap-2 flex-wrap mt-2">
-                {data.otherProductImg.map((img, index) => (
-                  <div className="relative group" key={index}>
-                    <img src={img} alt="Other Product" width={80} height={80} className="bg-slate-100 border cursor-pointer" />
-                    <div
-                      className="absolute top-0 right-0 p-1 text-white bg-red-600 rounded-full cursor-pointer"
-                      onClick={() => handleDeleteOtherImage(index)}
-                    >
-                      <CgClose className="text-lg" />
-                    </div>
-                  </div>
-                ))}
-              </div>
 
               <label htmlFor="price" className="mt-3">Price:</label>
               <input

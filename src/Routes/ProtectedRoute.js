@@ -9,6 +9,7 @@ const ProtectedRoute = () => {
 //   const hasItemsInCart = cartItems?.data?.cartItem?.items?.length  === 0;
 
   if (!isAuthenticate) {
+    toast.error("Please Login.")
     return <Navigate to="/login" replace />;
   }
 

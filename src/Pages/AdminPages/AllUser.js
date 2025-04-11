@@ -40,7 +40,7 @@ const AllUsers = () => {
       // Ensure data is an array and remove admin users
       const users = Array.isArray(data.data) ? data.data.filter((d) => d.role !== "Admin") : [];
       setAllUsers(users);
-      toast.info(data?.message)
+      toast.success(data?.message)
     } catch (error) {
       toast.error(error.message);
       setAllUsers([]); // Ensure state is always an array

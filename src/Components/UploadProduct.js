@@ -4,7 +4,7 @@ import productCategory from "../Helpers/ProductCategory";
 import { FaCloudUploadAlt } from "react-icons/fa";
 import { toast } from "react-toastify";
 import { useDispatch, useSelector } from "react-redux";
-import { uploadProduct } from "../features/productSlice";
+import { getAllProduct, uploadProduct } from "../features/productSlice";
 
 const UploadProduct = ({ onClose, fetchData }) => {
     const { loading, product, error } = useSelector((state) => state.product)
@@ -86,6 +86,7 @@ const UploadProduct = ({ onClose, fetchData }) => {
                 console.error("Upload failed:", error);
                 toast.error(error || "Failed to upload product.");
             });
+
     };
 
 

@@ -23,28 +23,44 @@ const CategoryProduct = () => {
     const [showFilters, setShowFilters] = useState(false);
 
     useEffect(() => {
-        const fetchProducts = async () => {
+        const fetchFilteredProducts = async () => {
             try {
-                const queryParams = new URLSearchParams();
-                filterCategoryList.forEach((category) => queryParams.append("category", category));
-                if (sortBy) queryParams.append("sortOption", sortBy === "asc" ? "LowToHigh" : "HighToLow");
-                console.log(sortBy);
+                const response = await axios.post(
+                    `http://localhost:5000/api/v1/products/filterProduct`,
+                    {
+                        categoryList: filterCategoryList,
+                        sortOption:
+                            sortBy === "asc"
+                                ? "LowToHigh"
+                                : sortBy === "dsc"
+                                ? "HighToLow"
+                                : "",
+                    },
+                    {
+                        withCredentials: true,
+                        headers: {
+                            "Content-Type": "application/json",
+                        },
+                    }
+                );
 
-                const response = await axios.get(`http://localhost:5000/api/v1/products/getCategoryBasedProduct?${queryParams.toString()}`);
                 setData(response.data.data);
-                console.log(data)
             } catch (error) {
-                console.error("Error fetching products:", error);
+                console.error("Error filtering products:", error);
                 setData([]);
             }
         };
 
-        if (filterCategoryList.length) fetchProducts();
+        if (filterCategoryList.length) {
+            fetchFilteredProducts();
+        }
     }, [filterCategoryList, sortBy]);
 
     useEffect(() => {
         const selectedCategories = Object.keys(selectCategory).filter((key) => selectCategory[key]);
         setFilterCategoryList(selectedCategories);
+
+        // Update the URL without reloading
         navigate(`/product-category?${selectedCategories.map((cat) => `category=${cat}`).join("&")}`);
     }, [selectCategory, navigate]);
 
@@ -58,7 +74,11 @@ const CategoryProduct = () => {
                     <HiFilter size={20} /> Filters
                 </button>
                 <select
-                    className={`border px-3 py-2 rounded-md text-sm ${isDarkMode ? "bg-gray-800 border-gray-600 text-white" : "bg-white border-gray-300 text-gray-700"}`}
+                    className={`border px-3 py-2 rounded-md text-sm ${
+                        isDarkMode
+                            ? "bg-gray-800 border-gray-600 text-white"
+                            : "bg-white border-gray-300 text-gray-700"
+                    }`}
                     onChange={(e) => setSortBy(e.target.value)}
                 >
                     <option value="">Sort By</option>
@@ -68,13 +88,13 @@ const CategoryProduct = () => {
             </div>
 
             <div className="grid grid-cols-1 gap-4 lg:grid-cols-[250px,1fr]">
-            <div
+                <div
                     className={`
-              p-4 border rounded-md fixed left-0 h-full w-[80%] max-w-[300px] z-50 shadow-lg pt-16
-              ${isDarkMode ? "bg-gray-800 border-gray-600 text-white" : "bg-white border-gray-300 text-gray-800"}
-              ${showFilters ? "translate-x-0 top-[60px]" : "-translate-x-full"}
-              lg:translate-x-0 lg:static lg:w-full lg:pt-0
-            `}
+                        p-4 border rounded-md fixed left-0 h-full w-[80%] max-w-[300px] z-50 shadow-lg pt-16
+                        ${isDarkMode ? "bg-gray-800 border-gray-600 text-white" : "bg-white border-gray-300 text-gray-800"}
+                        ${showFilters ? "translate-x-0 top-[60px]" : "-translate-x-full"}
+                        lg:translate-x-0 lg:static lg:w-full lg:pt-0
+                    `}
                 >
                     {showFilters && (
                         <div className="flex justify-between items-center lg:hidden">
@@ -85,7 +105,11 @@ const CategoryProduct = () => {
                         </div>
                     )}
                     <div>
-                        <h3 className={`text-base uppercase font-medium pb-1 border-b ${isDarkMode ? "text-gray-300 border-gray-500" : "text-gray-600 border-gray-300"}`}>
+                        <h3
+                            className={`text-base uppercase font-medium pb-1 border-b ${
+                                isDarkMode ? "text-gray-300 border-gray-500" : "text-gray-600 border-gray-300"
+                            }`}
+                        >
                             Category
                         </h3>
                         <form className="text-sm flex flex-col gap-2 py-2">
@@ -114,9 +138,9 @@ const CategoryProduct = () => {
                 <div>
                     <p className="font-medium text-lg my-2">Search Results: {data?.length}</p>
                     <div className="mx-20">
-                        <div className="w-full flex gap-4">
+                        <div className="w-full flex gap-4 flex-wrap">
                             {data.length !== 0 ? (
-                                <VerticalCard data={data} className={`w-full h-auto`} />
+                                <VerticalCard data={data} className="w-full h-auto" />
                             ) : (
                                 <p>No products found.</p>
                             )}
@@ -125,7 +149,6 @@ const CategoryProduct = () => {
                 </div>
             </div>
         </div>
-
     );
 };
 
