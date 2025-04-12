@@ -161,11 +161,33 @@ export const deleteOrder = createAsyncThunk("order/dltOrder",async({id},{rejectW
     }
 })
 
+
+export const trackingUserOrder = createAsyncThunk("order/track",async({id},{rejectWithValue})=>{
+    try {
+        let token = localStorage.getItem("token")
+
+        console.log(id)
+        const response = await axios.get(`${baseUrl}/trackOrder/${id}`,{
+            withCredentials:true,
+            headers:{
+                "Content-Type":"application/json",
+                "Authorization":`Bearer ${token}`
+            }
+        })
+
+        return response?.data;
+
+    } catch (error) {
+        rejectWithValue(error?.response?.data?.message)
+    }
+})
+
 const orderSlice = createSlice({
     name: "order",
     initialState: {
         loading: false,
         order: null,
+        trackOrder:null,
         error: null
     },
     extraReducers: (builder) => {
@@ -260,6 +282,24 @@ const orderSlice = createSlice({
             state.pending=false;
             state.error=action.payload;
         })
+
+
+        
+        builder.addCase(trackingUserOrder.pending,(state,action)=>{
+            state.pending=true;
+            state.trackOrder=null;
+            state.error=null;
+        })
+        builder.addCase(trackingUserOrder.fulfilled,(state,action)=>{
+            state.pending=false;
+            state.trackOrder=action.payload;
+            state.error= null;
+        })
+        builder.addCase(trackingUserOrder.rejected,(state,action)=>{
+            state.pending=false;
+            state.error=action.payload;
+        })
+
 
     }
 })

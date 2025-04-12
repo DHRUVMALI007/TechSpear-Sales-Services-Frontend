@@ -2,29 +2,14 @@ import { useState, useContext } from "react";
 import { motion } from "framer-motion";
 import { FaCheckCircle, FaRegCircle, FaSearch} from "react-icons/fa";
 import { ThemeContext } from "../../Helpers/ThemeContext";
-
-const allStatuses = [
-  { label: "Order Placed", date: "Feb 18, 2025" },
-  { label: "Processing", date: "Feb 19, 2025" },
-  { label: "Shipped", date: "Feb 20, 2025" },
-  { label: "Out for Delivery", date: "Feb 21, 2025" },
-  { label: "Delivered", date: "Feb 22, 2025" }
-];
-
-const refundStatuses = [
-  { label: "Refund Requested", date: "Feb 23, 2025" },
-  { label: "Refund Processing", date: "Feb 24, 2025" },
-  { label: "Refund Approved", date: "Feb 25, 2025" },
-  { label: "Amount Refunded", date: "Feb 26, 2025" }
-];
-
-const refundedOrders = ["12345", "67890", "54321"]; // Example refunded order IDs
+import { useDispatch } from "react-redux";
+import { trackingUserOrder } from "../../features/orderSlice";
+import { toast } from "react-toastify";
 
 const OrderTracking = () => {
   const [orderId, setOrderId] = useState("");
   const [statusIndex, setStatusIndex] = useState(null);
-  const [refundIndex, setRefundIndex] = useState(null);
-  const [isRefunded, setIsRefunded] = useState(false);
+  const [statusTimeline, setStatusTimeline] = useState([]);
   const { isDarkMode } = useContext(ThemeContext);
 
   const bgColor = isDarkMode ? "bg-gray-700" : "bg-white";
@@ -32,20 +17,21 @@ const OrderTracking = () => {
   const inputBgColor = isDarkMode ? "bg-gray-800 text-white" : "bg-white text-gray-900";
   const borderColor = isDarkMode ? "border-gray-600" : "border-gray-300";
 
-  const handleTrackOrder = () => {
+  const dispatch = useDispatch();
+
+  const handleTrackOrder = async () => {
     if (!orderId) return;
-    
-    // Check if order is refunded
-    if (refundedOrders.includes(orderId.trim())) {
-      setIsRefunded(true);
-      setStatusIndex(null);
-      const randomRefundStatus = Math.floor(Math.random() * refundStatuses.length);
-      setRefundIndex(randomRefundStatus);
-    } else {
-      setIsRefunded(false);
-      setRefundIndex(null);
-      const randomStatus = Math.floor(Math.random() * allStatuses.length);
-      setStatusIndex(randomStatus);
+
+    try {
+      const res = await dispatch(trackingUserOrder({ id: orderId })).unwrap();
+      console.log(res?.data);
+      setStatusTimeline(res?.data?.statusTimeline || []);
+      if (res?.data?.statusTimeline.length > 0) {
+        setStatusIndex(res?.data?.statusTimeline.length - 1); // Set the last status as the current one
+      }
+    } catch (er) {
+      toast.error(er);
+      console.log(er);
     }
   };
 
@@ -68,47 +54,11 @@ const OrderTracking = () => {
         </button>
       </div>
 
-      {isRefunded ? (
-        <div className="w-full flex flex-col items-center">
-          <h3 className="text-lg font-medium mb-4">Refund Status:</h3>
-          <div className="flex flex-col items-center gap-6">
-            {refundStatuses.map((status, index) => (
-              <motion.div
-                key={index}
-                className="flex flex-col items-center"
-                initial={{ opacity: 0, y: -20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: index * 0.2 }}
-              >
-                <div
-                  className={`w-12 h-12 flex items-center justify-center rounded-full border-2 transition-all ${
-                    index <= refundIndex ? "border-red-500 bg-red-100" : `${borderColor} ${bgColor}`
-                  }`}
-                >
-                  {index <= refundIndex ? (
-                    <FaCheckCircle className="text-red-500" size={24} />
-                  ) : (
-                    <FaRegCircle className="text-gray-400" size={24} />
-                  )}
-                </div>
-                <div className="text-center mt-2">
-                  <span className={`font-semibold ${index <= refundIndex ? "text-red-600" : "text-gray-500"}`}>
-                    {status.label}
-                  </span>
-                  <br />
-                  <span className="text-gray-500 text-sm">
-                    {index <= refundIndex ? status.date : `Est. ${status.date}`}
-                  </span>
-                </div>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      ) : statusIndex !== null && (
+      {statusTimeline.length > 0 && (
         <div className="w-full flex flex-col items-center">
           <h3 className="text-lg font-medium mb-4">Order Status:</h3>
           <div className="flex flex-col items-center gap-6">
-            {allStatuses.map((status, index) => (
+            {statusTimeline.map((status, index) => (
               <motion.div
                 key={index}
                 className="flex flex-col items-center"
@@ -133,7 +83,7 @@ const OrderTracking = () => {
                   </span>
                   <br />
                   <span className="text-gray-500 text-sm">
-                    {index <= statusIndex ? status.date : `Est. ${status.date}`}
+                    {status.date ? new Date(status.date).toLocaleDateString() : "Est. Pending"}
                   </span>
                 </div>
               </motion.div>

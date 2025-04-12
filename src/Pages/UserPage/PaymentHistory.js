@@ -89,7 +89,7 @@ const TransactionHistory = () => {
             <img
               key={index}
               src={item.product?.mainProductImg || "/placeholder.jpg"}
-              alt={item.product.productName}
+              alt={item?.productName}
               className="w-14 h-14 rounded-lg shadow-md"
             />
           ))}
@@ -130,7 +130,7 @@ const TransactionHistory = () => {
             <div key={index} className="flex flex-wrap sm:flex-nowrap items-center gap-4">
               <img
                 src={item.product?.mainProductImg || "/placeholder.jpg"}
-                alt={item.product.productName}
+                alt={item?.productName}
                 className="w-20 h-20 rounded-lg shadow-md"
               />
               <div className="flex-1 min-w-0">
@@ -138,7 +138,7 @@ const TransactionHistory = () => {
                 <p className={`text-sm truncate ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
                   {item.product?.description || "No description"}
                 </p>
-                <p className="text-sm font-semibold">Price: {item?.product?.price.toFixed(2)}</p>
+                <p className="text-sm font-semibold">Price: {item?.price.toFixed(2)}</p>
                 <p className="text-sm font-semibold">Quantity: {item?.quantity}</p>
               </div>
             </div>
@@ -152,7 +152,7 @@ const TransactionHistory = () => {
           <p className="text-lg font-bold text-blue-500 text-center">
             <span className="font-semibold">Subtotal:</span>{" "}
             {selectedTransaction?.orderId?.orderItems?.reduce(
-              (sum, item) => sum + item.product.price * item.quantity,
+              (sum, item) => sum + item?.price * item?.quantity,
               0
             ).toFixed(2)}
           </p>
