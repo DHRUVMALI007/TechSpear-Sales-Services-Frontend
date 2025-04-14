@@ -29,7 +29,7 @@ const CompletedPayments = ({ payments }) => {
                   <td className="px-4 py-2 border">{payment?.userId?.name}</td>
                   <td className="px-4 py-2 border">{payment.paymentMethod}</td>
                   <td className="px-4 py-2 border">{payment?.
-                    razorpayPaymentId
+                    razorpayPaymentId || "Null"
                   }</td>
                   <td className="px-4 py-2 border">
                     {payment.status === "Completed"

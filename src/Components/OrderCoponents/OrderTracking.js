@@ -5,6 +5,7 @@ import { ThemeContext } from "../../Helpers/ThemeContext";
 import { useDispatch } from "react-redux";
 import { trackingUserOrder } from "../../features/orderSlice";
 import { toast } from "react-toastify";
+import moment from "moment";
 
 const OrderTracking = () => {
   const [orderId, setOrderId] = useState("");
@@ -83,7 +84,7 @@ const OrderTracking = () => {
                   </span>
                   <br />
                   <span className="text-gray-500 text-sm">
-                    {status.date ? new Date(status.date).toLocaleDateString() : "Est. Pending"}
+                    {moment(status?.date).format("DD-MM-YYYY")}
                   </span>
                 </div>
               </motion.div>

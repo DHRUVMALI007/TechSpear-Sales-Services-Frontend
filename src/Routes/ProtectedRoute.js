@@ -2,21 +2,21 @@ import { Navigate, Outlet } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { toast } from "react-toastify";
 
-const ProtectedRoute = () => {
-  const { isAuthenticate ,user} = useSelector((state) => state.auth);
+const ProtectedRoute = ({ allowedRoles }) => {
+  const { isAuthenticate, user } = useSelector((state) => state.auth);
+  console.log("Protected user",user)
   const cartItems = useSelector((state) => state.cart);
 
-//   const hasItemsInCart = cartItems?.data?.cartItem?.items?.length  === 0;
-
   if (!isAuthenticate) {
-    toast.error("Please Login.")
+    toast.error("Please login to access this page.");
     return <Navigate to="/login" replace />;
   }
 
-//   if (hasItemsInCart) {
-//     alert("Your cart is empty. You can't proceed to checkout.");
-//     return <Navigate to="/user-cart" replace />;
-//   }
+  // 👮‍♂️ Role check
+  if (allowedRoles && !allowedRoles.includes(user?.data?.user?.role)) {
+    toast.error("Access denied. You are not authorized.");
+    return <Navigate to="/unauthorized" replace />;
+  }
 
   return <Outlet />;
 };

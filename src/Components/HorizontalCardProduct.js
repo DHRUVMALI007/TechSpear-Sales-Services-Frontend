@@ -1,12 +1,36 @@
-import React, { useRef, useContext, use } from "react";
+import React, { useRef, useContext, use, useState } from "react";
 import { FaAngleLeft, FaAngleRight } from "react-icons/fa6";
 import { Link } from "react-router-dom";
 import { ThemeContext } from "../Helpers/ThemeContext";
 import displayINRCurrency from "../Helpers/displayCurrency";
 import "../App.css"; // Ensure 'no-scrollbar' class is included
 import useAddToCart from "../Helpers/addToCart";
+import { useEffect } from "react";
+import axios from "axios";
 
 const HorizontalCardProduct = ({ category, heading, products =[], loading }) => {
+    const [data,setData]= useState([])
+
+    useEffect(() => {
+        if (!category) return; // Agar category undefined ho to API request avoid karna
+    
+        const fetchData = async () => {
+       
+          try {
+            const response = await axios.get(
+              `http://localhost:5000/api/v1/products/getCategoryBasedProduct?category=${category}`
+            );
+    
+            console.log("API Response categorywiseProd:", response.data);
+            setData(response.data.data);
+          } catch (error) {
+            console.error("Error fetching category products:", error);
+          } 
+        };
+    
+        fetchData();
+      }, [category]);
+    
     const { isDarkMode } = useContext(ThemeContext);
     const scrollElement = useRef();
     const addToCart= useAddToCart()
@@ -63,8 +87,8 @@ const HorizontalCardProduct = ({ category, heading, products =[], loading }) => 
                                 ${isDarkMode ? "bg-gray-800" : "bg-gray-200"}`}
                             ></div>
                         ))
-                    ) : products.length > 0 ? (
-                        products.map((product) => (
+                    ) : data.length > 0 ? (
+                        data.map((product) => (
                             <Link
                                 to={`/product/${product._id}`}
                                 key={product._id}

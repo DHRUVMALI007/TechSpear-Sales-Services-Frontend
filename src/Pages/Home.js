@@ -42,10 +42,18 @@ console.log("MYHOME PROUDUCT",product)
         <div className="px-4 md:px-8 lg:px-12 py-6 space-y-8">
           <CategoryList />
           <BannerProduct />
-          <HorizontalCardProduct heading={"Trending Products"} products={trendingProd} loading={loading}/>
-          <HorizontalCardProduct heading={"Other Products"} products={otherProd} loading={loading}/>
 
-          {/* <HorizontalCardProduct heading={"Trending Productsss"}/> */}
+        <HorizontalCardProduct heading={"Laptops"} category={"laptop"}></HorizontalCardProduct>
+        <HorizontalCardProduct heading={"Pc"} category={"Pc"}></HorizontalCardProduct>
+        <HorizontalCardProduct heading={"Mouse"} category={"Mouse"}></HorizontalCardProduct>
+        <HorizontalCardProduct heading={"Keyboard"} category={"key board"}></HorizontalCardProduct> 
+        <HorizontalCardProduct heading={"Gaming"} category={"gaming"}></HorizontalCardProduct> 
+        <HorizontalCardProduct heading={"Graphic Card"} category={"graphic card"}></HorizontalCardProduct> 
+        <HorizontalCardProduct heading={"Accesories"} category={"accesories"}></HorizontalCardProduct> 
+        <HorizontalCardProduct heading={"Pen Drive"} category={"pen drive"}></HorizontalCardProduct> 
+        <HorizontalCardProduct heading={"Monitor"} category={"monitor"}></HorizontalCardProduct> 
+
+        
        
         </div>
       )}

@@ -3,7 +3,8 @@ import { useNavigate, Link } from "react-router-dom";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { ThemeContext } from "../Helpers/ThemeContext";
-
+import { useDispatch } from "react-redux";
+import { sendOtp,verifyOtp,resetPass } from "../features/userSlice";
 // Initialize Toasts
 
 export default function ForgotPassword() {
@@ -18,8 +19,10 @@ export default function ForgotPassword() {
   const [timer, setTimer] = useState(30);
   const [isResendDisabled, setIsResendDisabled] = useState(true);
 
+  const dispatch = useDispatch()
+
   // Function to simulate OTP sending
-  const handleSendOTP = (e) => {
+  const handleSendOTP = async(e) => {
     e.preventDefault();
 
     if (!email.includes("@")) {
@@ -27,13 +30,21 @@ export default function ForgotPassword() {
       return;
     }
 
-    const mockOtp = "123456"; // Replace with backend-generated OTP
-    setGeneratedOtp(mockOtp);
-    console.log("OTP sent to:", email, "OTP:", mockOtp);
-    toast.success("OTP sent to your email!", { position: "top-center" });
+    // const mockOtp = "123456"; // Replace with backend-generated OTP
+    // setGeneratedOtp(mockOtp);
+    // console.log("OTP sent to:", email, "OTP:", mockOtp);
+    // // toast.success(res?.message, { position: "top-center" });
 
-    setStep(2);
-    startResendCountdown();
+    try {
+      const res = await dispatch(sendOtp({ email })).unwrap(); // 🔥 call your backend here
+      console.log(res)
+      toast.success(res?.message, { position: "top-center" });
+      setStep(2);
+      startResendCountdown();
+    } catch (error) {
+      toast.error(error|| "Failed to send OTP", { position: "top-center" });
+    }
+  
   };
 
   const handleOTPChange = (e, index) => {
@@ -62,44 +73,60 @@ export default function ForgotPassword() {
     }
   };
   // Function to verify OTP
-  const handleVerifyOTP = (e) => {
+  const handleVerifyOTP =async (e) => {
+
     e.preventDefault();
-    const fullOtp = otp.join("");
-    console.log("Verifying OTP:", fullOtp);
-    if (otp.join('') !== generatedOtp) {
-      toast.error("Invalid OTP. Please try again.", { position: "top-center" });
+    const fullOtp = otp.join("");  // Combine OTP array into a string
+  
+    if (fullOtp.length !== 6) {
+      toast.error("Please enter a valid 6-digit OTP", { position: "top-center" });
       return;
     }
+  
+    const otpData = { email, otp: fullOtp };
+  
+    try {
+      const res = await dispatch(verifyOtp(otpData)).unwrap();
+      console.log(res); // Handle response (e.g., OTP verified successfully)
+      toast.success(res?.message, { position: "top-center" });
+      setStep(3);  // Proceed to password reset step
+    } catch (error) {
+      toast.error(error || "Invalid OTP. Please try again.", { position: "top-center" });
+    }
 
-    toast.success("OTP Verified!", { position: "top-center" });
-    setStep(3);
   };
 
   // Function to update the password
-  const handleResetPassword = (e) => {
+  const handleResetPassword =async (e) => {
     e.preventDefault();
 
     if (newPassword.length < 6) {
       toast.error("Password must be at least 6 characters!", { position: "top-center" });
       return;
     }
-
+  
     if (newPassword !== confirmPassword) {
       toast.error("Passwords do not match!", { position: "top-center" });
       return;
     }
-
-    console.log("Password updated successfully for:", email);
-    toast.success("Your password has been reset!", { position: "top-center" });
-    navigate("/");
-
+  
+    try {
+      const res = await dispatch(resetPass({ email, newPassword })).unwrap();
+      toast.success(res?.message || "Your password has been reset!", { position: "top-center" });
+      navigate("/login"); // Or wherever you want to redirect after reset
+    } catch (error) {
+      toast.error(error || "Failed to reset password", { position: "top-center" });
+    }
+  
     // Reset process
     setStep(1);
     setEmail("");
-    setOtp("");
+    setOtp(new Array(6).fill(""));
     setNewPassword("");
     setConfirmPassword("");
   };
+  
+  
   const startResendCountdown = () => {
     setIsResendDisabled(true);
     setTimer(30);
@@ -114,13 +141,15 @@ export default function ForgotPassword() {
       });
     }, 1000);
   };
-  const handleResendOTP = () => {
-    const newOtp = "654321"; // Replace with backend-generated OTP
-    setGeneratedOtp(newOtp);
-    console.log("Resent OTP to:", email, "OTP:", newOtp);
-    toast.info("A new OTP has been sent to your email.", { position: "top-center" });
-    setOtp(new Array(6).fill(""));
-    startResendCountdown();
+  const handleResendOTP = async() => {
+    try {
+      const res = await dispatch(sendOtp({ email })).unwrap(); // 🔥 call backend to resend OTP
+      toast.info(res?.message || "OTP resent successfully", { position: "top-center" });
+      setOtp(new Array(6).fill("")); // Reset OTP inputs
+      startResendCountdown(); // Restart timer
+    } catch (error) {
+      toast.error(error || "Failed to resend OTP", { position: "top-center" });
+    }
   };
 
   return (

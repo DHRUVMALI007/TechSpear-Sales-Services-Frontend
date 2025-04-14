@@ -5,10 +5,12 @@ import { SiSearxng } from "react-icons/si";
 import { FaBars, FaTimes, FaUserCircle, FaShoppingCart } from "react-icons/fa";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
+import { useRef } from "react";
+
 
 import { persistor } from "../redux/store";
 
-import { useDispatch, useSelector} from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 
 import { toast } from "react-toastify";
 import { logoutUser } from "../features/userSlice";
@@ -16,18 +18,19 @@ import { logoutUser } from "../features/userSlice";
 const Header = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
-  const [cartCount] = useState(3); // Example cart count
+  // const [cartCount] = useState(3); // Example cart count
   // const [isLoggedIn, setIsLoggedIn] = useState(false); // Login state
   // const [user, setUser] = useState(null); // Store user details
-
-  const {isAuthenticate,user} = useSelector((state)=>state.auth)
-  console.log("is auth ",isAuthenticate)
+  const [searchQuery, setSearchQuery] = useState("");
+  const [searchResults, setSearchResults] = useState([]);
+  const { isAuthenticate, user } = useSelector((state) => state.auth)
+  console.log("is auth ", isAuthenticate)
   const { isDarkMode, toggleTheme } = useContext(ThemeContext);
   const navigate = useNavigate();
 
   const dispatch = useDispatch();
 
-  const {cartItems}= useSelector((state)=>state.cart)
+  const { cartItems } = useSelector((state) => state.cart)
 
   console.log(cartItems)
 
@@ -41,6 +44,54 @@ const Header = () => {
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
+
+  const handleSearchInputChange = (e) => {
+    setSearchQuery(e.target.value);
+  };
+  const fetchSearchProduct = async () => {
+    try {
+      console.log("MY Search Quearry", searchQuery)
+      const response = await axios.get(`http://localhost:5000/api/v1/products/searchProduct?q=${searchQuery}`);
+      console.log(response?.data)
+      console.log(response?.data?.message)
+      // toast.success(response?.data?.message)
+      setSearchResults(response?.data?.data);
+    } catch (er) {
+      toast.error(er)
+    }
+  }
+
+  useEffect(() => {
+    fetchSearchProduct()
+  }, [searchQuery])
+
+  const searchBoxRef = useRef();
+
+useEffect(() => {
+  const handleClickOutside = (event) => {
+    if (searchBoxRef.current && !searchBoxRef.current.contains(event.target)) {
+      setSearchResults([]);
+    }
+  };
+  document.addEventListener("mousedown", handleClickOutside);
+  return () => {
+    document.removeEventListener("mousedown", handleClickOutside);
+  };
+}, []);
+
+useEffect(() => {
+  const delayDebounce = setTimeout(() => {
+    if (searchQuery.trim() !== "") {
+      fetchSearchProduct();
+    } else {
+      setSearchResults([]);
+    }
+  }, 300);
+
+  return () => clearTimeout(delayDebounce);
+}, [searchQuery]);
+
+
 
   // Fetch user on page load
   // useEffect(() => {
@@ -78,25 +129,25 @@ const Header = () => {
   // Logout function
   const handleLogout = async () => {
 
-    try{
-      const rs= await dispatch(logoutUser()).unwrap()
-     
+    try {
+      const rs = await dispatch(logoutUser()).unwrap()
+
       console.log(rs)
       toast.success(rs?.message)
       persistor.purge()
       window.location.reload();
-        
-    }catch(er){
+
+    } catch (er) {
       console.log(er)
       toast.error(er)
     }
-   
+
   };
   useEffect(() => {
     console.log("User state : ", user);
     console.log("Is Logged In auth ka state:", isAuthenticate);
   }, [user, isAuthenticate]);
-  
+
 
   return (
     <>
@@ -124,16 +175,45 @@ const Header = () => {
           {/* Right Icons */}
           <div className="flex items-center space-x-4">
             {/* Search */}
-            <div className="hidden sm:flex items-center w-auto lg:w-full max-w-sm border rounded-full focus-within:shadow pl-2">
+            <div ref={searchBoxRef} className="relative hidden sm:flex items-center w-auto lg:w-full max-w-sm border rounded-full focus-within:shadow pl-2">
               <input
                 type="search"
                 placeholder="Search Here..."
+                value={searchQuery}
+                onChange={handleSearchInputChange}
                 className="w-full outline-none px-2 py-1 bg-transparent"
               />
-              <button className="text-lg min-w-[50px] h-8 bg-blue-500 hover:bg-blue-600 flex items-center justify-center rounded-r-full text-white">
+              <button
+                className="text-lg min-w-[50px] h-8 bg-blue-500 hover:bg-blue-600 flex items-center justify-center rounded-r-full text-white"
+                onClick={(e) => {
+                  e.preventDefault();
+                  fetchSearchProduct();
+                }}
+              >
                 <SiSearxng />
               </button>
+
+              {/* Search Suggestions */}
+              {searchQuery && searchResults.length > 0 && (
+                <div className="absolute top-full left-0 w-full max-h-[300px] overflow-y-auto bg-white text-black shadow-lg z-[999] rounded-md mt-1">
+                  {searchResults.map((product) => (
+                    <div
+                      key={product._id}
+                      className="p-3 hover:bg-gray-100 cursor-pointer border-b"
+                      onClick={() => {
+                        navigate(`/product/${product._id}`);
+                        setSearchQuery(""); // clear query after navigating
+                        setSearchResults([]); // clear results
+                      }}
+                    >
+                      <div className="font-semibold">{product.productName}</div>
+                      <div className="text-sm text-gray-500">₹{product.price}</div>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
+
 
             {/* Shopping Cart */}
             <div className="relative">

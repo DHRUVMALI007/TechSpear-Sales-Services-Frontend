@@ -73,6 +73,53 @@ export const getUserPayment= createAsyncThunk("payment/user",async({userId},{rej
     }
 }) 
 
+// Create COD payment
+export const createCODPayment = createAsyncThunk(
+    "payment/createCod",
+    async ({ userId, orderId, amount }, { rejectWithValue }) => {
+      try {
+        const response = await axios.post(
+          `${baseUrl}/createCod`,
+          { userId, orderId, amount },
+          { headers: { "Content-Type": "application/json" } }
+        );
+        return response.data;
+      } catch (err) {
+        return rejectWithValue(err?.response?.data?.message);
+      }
+    }
+  );
+  
+  // Fetch all COD payments (admin)
+  export const getAllCODPayments = createAsyncThunk(
+    "payment/getAllCod",
+    async (_, { rejectWithValue }) => {
+      try {
+        const response = await axios.get(`${baseUrl}/allCod`, {
+          headers: { "Content-Type": "application/json" },
+        });
+        return response.data;
+      } catch (err) {
+        return rejectWithValue(err?.response?.data?.message);
+      }
+    }
+  );
+  
+  // Fetch COD payments for a specific user
+  export const getUserCODPayments = createAsyncThunk(
+    "payment/getUserCod",
+    async ({ userId }, { rejectWithValue }) => {
+      try {
+        const response = await axios.get(`${baseUrl}/userCod/${userId}`, {
+          headers: { "Content-Type": "application/json" },
+        });
+        return response.data;
+      } catch (err) {
+        return rejectWithValue(err?.response?.data?.message);
+      }
+    }
+  );
+  
 
 const paymentSlice = createSlice({
     name:"Payment",
@@ -81,7 +128,8 @@ const paymentSlice = createSlice({
         created:null,
         verified:null,
         payments:[],
-        error:null
+        error:null,
+        codPayments: [],
     },
     extraReducers:(builder)=>{
         builder.addCase(createPayment.pending,(state,action)=>{
@@ -150,6 +198,58 @@ const paymentSlice = createSlice({
             state.error =action.payload;
             state.payments=null;
         })
+
+            // For creating COD payment
+    builder.addCase(createCODPayment.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+        state.created = null;
+      });
+      builder.addCase(createCODPayment.fulfilled, (state, action) => {
+        state.loading = false;
+        state.error = null;
+        state.created = action.payload;
+      });
+      builder.addCase(createCODPayment.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+        state.created = null;
+      });
+  
+      // For getting all COD payments (admin)
+      builder.addCase(getAllCODPayments.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+        state.codPayments = [];
+      });
+      builder.addCase(getAllCODPayments.fulfilled, (state, action) => {
+        state.loading = false;
+        state.error = null;
+        state.codPayments = action.payload;
+      });
+      builder.addCase(getAllCODPayments.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+        state.codPayments = [];
+      });
+  
+      // For getting user-specific COD payments
+      builder.addCase(getUserCODPayments.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+        state.codPayments = [];
+      });
+      builder.addCase(getUserCODPayments.fulfilled, (state, action) => {
+        state.loading = false;
+        state.error = null;
+        state.codPayments = action.payload;
+      });
+      builder.addCase(getUserCODPayments.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+        state.codPayments = [];
+      });
+
 
 
     }

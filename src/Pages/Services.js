@@ -38,6 +38,10 @@ function UserBooking() {
 
   const showServiceByCategory = async (categoryName) => {
     try {
+      if(!isAuthenticate){
+        return toast.error("Login first to explore our services.")
+      }
+
       console.log("Selcted Category ", categoryName)
       const rs = await dispatch(getServiceByCategory({ name: categoryName })).unwrap();
       console.log(rs?.data);
@@ -61,6 +65,11 @@ function UserBooking() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
+
+      if(!isAuthenticate){
+        return toast.error("Please Login to Access of Service.")
+      }
+
       const rs = await dispatch(createUserService({ 
         categoryName: selectedService,
         name: userName,

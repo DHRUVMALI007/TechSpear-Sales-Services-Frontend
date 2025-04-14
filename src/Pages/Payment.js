@@ -1,15 +1,15 @@
 import { useNavigate } from "react-router-dom";
 import { ChevronDownIcon } from '@heroicons/react/16/solid'
-import { useState, useContext } from "react";
+import { useState, useContext, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import displayINRCurrency from "../Helpers/displayCurrency";
 import { toast } from "react-toastify";
 import { addAddress } from "../features/addressSlice";
 import { createOrder } from "../features/orderSlice";
-import { createPayment, verifyPayment } from "../features/paymentSlice";
+import { createCODPayment, createPayment, verifyPayment } from "../features/paymentSlice";
 import loadScript from "../Helpers/loadScript";
 import { ThemeContext } from "../Helpers/ThemeContext"; // Adjust path as needed
-
+import { getAddress } from "../features/addressSlice";
 export default function Example() {
 
   const [formData, setFormData] = useState({
@@ -33,7 +33,7 @@ export default function Example() {
   const { user } = useSelector((state) => state.auth)
   console.log(user)
   const userId = user?.data?.user?._id;
-  console.log("USERID ",userId)
+  console.log("USERID ", userId)
 
   const { address } = useSelector((state) => state.address)
   console.log("user add", address)
@@ -48,6 +48,22 @@ export default function Example() {
     0
   ) || 0;
 
+  // Fetch user's address for the first order
+  const fetchAddressForFirstOrder = async () => {
+    try {
+      const response = await dispatch(getAddress({ userId })).unwrap();
+      console.log(response?.data);
+      setFormData(response?.data)
+      toast.success(response?.message)
+
+    } catch (error) {
+      toast.error(error);
+    }
+  };
+
+  useEffect(() => {
+    fetchAddressForFirstOrder()
+  }, [])
   // console.log(formData)
 
   const handleConfirmOrder = async (e) => {
@@ -97,7 +113,7 @@ export default function Example() {
 
         const orderId = ordr?.data?._id;
 
-        const ordrProductId= ordr?.data?.orderItems.map((itm)=>itm.product._id)
+        const ordrProductId = ordr?.data?.orderItems.map((itm) => itm.product._id)
 
         if (!orderId) {
           toast.error("Failed To create Order")
@@ -139,10 +155,10 @@ export default function Example() {
             console.log("Payment Verification Response:", verifyRes);
             toast.success(verifyRes.message);
 
-            navigate("/payment-success",{
-              state:{
-                userId:userId,
-                productId:ordrProductId
+            navigate("/payment-success/online", {
+              state: {
+                userId: userId,
+                productId: ordrProductId
               }
             });
 
@@ -176,6 +192,73 @@ export default function Example() {
 
     // navigate("/payment-success", { state: { paymentStatus: "success" } });
   };
+
+  const handleCashOnDelivery =async (e) => {
+    e.preventDefault();
+
+    if (!userId) {
+      toast.error("User not found, please login.");
+      navigate("/login");
+      return;
+    }
+
+    if (!cartItems?.data?.cartItem?._id) {
+      toast.error("Your cart is empty.");
+      navigate("/user-cart");
+      return;
+    }
+
+    try{
+      const res = await dispatch(addAddress({ userId, formData })).unwrap()
+
+      console.log(res)
+      toast.success(res?.message || res?.payload?.message)
+      console.log(res?.data?._id)
+      console.log(res?.payload?.data?._id)
+
+      
+      try {
+
+        const ordr = await dispatch(createOrder({ userId, addressInfo: res?.data?._id, cartItems: cartItems?.data?.cartItem?._id })).unwrap()
+
+        toast.success(ordr?.message)
+        console.log(ordr)
+
+        const orderId = ordr?.data?._id;
+
+        const ordrProductId = ordr?.data?.orderItems.map((itm) => itm.product._id)
+
+        if (!orderId) {
+          toast.error("Failed To create Order")
+          return;
+        }
+
+        const paymentRs = await dispatch(createCODPayment({ userId, orderId, amount: subtotal })).unwrap()
+        console.log(paymentRs)
+        toast.success(res?.messaage);
+
+        navigate("/payment-success/cod", {
+          state: {
+            userId: userId,
+            productId: ordrProductId
+          }
+        });
+      }
+      catch(er){
+        console.log(er)
+        toast.error(er)
+      }
+
+    }catch(er){
+      console.log(er)
+      toast.error(er)
+    }
+
+    
+
+
+  };
+  
 
 
   return (
@@ -234,7 +317,7 @@ export default function Example() {
                       name="fullAddress"
                       type="text"
                       required
-                      value={formData.address}
+                      value={formData.fullAddress}
                       onChange={handleOnChange}
                       autoComplete="street-address"
                       className={`block w-full rounded-md px-3 py-2 text-base outline outline-1 -outline-offset-1 sm:text-sm
@@ -345,7 +428,7 @@ export default function Example() {
                       name="pinCode"
                       type="text"
                       required
-                      value={formData.pincode}
+                      value={formData.pinCode}
                       onChange={handleOnChange}
                       autoComplete="postal-code"
                       className={`block w-full rounded-md px-3 py-2 text-base outline outline-1 -outline-offset-1 sm:text-sm
@@ -458,7 +541,18 @@ export default function Example() {
                     : "bg-indigo-600 hover:bg-indigo-700 text-white focus:ring-indigo-500 focus:ring-offset-gray-50"
                     }`}
                 >
-                  Confirm Order
+                  Checkout With Razorpay
+                </button>
+                {/* New Cash on Delivery Button */}
+                <button
+                  type="button"
+                  onClick={(e) => handleCashOnDelivery(e)}
+                  className={`mt-4 w-full rounded-md border border-transparent px-4 py-3 text-base font-medium shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 ${isDarkMode
+                    ? "bg-gray-600 hover:bg-gray-500 text-white focus:ring-gray-400 focus:ring-offset-gray-800"
+                    : "bg-gray-600 hover:bg-gray-700 text-white focus:ring-gray-500 focus:ring-offset-gray-50"
+                    }`}
+                >
+                  Cash on Delivery
                 </button>
               </div>
             </div>

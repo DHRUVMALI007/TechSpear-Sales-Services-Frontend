@@ -16,7 +16,6 @@ const AllProducts = () => {
 
   const [products, setProducts] = useState([]);
 
-  const [searchQuery, setSearchQuery] = useState('');
   const [openEditModal, setOpenEditModal] = useState(false);
   const [currentProduct, setCurrentProduct] = useState(null);
   const [showUploadProduct, setShowUploadProduct] = useState(false);
@@ -199,36 +198,25 @@ const AllProducts = () => {
 
   return (
     <div className="p-4">
-      <div className="flex justify-between items-center mb-4">
-        <h2 className="font-bold text-lg">All Products</h2>
-        <div className="flex items-center space-x-2">
-          <div className="relative flex items-center">
-            <input
-              type="text"
-              placeholder="Search..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 w-full pr-10"
-              autoFocus={false} // Explicitly prevent autofocus
+<div className="flex flex-wrap justify-between items-center gap-4 mb-6">
+  <h2 className="text-2xl font-bold text-gray-800">All Products</h2>
+  
+  <div className="flex items-center gap-3">
+    <button
+      onClick={() => setShowUploadProduct(true)}
+      className="px-5 py-2 bg-red-600 text-white font-medium rounded-md shadow hover:bg-red-700 transition-all duration-300"
+    >
+      Upload Product
+    </button>
+  </div>
 
-            />
-            <FaSearch
-              className={`absolute top-3 right-2 text-gray-500 transition-all duration-300 ${searchQuery ? 'text-blue-500' : ''}`}
-            />
-          </div>
-          <button
-            onClick={() => setShowUploadProduct(true)}
-            className="px-4 py-2 bg-red-600 text-white font-semibold rounded-lg shadow-md hover:bg-red-700 transition duration-300"
-          >
-            Upload Product
-          </button>
-
-          {showUploadProduct && (
-            <UploadProduct onClose={() => setShowUploadProduct(false)} fetchData={fetchData} />
-          )}
-        </div>
-
-      </div>
+  {showUploadProduct && (
+    <UploadProduct
+      onClose={() => setShowUploadProduct(false)}
+      fetchData={fetchData}
+    />
+  )}
+</div>
 
       {/* Table with filtered products */}
       <table className="min-w-full border-collapse border border-gray-300">

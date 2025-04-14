@@ -95,13 +95,72 @@ export const updatePassword = createAsyncThunk("user/updatePass", async ({ oldPa
 
 })
 
+
+
+export const sendOtp = createAsyncThunk("user/sendOtp", async ({ email }, { rejectWithValue }) => {
+
+  try {
+  console.log(email)
+    const response = await axios.post(`http://localhost:5000/api/v1/forgetPass/sendOtp`, {email}, {
+      withCredentials: true,
+      headers: {
+        "Content-Type": "application/json"
+      }
+    })
+    console.log(response?.data)
+
+    return response?.data
+
+  } catch (error) {
+    return rejectWithValue(error?.response?.data?.message);
+  }
+})
+
+export const verifyOtp = createAsyncThunk("user/verifyOtp", async ({ email ,otp}, { rejectWithValue }) => {
+
+  try {
+    console.log(email,otp)
+    const response = await axios.post(`http://localhost:5000/api/v1/forgetPass/verifyOtp`, {email,otp}, {
+      withCredentials: true,
+      headers: {
+        "Content-Type": "application/json"
+      }
+    })
+
+    return response.data
+
+  } catch (error) {
+    return rejectWithValue(error?.response?.data?.message);
+  }
+})
+
+export const resetPass = createAsyncThunk("user/resetPass", async ({ email,newPassword }, { rejectWithValue }) => {
+
+  try {
+    const response = await axios.post(`http://localhost:5000/api/v1/forgetPass/resetPass`, {email,newPassword}, {
+      withCredentials: true,
+      headers: {
+        "Content-Type": "application/json"
+      }
+    })
+
+    return response.data
+
+  } catch (error) {
+    return rejectWithValue(error?.response?.data?.message);
+  }
+})
+
 const userSlice = createSlice({
   name: "userKaAuth",
   initialState: {
     user: null,
     error: null,
     loading: false,
-    isAuthenticate: false
+    isAuthenticate: false,
+    otpSend:false,
+    otpVerifed:false,
+    passwordReset:false
   },
   extraReducers: (builder) => {
     builder
@@ -185,6 +244,51 @@ const userSlice = createSlice({
         state.user = null;
       });
 
+      builder
+      .addCase(sendOtp.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(sendOtp.fulfilled, (state, action) => {
+        state.loading = false;
+        state.error = null;
+        state.otpSend=true;
+      })
+      .addCase(sendOtp.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      });
+    
+    builder
+      .addCase(verifyOtp.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(verifyOtp.fulfilled, (state, action) => {
+        state.loading = false;
+        state.error = null;
+        state.otpVerifed=true
+      })
+      .addCase(verifyOtp.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      });
+    
+    builder
+      .addCase(resetPass.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(resetPass.fulfilled, (state, action) => {
+        state.loading = false;
+        state.error = null;
+        state.passwordReset=true;
+      })
+      .addCase(resetPass.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      });
+    
 
 
   },

@@ -40,7 +40,7 @@ export default function ReviewPage() {
             console.log(response?.data);
 
             toast.success(response?.message)
-
+            navigate("/")
         }
         catch(er){
             console.log(er)

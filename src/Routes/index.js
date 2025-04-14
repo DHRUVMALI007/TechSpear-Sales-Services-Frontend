@@ -28,6 +28,7 @@ import PaymentSuccess from "../Components/PaymentSuccess.js"
 import WriteReview from "../Pages/WriteReview.js"
 import ProtectedRoute from "./ProtectedRoute.js";
 import BannerManager from "../Pages/AdminPages/BannerManager.js";
+import PaymentSuccessCod from "../Components/PaymentSuccessCod.js";
 
 const router = createBrowserRouter([
   {
@@ -90,8 +91,12 @@ const router = createBrowserRouter([
         element: <ProtectedRoute />, // 🔒 Protect Payment Success Page
         children: [
           {
-            path: "",
-            element: <PaymentSuccess />,
+            path: "online",
+            element: <PaymentSuccess />, // ✅ Online Payment Success Page
+          },
+          {
+            path: "cod",
+            element: <PaymentSuccessCod />, // ✅ COD Payment Success Page
           },
           {
             path: "write-review",
@@ -118,7 +123,7 @@ const router = createBrowserRouter([
       },
       {
         path: "admin-panel",
-        element: <ProtectedRoute />, // 🔒 Protect admin panel
+        element: <ProtectedRoute allowedRoles={["Admin"]} />, // 🔒 Protect admin panel
         children: [
           {
             path: "",
@@ -139,6 +144,15 @@ const router = createBrowserRouter([
         path: "product-category",
         element: <CategoryProduct />,
       },
+      {
+        path: "unauthorized",
+        element: (
+          <div className="text-center text-red-600 mt-10 text-xl font-bold">
+            🚫 Access Denied — You do not have permission to view this page.
+          </div>
+        ),
+      }
+      
     ],
   },
 ]);

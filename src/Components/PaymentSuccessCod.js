@@ -5,7 +5,7 @@ import { useNavigate, Outlet } from "react-router-dom";
 import successSound from "./success.mp3"; // ✅ import sound
 import { useLocation } from "react-router-dom";
 
-export default function PaymentSuccess() {
+export default function PaymentSuccessCod() {
     const navigate = useNavigate();
     const location = useLocation();
 
@@ -39,16 +39,6 @@ console.log("paymet success product id ",productId);
             transition={{ duration: 0.5 }}
             className="bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 shadow-2xl rounded-3xl p-10 text-center max-w-lg w-full mx-auto mt-20"
         >
-            <div className="flex justify-center items-center">
-                <FaCheckCircle className="text-green-500 text-7xl animate-pulse drop-shadow-lg" />
-            </div>
-
-            <h2 className="text-3xl font-extrabold text-green-700 dark:text-green-400 mt-6">
-                Payment Successful!
-            </h2>
-            <p className="mt-4 text-lg">
-                Thank you for your purchase.
-            </p>
 
             <p className="mt-6 text-lg">
                 Would you like to share your experience?
