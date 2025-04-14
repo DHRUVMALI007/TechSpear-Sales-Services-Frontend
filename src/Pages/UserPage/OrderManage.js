@@ -32,7 +32,7 @@ export default function OrderHistoryPage() {
 
   return (
     <div
-      className={`md:p-12 mx-auto min-h-screen transition-all ${
+      className={`md:p-12  min-h-screen transition-all ${
         isDarkMode ? "bg-gray-800 text-white" : "bg-slate-200 text-black"
       }`}
     >

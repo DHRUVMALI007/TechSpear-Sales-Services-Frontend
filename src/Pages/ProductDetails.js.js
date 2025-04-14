@@ -174,24 +174,47 @@ const ProductDetails = () => {
                 Product Review
                 {expanded ? <IoMdRemove size={20} /> : <IoMdAdd size={20} />}
               </button>
+
               {expanded && (
-                <ul className="mt-2 space-y-2">
-                  {productRev?.map((rev, index) => (
-                    <li key={index}>
-                      <div className={`${isDarkMode ? "bg-gray-800 text-white" : "bg-white text-gray-900"} p-4 rounded-lg shadow-2xl space-y-2`}>
-                        <p className="flex items-center gap-2 font-medium">
-                          User: {rev?.userId?.name}
-                        </p>
-                        <p className="flex items-center gap-2">Review: {rev?.comment}</p>
-                        <p className="text-sm text-gray-500">
-                          Date: {moment(rev?.createdAt).format("DD-MM-YYYY")}
-                        </p>
-                      </div>
-                    </li>
-                  ))}
-                </ul>
+                <div className="mt-2 space-y-2 max-h-[150px] overflow-y-auto"> {/* Set max height and enable scroll */}
+                  <ul className="space-y-2">
+                    {/* Display first two reviews initially */}
+                    {productRev?.slice(0, 2).map((rev, index) => (
+                      <li key={index}>
+                        <div className={`${isDarkMode ? "bg-gray-800 text-white" : "bg-white text-gray-900"} p-4 rounded-lg shadow-2xl space-y-2`}>
+                          <p className="flex items-center gap-2 font-medium">
+                            User: {rev?.userId?.name}
+                          </p>
+                          <p className="flex items-center gap-2">Review: {rev?.comment}</p>
+                          <p className="text-sm text-gray-500">
+                            Date: {moment(rev?.createdAt).format("DD-MM-YYYY")}
+                          </p>
+                        </div>
+                      </li>
+                    ))}
+                  </ul>
+                  {/* If expanded, show more reviews */}
+                  {expanded && productRev?.length > 2 && (
+                    <ul className="space-y-2">
+                      {productRev?.slice(2).map((rev, index) => (
+                        <li key={index}>
+                          <div className={`${isDarkMode ? "bg-gray-800 text-white" : "bg-white text-gray-900"} p-4 rounded-lg shadow-2xl space-y-2`}>
+                            <p className="flex items-center gap-2 font-medium">
+                              User: {rev?.userId?.name}
+                            </p>
+                            <p className="flex items-center gap-2">Review: {rev?.comment}</p>
+                            <p className="text-sm text-gray-500">
+                              Date: {moment(rev?.createdAt).format("DD-MM-YYYY")}
+                            </p>
+                          </div>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </div>
               )}
             </div>
+
 
             {/* Product Description */}
             <div className="mt-6 border-t pt-4 border-gray-400">

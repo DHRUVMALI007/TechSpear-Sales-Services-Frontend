@@ -5,6 +5,9 @@ import { toast } from "react-toastify";
 
 const StockManagement = () => {
     const [products, setProducts] = useState([]);
+    const [newProduct, setNewProduct] = useState({ id: "", name: "", stock: "" });
+    const [stockFilter, setStockFilter] = useState("All");
+
     const dispatch = useDispatch();
 
     const showProduct = async () => {
@@ -20,9 +23,6 @@ const StockManagement = () => {
     useEffect(() => {
         showProduct();
     }, []);
-
-    const [newProduct, setNewProduct] = useState({ id: "", name: "", stock: "" });
-    const [stockFilter, setStockFilter] = useState("All");
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -42,11 +42,19 @@ const StockManagement = () => {
             return;
         }
 
+        const existingProduct = products.find((p) => p._id === newProduct.id);
+        if (!existingProduct) {
+            toast.error("Product not found.");
+            return;
+        }
+
+        const finalStock = existingProduct.stock + Number(newProduct.stock);
+
         try {
             const res = await dispatch(
                 stockManagement({
                     productId: newProduct.id,
-                    stock: Number(newProduct.stock),
+                    stock: finalStock,
                 })
             ).unwrap();
 
@@ -68,6 +76,14 @@ const StockManagement = () => {
         return true;
     });
 
+    const handleRowClick = (product) => {
+        setNewProduct({
+            id: product._id,
+            name: product.productName,
+            stock: ""
+        });
+    };
+
     return (
         <div className="p-5 bg-gray-50 rounded-lg shadow-md w-full max-w-5xl mx-auto">
             <h2 className="text-2xl font-semibold mb-4 text-gray-800 text-center">Stock Management</h2>
@@ -87,8 +103,8 @@ const StockManagement = () => {
                     name="name"
                     value={newProduct.name}
                     placeholder="Product Name (Auto-fill if exists)"
-                    className="border p-2 rounded-md flex-1 min-w-[150px] bg-gray-200 text-gray-700"
-                    disabled
+                    onChange={handleChange}
+                    className="border p-2 rounded-md flex-1 min-w-[150px]"
                 />
                 <input
                     type="number"
@@ -134,22 +150,32 @@ const StockManagement = () => {
                     <tbody>
                         {filteredProducts.length > 0 ? (
                             filteredProducts.map((product, index) => (
-                                <tr key={product._id} className={`border-t ${index % 2 === 0 ? "bg-gray-100" : "bg-white"}`}>
+                                <tr
+                                    key={product._id}
+                                    onClick={() => handleRowClick(product)}
+                                    className={`border-t cursor-pointer transition ${
+                                        product._id === newProduct.id
+                                            ? "bg-blue-100"
+                                            : index % 2 === 0
+                                            ? "bg-gray-100"
+                                            : "bg-white"
+                                    } hover:bg-blue-50`}
+                                >
                                     <td className="p-3 whitespace-nowrap">{product._id}</td>
                                     <td className="p-3 whitespace-nowrap">{product.productName}</td>
                                     <td
-                                        className={`p-3 whitespace-nowrap ${product.stock < 15
-                                                ? "text-red-600 font-bold"         // Low stock (danger)
-                                                : product.stock <= 50
-                                                    ? "text-yellow-500 font-medium"    // Moderate-low stock (warning)
-                                                    : product.stock <= 100
-                                                        ? "text-orange-500 font-medium"    // Moderate-high stock
-                                                        : "text-green-600 font-bold"       // High stock (success)
-                                            }`}
+                                        className={`p-3 whitespace-nowrap ${
+                                            product.stock < 5
+                                                ? "text-red-600 font-bold"
+                                                : product.stock <= 20
+                                                ? "text-yellow-500 font-medium"
+                                                : product.stock <= 30
+                                                ? "text-orange-500 font-medium"
+                                                : "text-green-600 font-bold"
+                                        }`}
                                     >
                                         {product.stock}
                                     </td>
-
                                 </tr>
                             ))
                         ) : (

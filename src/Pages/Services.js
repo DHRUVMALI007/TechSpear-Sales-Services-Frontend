@@ -10,10 +10,10 @@ import { toast } from 'react-toastify';
 import { getServiceByCategory } from '../features/serviceSlice';
 
 function UserBooking() {
-  const {isAuthenticate,user}= useSelector((state)=>state.auth)
+  const { isAuthenticate, user } = useSelector((state) => state.auth)
 
-  let userName= user?.data?.user?.name;
-  let userEmail= user?.data?.user?.email;
+  let userName = user?.data?.user?.name;
+  let userEmail = user?.data?.user?.email;
   // console.log(userName)
   // console.log(userEmail)
 
@@ -31,14 +31,14 @@ function UserBooking() {
   const dispatch = useDispatch();
 
 
-  useEffect(()=>{
+  useEffect(() => {
     setName(userName)
     setEmail(userEmail)
   })
 
   const showServiceByCategory = async (categoryName) => {
     try {
-      if(!isAuthenticate){
+      if (!isAuthenticate) {
         return toast.error("Login first to explore our services.")
       }
 
@@ -66,18 +66,18 @@ function UserBooking() {
     e.preventDefault();
     try {
 
-      if(!isAuthenticate){
+      if (!isAuthenticate) {
         return toast.error("Please Login to Access of Service.")
       }
 
-      const rs = await dispatch(createUserService({ 
+      const rs = await dispatch(createUserService({
         categoryName: selectedService,
         name: userName,
         email: userEmail,
         addressInfo: additionalDetails,
         scheduleTime: timeSlot,
         date: bookingDate,
-        subCategories:selectedCategory
+        subCategories: selectedCategory
       })).unwrap()
       setBookingSuccess(true); // Set booking as successful
       toast.success(rs?.message)
@@ -296,17 +296,23 @@ function UserBooking() {
                   )}
 
                   <div>
-                    <label htmlFor="bookingDate" className="block text-sm font-medium">Select Booking Date</label>
+                    <label htmlFor="bookingDate" className="block text-sm font-medium">
+                      Select Booking Date
+                    </label>
                     <input
                       id="bookingDate"
                       type="date"
+                      min={new Date(Date.now() + 86400000).toISOString().split("T")[0]} // sets minimum date to tomorrow
                       value={bookingDate}
                       onChange={(e) => setBookingDate(e.target.value)}
-                      className={`w-full p-3 border rounded-lg transition ${isDarkMode ? "bg-gray-800 text-white border-gray-500" : "bg-white text-black border-gray-300"
+                      className={`w-full p-3 border rounded-lg transition ${isDarkMode
+                          ? "bg-gray-800 text-white border-gray-500"
+                          : "bg-white text-black border-gray-300"
                         }`}
                       required
                     />
                   </div>
+
 
                   <div>
                     <label htmlFor="timeSlot" className="block text-sm font-medium">Select Time Slot</label>

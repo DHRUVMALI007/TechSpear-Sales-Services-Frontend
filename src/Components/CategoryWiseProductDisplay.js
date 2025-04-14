@@ -1,31 +1,32 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useContext } from 'react';
 import { Link } from 'react-router-dom';
 import displayINRCurrency from '../Helpers/displayCurrency';
-import addToCart from '../Helpers/addToCart';
 import scrollTop from '../Helpers/scrollTop';
 import axios from 'axios';
 import useAddToCart from '../Helpers/addToCart';
+import { ThemeContext } from '../Helpers/ThemeContext'; // ✅ import ThemeContext
 
 const CategroyWiseProductDisplay = ({ category, heading }) => {
   const [data, setData] = useState([]);
-  const [loading, setLoading] = useState(false); 
-    const addToCart = useAddToCart();
+  const [loading, setLoading] = useState(false);
+  const addToCart = useAddToCart();
+  const { isDarkMode } = useContext(ThemeContext); // ✅ get theme state
+
   useEffect(() => {
-    if (!category) return; // Agar category undefined ho to API request avoid karna
+    if (!category) return;
 
     const fetchData = async () => {
-      setLoading(true); // Loading start
+      setLoading(true);
       try {
         const response = await axios.get(
           `http://localhost:5000/api/v1/products/getCategoryBasedProduct?category=${category}`
         );
-
         console.log("API Response categorywiseProd:", response.data.data);
         setData(response.data.data);
       } catch (error) {
         console.error("Error fetching category products:", error);
       } finally {
-        setLoading(false); // ✅ Loading stop
+        setLoading(false);
       }
     };
 
@@ -37,36 +38,37 @@ const CategroyWiseProductDisplay = ({ category, heading }) => {
   };
 
   return (
-    <div className="container mx-auto px-4 my-6 relative">
+    <div className={`container mx-auto px-4 my-6 relative ${isDarkMode ? "bg-gray-900 text-white" : "bg-white text-black"}`}>
       <h2 className="text-2xl font-semibold py-4">{heading}</h2>
 
       {/*Loading Indicator */}
       {loading ? (
         <p className="text-center text-gray-500">Loading products...</p>
       ) : (
-        <div className="grid grid-cols-[repeat(auto-fit,minmax(300px,320px))] gap-6 overflow-x-scroll scrollbar-none">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4  gap-6">
           {data.length > 0 ? (
             data.map((product) => (
               <Link
                 to={`/product/${product._id}`}
-                className="w-full bg-white rounded-sm shadow"
+                className={`w-full rounded-sm shadow transition-all duration-300
+                  ${isDarkMode ? "bg-gray-800 hover:shadow-gray-600" : "bg-white hover:shadow-md"}`}
                 onClick={scrollTop}
                 key={product._id}
               >
-                <div className="bg-slate-200 h-48 p-4 flex justify-center items-center">
+                <div className={`h-48 p-4 flex justify-center items-center ${isDarkMode ? "bg-gray-700" : "bg-slate-200"}`}>
                   <img
                     src={product.mainProductImg}
                     alt={product.productName}
-                    className="object-scale-down h-full hover:scale-110 transition-all"
+                    className="object-scale-down h-full hover:scale-110 transition-transform"
                   />
                 </div>
                 <div className="p-4 grid gap-3">
-                  <h2 className="font-medium text-base md:text-lg text-black">
+                  <h2 className="font-medium text-base md:text-lg">
                     {product.productName}
                   </h2>
-                  <p className="capitalize text-slate-500">{product.category}</p>
+                  <p className="capitalize text-slate-400">{product.category}</p>
                   <div className="flex gap-3">
-                    <p className="text-red-600 font-medium">
+                    <p className="text-red-500 font-medium">
                       {displayINRCurrency(product.price)}
                     </p>
                     <p className="text-slate-500 line-through">

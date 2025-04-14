@@ -107,84 +107,84 @@ export default function ShoppingCart() {
 
         ) : (
           <form className="mt-12">
-            <section aria-labelledby="cart-heading">
-              <ul className={`divide-y border-b border-t ${isDarkMode ? "divide-gray-700 border-gray-700" : "divide-gray-200 border-gray-200"}`}>
-                {cartItems?.data?.cartItem?.items?.map((product) => (
-                  <li key={product.productId?._id} className="flex flex-col sm:flex-row py-6">
+             <section aria-labelledby="cart-heading">
+  <ul className={`divide-y border-b border-t ${isDarkMode ? "divide-gray-700 border-gray-700" : "divide-gray-200 border-gray-200"}`}>
+    {cartItems?.data?.cartItem?.items?.map((product) => (
+      <li key={product.productId?._id} className="grid grid-cols-1 sm:grid-cols-12 py-6 px-4 sm:px-6 gap-4">
 
-                    {/* Product Image */}
-                    <div className="shrink-0 mx-auto sm:mx-0">
-                      <img
-                        alt={product.productId?.productName || "Product image"}
-                        src={product.productId?.mainProductImg}
-                        className="size-24 sm:size-32 rounded-md object-cover"
-                      />
-                    </div>
+        {/* Product Image */}
+        <div className="col-span-1 sm:col-span-3 mx-auto sm:mx-0">
+          <img
+            alt={product.productId?.productName || "Product image"}
+            src={product.productId?.mainProductImg}
+            className="w-full h-full rounded-md object-cover"
+          />
+        </div>
 
-                    {/* Product Details */}
-                    <div className="ml-0 sm:ml-6 flex flex-1 flex-col">
-                      <Link to={`/product/${product.productId?._id}`} className="block">
-                        <div className="flex justify-between items-center">
-                          <h4 className={`text-sm font-medium ${isDarkMode ? "text-gray-300 hover:text-white" : "text-gray-700 hover:text-gray-800"}`}>
-                            {product.productId?.productName}
-                          </h4>
-                          <p className={`ml-4 text-sm font-medium ${isDarkMode ? "text-gray-100" : "text-gray-900"}`}>
-                            {displayINRCurrency(product.productId?.price?.toFixed(2))}
-                          </p>
-                        </div>
-                      </Link>
+        {/* Product Details */}
+        <div className="col-span-1 sm:col-span-9 flex flex-col">
+          <Link to={`/product/${product.productId?._id}`} className="block">
+            <div className="flex justify-between items-center">
+              <h4 className={`text-sm font-medium ${isDarkMode ? "text-gray-300 hover:text-white" : "text-gray-700 hover:text-gray-800"}`}>
+                {product.productId?.productName}
+              </h4>
+              <p className={`ml-4 text-sm font-medium ${isDarkMode ? "text-gray-100" : "text-gray-900"}`}>
+                {displayINRCurrency(product.productId?.price?.toFixed(2))}
+              </p>
+            </div>
+          </Link>
 
-                      {/* Stock & Quantity Section */}
-                      <div className="mt-4 flex items-center justify-between space-x-4">
+          {/* Stock & Quantity Section */}
+          <div className="mt-4 flex items-center justify-between space-x-4">
 
-                        {/* Stock Status */}
-                        <p className="flex items-center text-sm">
-                          {product.quantity <= product.productId?.stock ? (
-                            <CheckIcon className="h-5 w-5 text-green-500" />
-                          ) : (
-                            <ClockIcon className="h-5 w-5 text-gray-400" />
-                          )}
-                          <span className={`ml-2 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}>
-                            {product.quantity <= product.productId?.stock ? "In stock" : "Out of stock"}
-                          </span>
-                        </p>
+            {/* Stock Status */}
+            <p className="flex items-center text-sm">
+              {product.quantity <= product.productId?.stock ? (
+                <CheckIcon className="h-5 w-5 text-green-500" />
+              ) : (
+                <ClockIcon className="h-5 w-5 text-gray-400" />
+              )}
+              <span className={`ml-2 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}>
+                {product.quantity <= product.productId?.stock ? "In stock" : "Out of stock"}
+              </span>
+            </p>
 
-                        {/* Quantity Selector */}
-                        <div className={`flex items-center rounded-md ${isDarkMode ? "bg-gray-800 text-gray-300" : "bg-gray-200 text-gray-700"}`}>
-                          <button
-                            type="button"
-                            onClick={() => updateQuantity(product?.productId?._id, product.quantity - 1)}
-                            className="px-3 py-1 hover:bg-gray-400 rounded-l-md"
-                          >
-                            -
-                          </button>
-                          <span className="px-4 text-sm font-medium">
-                            {product.quantity}
-                          </span>
-                          <button
-                            type="button"
-                            onClick={() => updateQuantity(product?.productId?._id, product.quantity + 1)}
-                            className="px-3 py-1 hover:bg-gray-400 rounded-r-md"
-                          >
-                            +
-                          </button>
-                        </div>
+            {/* Quantity Selector */}
+            <div className={`flex items-center rounded-md ${isDarkMode ? "bg-gray-800 text-gray-300" : "bg-gray-200 text-gray-700"}`}>
+              <button
+                type="button"
+                onClick={() => updateQuantity(product?.productId?._id, product.quantity - 1)}
+                className="px-3 py-1 hover:bg-gray-400 rounded-l-md"
+              >
+                -
+              </button>
+              <span className="px-4 text-sm font-medium">
+                {product.quantity}
+              </span>
+              <button
+                type="button"
+                onClick={() => updateQuantity(product?.productId?._id, product.quantity + 1)}
+                className="px-3 py-1 hover:bg-gray-400 rounded-r-md"
+              >
+                +
+              </button>
+            </div>
 
-                        {/* Remove Button */}
-                        <button
-                          type="button"
-                          onClick={() => removeItem(product.productId?._id)}
-                          className="text-sm font-medium text-red-500 hover:text-red-400"
-                        >
-                          Remove
-                        </button>
+            {/* Remove Button */}
+            <button
+              type="button"
+              onClick={() => removeItem(product.productId?._id)}
+              className="text-sm font-medium text-red-500 hover:text-red-400"
+            >
+              Remove
+            </button>
 
-                      </div>
-                    </div>
-                  </li>
-                ))}
-              </ul>
-            </section>
+          </div>
+        </div>
+      </li>
+    ))}
+  </ul>
+</section>
 
 
             {/* Order Summary */}

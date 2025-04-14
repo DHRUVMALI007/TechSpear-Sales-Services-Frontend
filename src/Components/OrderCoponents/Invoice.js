@@ -1,7 +1,7 @@
 import React, { useRef } from "react";
 import jsPDF from "jspdf";
 import html2canvas from "html2canvas";
-import Logo from "../Logo";
+import logo from "../logo.png"
 import moment from "moment";
 import displayINRCurrency from "../../Helpers/displayCurrency";
 
@@ -54,8 +54,8 @@ export default function Invoice({ order, onClose, isDarkMode }) {
         {/* Company Header */}
         <div className="flex justify-between items-center border-b pb-4 mb-4">
           <div>
-            <Logo className="h-12 w-auto" />
-            <h1 className="text-lg font-bold">TechSpehar</h1>
+          <img src={logo} alt="Company Logo" className="h-20 w-auto" />
+          <h1 className="text-lg font-bold">TechSpehar</h1>
             <p className="text-sm">1234 Street Name, City, Country</p>
             <p className="text-sm">Phone: +123456789 | Email: support@techspehar.com</p>
           </div>

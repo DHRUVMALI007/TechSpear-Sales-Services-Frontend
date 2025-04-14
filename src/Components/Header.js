@@ -67,29 +67,29 @@ const Header = () => {
 
   const searchBoxRef = useRef();
 
-useEffect(() => {
-  const handleClickOutside = (event) => {
-    if (searchBoxRef.current && !searchBoxRef.current.contains(event.target)) {
-      setSearchResults([]);
-    }
-  };
-  document.addEventListener("mousedown", handleClickOutside);
-  return () => {
-    document.removeEventListener("mousedown", handleClickOutside);
-  };
-}, []);
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (searchBoxRef.current && !searchBoxRef.current.contains(event.target)) {
+        setSearchResults([]);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
 
-useEffect(() => {
-  const delayDebounce = setTimeout(() => {
-    if (searchQuery.trim() !== "") {
-      fetchSearchProduct();
-    } else {
-      setSearchResults([]);
-    }
-  }, 300);
+  useEffect(() => {
+    const delayDebounce = setTimeout(() => {
+      if (searchQuery.trim() !== "") {
+        fetchSearchProduct();
+      } else {
+        setSearchResults([]);
+      }
+    }, 300);
 
-  return () => clearTimeout(delayDebounce);
-}, [searchQuery]);
+    return () => clearTimeout(delayDebounce);
+  }, [searchQuery]);
 
 
 
@@ -156,7 +156,7 @@ useEffect(() => {
         className={`sticky top-0 left-0 z-[100] w-full h-auto md:h-24 lg:h-28 transition duration-200 ${isDarkMode ? "bg-gray-900 text-white shadow-lg" : "bg-white text-gray-800 shadow-md"
           } ${isScrolled ? "shadow-lg" : ""}`}
       >
-        <div className="lg:container mx-auto flex items-center justify-between py-2 px-2 md:px-8 text-lg font-semibold">
+        <div className="xl:container mx-auto flex items-center justify-between py-2 px-2 md:px-8 text-lg font-semibold">
           {/* Logo */}
           <div className="flex items-center">
             <Link to="/">
@@ -267,9 +267,12 @@ useEffect(() => {
       {/* Sidebar (Mobile Menu) */}
       <div
         className={`fixed left-0 top-28 w-64 h-[calc(100vh-7rem)] z-[90] shadow-md transition-transform duration-300
-         ${isDarkMode ? "bg-gray-900 text-white" : "bg-white text-gray-800"} 
-         ${isMobileMenuOpen ? "translate-x-0" : "-translate-x-full"}`}
+    ${isDarkMode ? "bg-gray-900 text-white" : "bg-white text-gray-800"}
+    ${isMobileMenuOpen ? "translate-x-0" : "-translate-x-full"}
+    lg:hidden`}
       >
+
+
         {/* Sidebar Header */}
         <div className="flex justify-between items-center p-4 border-b">
           <h2 className="text-xl font-semibold">Menu</h2>
@@ -301,6 +304,49 @@ useEffect(() => {
           ) : (
             <Link to="/login" className="hover:text-blue-500" onClick={() => setIsMobileMenuOpen(false)}>Login</Link>
           )}
+
+          <div
+            ref={searchBoxRef}
+            className="relative flex items-center w-full max-w-full border rounded-full focus-within:shadow pl-2 mt-4"
+          >
+            <input
+              type="search"
+              placeholder="Search Here..."
+              value={searchQuery}
+              onChange={handleSearchInputChange}
+              className="w-full outline-none px-2 py-1 bg-transparent"
+            />
+            <button
+              className="text-lg min-w-[50px] h-8 bg-blue-500 hover:bg-blue-600 flex items-center justify-center rounded-r-full text-white"
+              onClick={(e) => {
+                e.preventDefault();
+                fetchSearchProduct();
+              }}
+            >
+              <SiSearxng />
+            </button>
+
+            {/* Search Suggestions */}
+            {searchQuery && searchResults.length > 0 && (
+              <div className="absolute top-full left-0 w-full max-h-[300px] overflow-y-auto bg-white text-black shadow-lg z-[999] rounded-md mt-1">
+                {searchResults.map((product) => (
+                  <div
+                    key={product._id}
+                    className="p-3 hover:bg-gray-100 cursor-pointer border-b"
+                    onClick={() => {
+                      navigate(`/product/${product._id}`);
+                      setSearchQuery(""); // clear query after navigating
+                      setSearchResults([]); // clear results
+                    }}
+                  >
+                    <div className="font-semibold">{product.productName}</div>
+                    <div className="text-sm text-gray-500">₹{product.price}</div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
         </nav>
 
         {/* Dark Mode Toggle */}

@@ -77,7 +77,7 @@ export default function OrderHistory() {
   }, [dispatch])
 
   console.log('Your orderes ', orders)
-  console.log('order len ',orders?.length)
+  console.log('order len ', orders?.length)
 
   return (
     <div className={`${isDarkMode ? "bg-gray-800 text-white" : "bg-slate-200 text-black"} transition-colors duration-300 mb-32`}>
@@ -107,22 +107,32 @@ export default function OrderHistory() {
                   key={order?._id}
                   className="border-b border-t border-gray-200 bg-white shadow-sm sm:rounded-lg sm:border"
                 >
-                 
+
 
                   <div className={`flex items-center border-b p-4 sm:grid sm:grid-cols-4 sm:gap-x-6 sm:p-6 
                 ${isDarkMode ? " text-gray-400 bg-gray-900" : "border-gray-400 text-black bg-white"}`}
                   >
-                    <dl className={`grid w-full text-sm sm:grid-cols-[2fr_1fr_1fr_1fr] gap-y-4 gap-x-8 $`}>
+                    <dl className="grid flex-1 grid-cols-2 gap-x-6 text-sm sm:col-span-3 sm:grid-cols-4 lg:col-span-2">
                       {/* Order ID */}
-                      <div className="flex flex-col space-y-1">
+                      <div className="flex flex-col  space-y-1 mt-2">
                         <dt className="font-medium ">Order Id</dt>
-                        <dd className=" break-all truncate">{order?._id || "N/A"}</dd>
+                        <dd
+                          className="break-all truncate cursor-pointer"
+                          title="Copied!"
+                          onMouseEnter={() => {
+                            if (order?._id) {
+                              navigator.clipboard.writeText(order._id);
+                            }
+                          }}
+                        >
+                          {order?._id || "N/A"}
+                        </dd>
                       </div>
 
                       {/* Date Placed */}
-                      <div className="flex flex-col space-y-1">
+                      <div className="flex flex-col space-y-1 mt-2">
                         <dt className="font-medium ">Date placed</dt>
-                        <dd className=" break-all truncate">
+                        <dd className=" mt-1 ">
                           <time dateTime={order?.createdAt}>
                             {order?.createdAt ? moment(order?.createdAt).format("DD-MM-YYYY") : "N/A"}
                           </time>
@@ -130,7 +140,7 @@ export default function OrderHistory() {
                       </div>
 
                       {/* Total Items */}
-                      <div className="flex flex-col space-y-1">
+                      <div className="flex flex-col space-y-1 mt-2">
                         <dt className="font-medium">Total items</dt>
                         <dd className="font-medium ">
                           {order?.orderItems?.length || 0}
@@ -138,7 +148,7 @@ export default function OrderHistory() {
                       </div>
 
                       {/* Total Amount */}
-                      <div className="flex flex-col space-y-1">
+                      <div className="flex flex-col space-y-1 mt-2">
                         <dt className="font-medium">Total Amount</dt>
                         <dd className="font-medium ">
                           {order?.totalAmount}
@@ -149,13 +159,14 @@ export default function OrderHistory() {
 
 
                     {/* Mobile Menu (3-dots button) */}
-                    <Menu as="div" className="relative flex justify-end lg:hidden">
+                    <Menu as="div" className="relative flex justify-end lg:hidden ">
                       <MenuButton className="-m-2 p-2 text-gray-400 hover:text-gray-500">
                         <EllipsisVerticalIcon aria-hidden="true" className="w-6 h-6" />
                       </MenuButton>
 
-                      <MenuItems className={`absolute right-0 z-10 mt-2 w-40 origin-bottom-right rounded-md shadow-lg ring-1 ring-black/5 transition 
-                    ${isDarkMode ? "bg-gray-900 text-white ring-gray-700" : "bg-white text-gray-700"}`}
+                      <MenuItems
+                        className={`absolute right-0 z-10 mt-2 w-40 origin-top-right rounded-md shadow-lg ring-1 ring-black/5 transition 
+      ${isDarkMode ? "bg-gray-900 text-white ring-gray-700" : "bg-white text-gray-700"}`}
                       >
                         <div className="py-1">
                           <MenuItem>
@@ -184,6 +195,7 @@ export default function OrderHistory() {
                       </MenuItems>
                     </Menu>
 
+
                     {/* Desktop Buttons (Invoice & Refund) */}
                     <div className="hidden lg:col-span-2 lg:flex lg:items-center lg:justify-end lg:space-x-4">
                       <button
@@ -211,83 +223,80 @@ export default function OrderHistory() {
                   {/* Products */}
                   <h4 className="sr-only">Items</h4>
                   <ul className={`divide-y divide-gray-200 ${isDarkMode ? "bg-gray-800" : "bg-white"}`}>
-  {order?.orderItems?.map((itm) => (
-    <li
-      key={itm?._id}
-      className={`p-4 sm:p-6 rounded-lg shadow-md transition-all ${
-        isDarkMode ? "bg-gray-900 text-white" : "bg-white text-black"
-      }`}
-    >
-      {/* Product Image & Details */}
-      <div className="flex items-center sm:items-start">
-        {/* Product Image */}
-        <div className="w-20 h-20 sm:w-40 sm:h-40 shrink-0 overflow-hidden rounded-lg bg-gray-200">
-          <img
-            alt={itm?.product?.productName}
-            src={itm?.product?.mainProductImg}
-            className="w-full h-full object-cover"
-          />
-        </div>
+                    {order?.orderItems?.map((itm) => (
+                      <li
+                        key={itm?._id}
+                        className={`p-4 sm:p-6 rounded-lg shadow-md transition-all ${isDarkMode ? "bg-gray-900 text-white" : "bg-white text-black"
+                          }`}
+                      >
+                        {/* Product Image & Details */}
+                        <div className="flex items-center sm:items-start">
+                          {/* Product Image */}
+                          <div className="w-20 h-20 sm:w-40 sm:h-40 shrink-0 overflow-hidden rounded-lg bg-gray-200">
+                            <img
+                              alt={itm?.product?.productName}
+                              src={itm?.product?.mainProductImg}
+                              className="w-full h-full object-cover"
+                            />
+                          </div>
 
-        {/* Product Info */}
-        <div className="ml-6 flex-1 text-sm">
-          <div className="font-medium sm:flex sm:justify-between">
-            <h5 className={`${isDarkMode ? "text-gray-100" : "text-gray-900"}`}>
-              {itm?.product?.productName || "Unknown Product"}
-            </h5>
-            <p className={`mt-2 sm:mt-0 ${isDarkMode ? "text-gray-300" : "text-gray-600"}`}>
-              ₹{itm?.product?.price || "N/A"}
-            </p>
-          </div>
-          <p className={`hidden sm:block mt-2 ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>
-            {itm?.product?.description || "No description available."}
-          </p>
-        </div>
-      </div>
+                          {/* Product Info */}
+                          <div className="ml-6 flex-1 text-sm">
+                            <div className="font-medium sm:flex sm:justify-between">
+                              <h5 className={`${isDarkMode ? "text-gray-100" : "text-gray-900"}`}>
+                                {itm?.product?.productName || "Unknown Product"}
+                              </h5>
+                              <p className={`mt-2 sm:mt-0 ${isDarkMode ? "text-gray-300" : "text-gray-600"}`}>
+                                ₹{itm?.product?.price || "N/A"}
+                              </p>
+                            </div>
+                            <p className={`hidden sm:block mt-2 ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>
+                              {itm?.product?.description || "No description available."}
+                            </p>
+                          </div>
+                        </div>
 
-      {/* Delivery Status + Action Buttons */}
-      <div className="mt-6 sm:flex sm:justify-between items-center">
-        {/* Delivered Status */}
-        <div className="flex items-center">
-          <CheckCircleIcon className="w-5 h-5 text-green-500" />
-          <p className="ml-2 text-sm font-medium">
-            Delivered on{" "}
-            <time dateTime={order?.deliveredDatetime}>{order?.deliveredDate || "N/A"}</time>
-          </p>
-        </div>
+                        {/* Delivery Status + Action Buttons */}
+                        <div className="mt-6 sm:flex sm:justify-between items-center">
+                          {/* Delivered Status */}
+                          <div className="flex items-center">
+                            <CheckCircleIcon className="w-5 h-5 text-green-500" />
+                            <p className="ml-2 text-sm font-medium">
+                              Delivered on{" "}
+                              <time dateTime={order?.deliveredDatetime}>{order?.deliveredDate || "N/A"}</time>
+                            </p>
+                          </div>
 
-        {/* Buttons */}
-        <div className="mt-4 sm:mt-0 flex flex-col sm:flex-row gap-2">
-          {/* View Product */}
-          <Link
-            // href={`product/${itm?.product?._id}` || "#"}
-          //navigat on click 
-          to={`/product/${itm?.product?._id}`}
-            className={`px-4 py-2 rounded-md shadow-sm transition ${
-              isDarkMode
-                ? "bg-gray-700 text-white hover:bg-gray-600"
-                : "bg-indigo-500 text-white hover:bg-indigo-600"
-            }`}
-          >
-            View Product
-          </Link>
+                          {/* Buttons */}
+                          <div className="mt-4 sm:mt-0 flex flex-col sm:flex-row gap-2">
+                            {/* View Product */}
+                            <Link
+                              // href={`product/${itm?.product?._id}` || "#"}
+                              //navigat on click 
+                              to={`/product/${itm?.product?._id}`}
+                              className={`px-4 py-2 rounded-md shadow-sm transition ${isDarkMode
+                                ? "bg-gray-700 text-white hover:bg-gray-600"
+                                : "bg-indigo-500 text-white hover:bg-indigo-600"
+                                }`}
+                            >
+                              View Product
+                            </Link>
 
-          {/* Buy Again */}
-          <a
-            href="/"
-            className={`px-4 py-2 rounded-md shadow-sm transition ${
-              isDarkMode
-                ? "bg-gray-800 text-white hover:bg-gray-700"
-                : "bg-gray-200 text-gray-700 hover:bg-gray-300"
-            }`}
-          >
-            Buy Again
-          </a>
-        </div>
-      </div>
-    </li>
-  ))}
-</ul>
+                            {/* Buy Again */}
+                            {/* <a
+                              href="/"
+                              className={`px-4 py-2 rounded-md shadow-sm transition ${isDarkMode
+                                ? "bg-gray-800 text-white hover:bg-gray-700"
+                                : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+                                }`}
+                            >
+                              Buy Again
+                            </a> */}
+                          </div>
+                        </div>
+                      </li>
+                    ))}
+                  </ul>
 
                 </div>
 

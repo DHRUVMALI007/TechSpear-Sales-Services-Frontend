@@ -50,8 +50,8 @@ console.log("MYHOME PROUDUCT",product)
         <HorizontalCardProduct heading={"Gaming"} category={"gaming"}></HorizontalCardProduct> 
         <HorizontalCardProduct heading={"Graphic Card"} category={"graphic card"}></HorizontalCardProduct> 
         <HorizontalCardProduct heading={"Accesories"} category={"accesories"}></HorizontalCardProduct> 
-        <HorizontalCardProduct heading={"Pen Drive"} category={"pen drive"}></HorizontalCardProduct> 
-        <HorizontalCardProduct heading={"Monitor"} category={"monitor"}></HorizontalCardProduct> 
+        {/* <HorizontalCardProduct heading={"Pen Drive"} category={"pen drive"}></HorizontalCardProduct> 
+        <HorizontalCardProduct heading={"Monitor"} category={"monitor"}></HorizontalCardProduct>  */}
 
         
        
