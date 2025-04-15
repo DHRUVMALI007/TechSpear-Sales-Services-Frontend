@@ -4,6 +4,8 @@ import { BuildingOffice2Icon, EnvelopeIcon, CheckCircleIcon } from "@heroicons/r
 import { motion, AnimatePresence } from "framer-motion";
 import Footer from "../Components/Footer";
 import clsx from "clsx";
+import axios from "axios";
+import { toast } from "react-toastify";
 
 const ContactUs = () => {
   const { isDarkMode } = useContext(ThemeContext);
@@ -16,19 +18,31 @@ const ContactUs = () => {
   };
 
   // Handle form submission
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    setIsSubmitted(true);
-
-    // Clear form fields
-    setFormData({ firstName: "", lastName: "", email: "", message: "" });
-
-    // Hide success message after 5 seconds
-    setTimeout(() => {
-      setIsSubmitted(false);
-    }, 5000);
+  
+    try {
+      const res = await axios.post("http://localhost:5000/contactus",formData,{
+        headers:{
+          "Content-Type":"application/json"
+        }
+      })
+      console.log(res?.data)
+  
+      if (res.status==200) {
+        setIsSubmitted(true);
+        setFormData({ firstName: "", lastName: "", email: "", message: "" });
+        toast.success(res?.data?.message)
+        // Hide success message after 5 seconds
+        setTimeout(() => {
+          setIsSubmitted(false);
+        }, 5000);
+      }
+    } catch (error) {
+      console.error("Error:", error);
+    }
   };
-
+  
   return (
     <div className={clsx("relative py-12 sm:py-16 lg:py-20 transition-colors duration-300", isDarkMode ? "bg-gray-900 text-white" : "bg-white text-gray-900")}>
       <div className="mx-auto max-w-7xl px-6 lg:px-8">

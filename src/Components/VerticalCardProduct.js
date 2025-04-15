@@ -2,6 +2,7 @@ import React, { useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import { ThemeContext } from "../Helpers/ThemeContext";
 import useAddToCart from "../Helpers/addToCart";
+import displayINRCurrency from "../Helpers/displayCurrency";
 
 export default function ProductGrid({ data, className }) {
   const { isDarkMode } = useContext(ThemeContext);
@@ -42,7 +43,7 @@ export default function ProductGrid({ data, className }) {
                   <p className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>
                     {product.category}
                   </p>
-                  <p className="text-lg font-bold mt-2">{product.price}</p>
+                  <p className="text-lg font-bold mt-2">{ displayINRCurrency(product.price)}</p>
                 </div>
 
                 {/* Button */}
