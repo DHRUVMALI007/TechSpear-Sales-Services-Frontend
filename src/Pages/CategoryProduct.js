@@ -33,8 +33,8 @@ const CategoryProduct = () => {
                             sortBy === "asc"
                                 ? "LowToHigh"
                                 : sortBy === "dsc"
-                                ? "HighToLow"
-                                : "",
+                                    ? "HighToLow"
+                                    : "",
                     },
                     {
                         withCredentials: true,
@@ -74,11 +74,10 @@ const CategoryProduct = () => {
                     <HiFilter size={20} /> Filters
                 </button>
                 <select
-                    className={`border px-3 py-2 rounded-md text-sm ${
-                        isDarkMode
-                            ? "bg-gray-800 border-gray-600 text-white"
-                            : "bg-white border-gray-300 text-gray-700"
-                    }`}
+                    className={`border px-3 py-2 rounded-md text-sm ${isDarkMode
+                        ? "bg-gray-800 border-gray-600 text-white"
+                        : "bg-white border-gray-300 text-gray-700"
+                        }`}
                     onChange={(e) => setSortBy(e.target.value)}
                 >
                     <option value="">Sort By</option>
@@ -90,12 +89,15 @@ const CategoryProduct = () => {
             <div className="grid grid-cols-1 gap-4 lg:grid-cols-[250px,1fr]">
                 <div
                     className={`
-                        p-4 border rounded-md fixed left-0 h-full w-[80%] max-w-[300px] z-50 shadow-lg pt-16
-                        ${isDarkMode ? "bg-gray-800 border-gray-600 text-white" : "bg-white border-gray-300 text-gray-800"}
-                        ${showFilters ? "translate-x-0 top-[60px]" : "-translate-x-full"}
-                        lg:translate-x-0 lg:static lg:w-full lg:pt-0
-                    `}
+        p-4 border rounded-md
+        fixed left-0 h-full w-[80%] max-w-[300px] z-50 shadow-lg pt-16
+        ${isDarkMode ? "bg-gray-800 border-gray-600 text-white" : "bg-white border-gray-300 text-gray-800"}
+        ${showFilters ? "translate-x-0 top-[60px]" : "-translate-x-full"}
+        lg:translate-x-0 lg:static lg:w-full lg:pt-0
+        lg:sticky lg:top-[80px] lg:h-[calc(100vh-80px)] lg:overflow-y-auto
+    `}
                 >
+
                     {showFilters && (
                         <div className="flex justify-between items-center lg:hidden">
                             <h3 className="text-lg font-semibold mb-2">Filters</h3>
@@ -106,9 +108,8 @@ const CategoryProduct = () => {
                     )}
                     <div>
                         <h3
-                            className={`text-base uppercase font-medium pb-1 border-b ${
-                                isDarkMode ? "text-gray-300 border-gray-500" : "text-gray-600 border-gray-300"
-                            }`}
+                            className={`text-base uppercase font-medium pb-1 border-b ${isDarkMode ? "text-gray-300 border-gray-500" : "text-gray-600 border-gray-300"
+                                }`}
                         >
                             Category
                         </h3>
@@ -135,9 +136,9 @@ const CategoryProduct = () => {
                     </div>
                 </div>
 
-                <div>
+                <div className="lg:pl-4 max-h-[calc(100vh-80px)] overflow-y-auto scrollbar-hide">
                     <p className="font-medium text-lg my-2">Search Results: {data?.length}</p>
-                    <div className="mx-20">
+                    <div className="mx-4 lg:mx-0">
                         <div className="w-full flex gap-4 flex-wrap">
                             {data.length !== 0 ? (
                                 <VerticalCard data={data} className="w-full h-auto" />
@@ -147,6 +148,8 @@ const CategoryProduct = () => {
                         </div>
                     </div>
                 </div>
+
+
             </div>
         </div>
     );

@@ -63,7 +63,7 @@ const Dashboard = () => {
                 mostSoldProducts,
             });
 
-            toast.success(res?.message);
+            // toast.success(res?.message);
         } catch (er) {
             toast.error(er);
             console.log(er);
@@ -75,7 +75,7 @@ const Dashboard = () => {
         try {
             const response = await dispatch(getAllReview()).unwrap();
             setRev(response?.data);
-            toast.success(response?.message);
+            // toast.success(response?.message);
         } catch (er) {
             toast.error(er);
             console.log(er);

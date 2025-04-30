@@ -28,7 +28,10 @@ const ProductDetails = () => {
   const getProductRev = async () => {
     try {
       const response = await dispatch(getReviewByProductId({ productId: id })).unwrap();
+      console.log("Review response",response?.data)
       setProductRev(response?.data);
+      console.log("len is ",response?.data?.length)
+      
       toast.success(response?.message);
     } catch (er) {
       toast.error(er);
@@ -38,7 +41,7 @@ const ProductDetails = () => {
 
   useEffect(() => {
     getProductRev();
-  }, [dispatch]);
+  }, [dispatch,id]);
 
   // Fetch product details and set main image
   useEffect(() => {
@@ -46,6 +49,7 @@ const ProductDetails = () => {
       const res = await dispatch(getSingleProductDetails(id));
       if (res.payload?.data) {
         const product = res.payload.data;
+        console.log("MY detailed Product ",product);
         setData(product);
         setActiveImage(product.mainProductImg || "");
         toast.success(res.payload?.message);
@@ -139,7 +143,7 @@ const ProductDetails = () => {
             {/* Total Reviews */}
             <div className="flex items-center gap-1 text-red-500 mt-2">
               <span className="ml-2 text-sm text-gray-400">
-                {data?.numOfReviews === 0 ? "No Review Yet." : `Total Reviews: ${data?.numOfReviews}`}
+                {productRev?.length === 0 ? "No Review Yet." : `Total Reviews: ${productRev?.length}`}
               </span>
             </div>
 

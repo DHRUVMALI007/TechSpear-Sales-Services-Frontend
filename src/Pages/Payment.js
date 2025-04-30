@@ -170,13 +170,15 @@ export default function Example() {
           theme: {
             color: "dark",
           },
+          method: {
+            upi: true, // <<== add this line
+          },
+          upi: {
+            flow: "collect", // force UPI ID entry
+          },
         };
-
         const razorpayInstance = new window.Razorpay(options);
         razorpayInstance.open();
-
-
-
       }
       catch (er) {
         toast.error(er)

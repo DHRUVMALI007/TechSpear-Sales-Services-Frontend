@@ -200,10 +200,10 @@ const Header = () => {
                     <div
                       key={product._id}
                       className="p-3 hover:bg-gray-100 cursor-pointer border-b"
-                      onClick={() => {
+                      onMouseDown={() => {
                         navigate(`/product/${product._id}`);
-                        setSearchQuery(""); // clear query after navigating
-                        setSearchResults([]); // clear results
+                        setSearchQuery("");
+                        setSearchResults([]);
                       }}
                     >
                       <div className="font-semibold">{product.productName}</div>

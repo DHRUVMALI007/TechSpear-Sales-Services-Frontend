@@ -112,16 +112,17 @@ export default function OrderHistory() {
                   <div className={`flex items-center border-b p-4 sm:grid sm:grid-cols-4 sm:gap-x-6 sm:p-6 
                 ${isDarkMode ? " text-gray-400 bg-gray-900" : "border-gray-400 text-black bg-white"}`}
                   >
-                    <dl className="grid flex-1 grid-cols-2 gap-x-6 text-sm sm:col-span-3 sm:grid-cols-4 lg:col-span-2">
-                      {/* Order ID */}
-                      <div className="flex flex-col  space-y-1 mt-2">
-                        <dt className="font-medium ">Order Id</dt>
+                    <dl className="flex flex-col gap-y-4 text-sm sm:grid sm:grid-cols-4 sm:gap-x-6 sm:col-span-3 lg:col-span-2">
+                      {/* Order ID - full width */}
+                      <div className="flex flex-col space-y-1 sm:col-span-4">
+                        <dt className="font-medium">Order Id</dt>
                         <dd
-                          className="break-all truncate cursor-pointer"
-                          title="Copied!"
-                          onMouseEnter={() => {
+                          className="break-all cursor-pointer"
+                          title="Click to copy"
+                          onClick={() => {
                             if (order?._id) {
                               navigator.clipboard.writeText(order._id);
+                              toast.success("Copied Order Id");
                             }
                           }}
                         >
@@ -130,9 +131,9 @@ export default function OrderHistory() {
                       </div>
 
                       {/* Date Placed */}
-                      <div className="flex flex-col space-y-1 mt-2">
-                        <dt className="font-medium ">Date placed</dt>
-                        <dd className=" mt-1 ">
+                      <div className="flex flex-col space-y-1">
+                        <dt className="font-medium">Date placed</dt>
+                        <dd className="mt-1">
                           <time dateTime={order?.createdAt}>
                             {order?.createdAt ? moment(order?.createdAt).format("DD-MM-YYYY") : "N/A"}
                           </time>
@@ -140,21 +141,22 @@ export default function OrderHistory() {
                       </div>
 
                       {/* Total Items */}
-                      <div className="flex flex-col space-y-1 mt-2">
+                      <div className="flex flex-col space-y-1">
                         <dt className="font-medium">Total items</dt>
-                        <dd className="font-medium ">
+                        <dd className="font-medium">
                           {order?.orderItems?.length || 0}
                         </dd>
                       </div>
 
                       {/* Total Amount */}
-                      <div className="flex flex-col space-y-1 mt-2">
+                      <div className="flex flex-col space-y-1">
                         <dt className="font-medium">Total Amount</dt>
-                        <dd className="font-medium ">
-                          {order?.totalAmount}
+                        <dd className="font-medium">
+                          ₹{order?.totalAmount}
                         </dd>
                       </div>
                     </dl>
+
 
 
 
@@ -257,16 +259,8 @@ export default function OrderHistory() {
                         </div>
 
                         {/* Delivery Status + Action Buttons */}
-                        <div className="mt-6 sm:flex sm:justify-between items-center">
-                          {/* Delivered Status */}
-                          <div className="flex items-center">
-                            <CheckCircleIcon className="w-5 h-5 text-green-500" />
-                            <p className="ml-2 text-sm font-medium">
-                              Delivered on{" "}
-                              <time dateTime={order?.deliveredDatetime}>{order?.deliveredDate || "N/A"}</time>
-                            </p>
-                          </div>
-
+                        <div className="mt-6 sm:flex sm:justify-end items-center">
+                        
                           {/* Buttons */}
                           <div className="mt-4 sm:mt-0 flex flex-col sm:flex-row gap-2">
                             {/* View Product */}
