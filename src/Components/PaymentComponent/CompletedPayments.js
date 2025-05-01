@@ -9,7 +9,7 @@ const CompletedPayments = ({ payments }) => {
       <div className="overflow-x-auto">
         <table className="min-w-full border border-gray-300">
           <thead>
-            <tr className="bg-gray-200">
+            <tr className="bg-slate-900 text-white">
               <th className="px-4 py-2 border">Date</th>
               <th className="px-4 py-2 border">Order ID</th>
               <th className="px-4 py-2 border">Customer</th>

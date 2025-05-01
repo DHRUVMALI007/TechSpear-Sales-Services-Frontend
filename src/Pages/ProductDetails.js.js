@@ -32,7 +32,6 @@ const ProductDetails = () => {
       setProductRev(response?.data);
       console.log("len is ",response?.data?.length)
       
-      toast.success(response?.message);
     } catch (er) {
       toast.error(er);
       console.log(er);
@@ -52,7 +51,6 @@ const ProductDetails = () => {
         console.log("MY detailed Product ",product);
         setData(product);
         setActiveImage(product.mainProductImg || "");
-        toast.success(res.payload?.message);
       } else {
         toast.error("Failed to fetch product details.");
       }

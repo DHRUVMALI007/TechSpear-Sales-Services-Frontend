@@ -55,7 +55,7 @@ const TransactionHistory = () => {
   }, [dispatch]);
 
   return (
-    <div className={`p-4 sm:p-6 md:p-8 ${isDarkMode ? 'bg-gray-800 text-white' : 'bg-gray-100 text-gray-800'}`}>
+    <div className={`p-4 mb-32 sm:p-6 md:p-8 ${isDarkMode ? 'bg-gray-800 text-white' : 'bg-gray-100 text-gray-800'}`}>
   <h2 className="text-2xl font-bold mb-6 text-center sm:text-left">Transaction History</h2>
 
   {/* Transactions Grid */}
